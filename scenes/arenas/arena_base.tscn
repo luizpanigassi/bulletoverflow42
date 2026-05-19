@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://dhn7t71k0n0r"]
+
+[node name="ArenaBase" type="Node2D"]
+
+[node name="Geometry" type="Node2D" parent="."]
+
+[node name="SpawnPoints" type="Node2D" parent="."]
+
+[node name="KillZones" type="Node2D" parent="."]
+
+[node name="Background" type="Node2D" parent="."]
+
+[node name="Decorations" type="Node2D" parent="."]

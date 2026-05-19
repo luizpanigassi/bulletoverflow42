@@ -1,0 +1,53 @@
+[gd_scene load_steps=5 format=3 uid="uid://dqy308v3kj2br"]
+
+[ext_resource type="PackedScene" uid="uid://dhn7t71k0n0r" path="res://scenes/arenas/arena_base.tscn" id="1_hvy0g"]
+[ext_resource type="PackedScene" uid="uid://b72feymfnik26" path="res://scenes/world/platform.tscn" id="2_tiow5"]
+[ext_resource type="PackedScene" uid="uid://cf6r6iwedm5wa" path="res://scenes/world/spawn_point.tscn" id="3_sx3lf"]
+[ext_resource type="PackedScene" uid="uid://b103ujm2ypd7s" path="res://scenes/world/kill_zone.tscn" id="4_v0nrm"]
+
+[node name="ArenaBase" instance=ExtResource("1_hvy0g")]
+
+[node name="Platform" parent="Geometry" index="0" instance=ExtResource("2_tiow5")]
+position = Vector2(119, 207)
+scale = Vector2(8.48, 1.92)
+
+[node name="Platform2" parent="Geometry" index="1" instance=ExtResource("2_tiow5")]
+position = Vector2(226, 135)
+scale = Vector2(10.8242, 1.39094)
+
+[node name="Platform3" parent="Geometry" index="2" instance=ExtResource("2_tiow5")]
+position = Vector2(351, 210)
+scale = Vector2(6.84, 1.72)
+
+[node name="Platform4" parent="Geometry" index="3" instance=ExtResource("2_tiow5")]
+position = Vector2(32, 57)
+scale = Vector2(8.29952, 1.8209)
+
+[node name="Platform5" parent="Geometry" index="4" instance=ExtResource("2_tiow5")]
+position = Vector2(242, 253)
+scale = Vector2(35.92, 1)
+
+[node name="SpawnPointA" parent="SpawnPoints" index="0" instance=ExtResource("3_sx3lf")]
+position = Vector2(87, 186)
+
+[node name="SpawnPointB" parent="SpawnPoints" index="1" instance=ExtResource("3_sx3lf")]
+position = Vector2(362, 181)
+
+[node name="SpawnPoint" parent="SpawnPoints" index="2" instance=ExtResource("3_sx3lf")]
+position = Vector2(19, 26)
+
+[node name="SpawnPoint2" parent="SpawnPoints" index="3" instance=ExtResource("3_sx3lf")]
+position = Vector2(248, 95)
+
+[node name="SpawnPoint3" parent="SpawnPoints" index="4" instance=ExtResource("3_sx3lf")]
+position = Vector2(-117, 215)
+
+[node name="SpawnPoint4" parent="SpawnPoints" index="5" instance=ExtResource("3_sx3lf")]
+position = Vector2(606, 220)
+
+[node name="SpawnPoint5" parent="SpawnPoints" index="6" instance=ExtResource("3_sx3lf")]
+position = Vector2(241, 217)
+
+[node name="KillZone" parent="." index="5" instance=ExtResource("4_v0nrm")]
+position = Vector2(243, 324)
+scale = Vector2(22.1268, 1.3653)

@@ -1,0 +1,31 @@
+[gd_scene load_steps=4 format=3 uid="uid://bjkw6jbk6w8sk"]
+
+[ext_resource type="PackedScene" uid="uid://caopbqh62ytq5" path="res://scenes/entities/player.tscn" id="1_uwrxv"]
+[ext_resource type="PackedScene" uid="uid://dqy308v3kj2br" path="res://scenes/arenas/arena_test.tscn" id="1_yqjtg"]
+[ext_resource type="Script" uid="uid://bah4epjadpoi" path="res://scripts/system/game_manager.gd" id="3_lnu2h"]
+
+[node name="Game" type="Node2D"]
+
+[node name="World" type="Node2D" parent="."]
+
+[node name="ArenaBase" parent="World" instance=ExtResource("1_yqjtg")]
+position = Vector2(-237, -175)
+
+[node name="SpawnPointA" parent="World/ArenaBase/SpawnPoints" index="0"]
+position = Vector2(59, 174)
+
+[node name="Entities" type="Node2D" parent="."]
+
+[node name="Systems" type="Node" parent="."]
+
+[node name="Managers" type="Node" parent="."]
+
+[node name="GameManager" type="Node" parent="Managers"]
+script = ExtResource("3_lnu2h")
+player_scene = ExtResource("1_uwrxv")
+
+[node name="UI" type="CanvasLayer" parent="."]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+
+[editable path="World/ArenaBase"]
