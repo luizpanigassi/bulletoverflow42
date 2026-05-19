@@ -11,7 +11,12 @@ radius = 11.0
 
 [node name="Player" type="CharacterBody2D" groups=["players"]]
 script = ExtResource("1_ucweq")
+JUMP_FORCE = -600.0
+jump_buffer_duration = 0.15
 projectile_scene = ExtResource("2_1ie0h")
+shoot_cooldown = 0.3
+dash_speed = 500.0
+dash_cooldown = 0.7
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
 position = Vector2(-0.500001, -1)

@@ -8,7 +8,7 @@
 [node name="ArenaBase" instance=ExtResource("1_hvy0g")]
 
 [node name="Platform" parent="Geometry" index="0" instance=ExtResource("2_tiow5")]
-position = Vector2(119, 207)
+position = Vector2(64, 242)
 scale = Vector2(8.48, 1.92)
 
 [node name="Platform2" parent="Geometry" index="1" instance=ExtResource("2_tiow5")]
@@ -16,7 +16,7 @@ position = Vector2(226, 135)
 scale = Vector2(10.8242, 1.39094)
 
 [node name="Platform3" parent="Geometry" index="2" instance=ExtResource("2_tiow5")]
-position = Vector2(351, 210)
+position = Vector2(448, 276)
 scale = Vector2(6.84, 1.72)
 
 [node name="Platform4" parent="Geometry" index="3" instance=ExtResource("2_tiow5")]
@@ -24,7 +24,7 @@ position = Vector2(32, 57)
 scale = Vector2(8.29952, 1.8209)
 
 [node name="Platform5" parent="Geometry" index="4" instance=ExtResource("2_tiow5")]
-position = Vector2(242, 253)
+position = Vector2(242, 364)
 scale = Vector2(35.92, 1)
 
 [node name="SpawnPointA" parent="SpawnPoints" index="0" instance=ExtResource("3_sx3lf")]
@@ -49,5 +49,5 @@ position = Vector2(606, 220)
 position = Vector2(241, 217)
 
 [node name="KillZone" parent="." index="5" instance=ExtResource("4_v0nrm")]
-position = Vector2(243, 324)
+position = Vector2(247, 507)
 scale = Vector2(22.1268, 1.3653)
