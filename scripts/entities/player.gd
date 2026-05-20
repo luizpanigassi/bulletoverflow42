@@ -1,8 +1,11 @@
 extends CharacterBody2D
 
 signal died(player_id: int)
+signal ammo_changed(player_id: int, ammo: int)
 
 @onready var input_handler: Node = $InputHandler
+@onready var reload_fill: ColorRect = $PlayerUI/ReloadBarBackground/ReloadFill
+@onready var reload_bar_background: ColorRect = $PlayerUI/ReloadBarBackground
 
 @export var speed: float = 300.0
 @export var JUMP_FORCE: float = -500.0
@@ -124,6 +127,7 @@ func shoot() -> void:
 	
 	current_ammo -= 1
 	print("Ammo: ", current_ammo)
+	ammo_changed.emit(player_id, current_ammo)
 	
 	projectile.global_position = global_position
 	
@@ -180,12 +184,25 @@ func reload() -> void:
 		
 	is_reloading = true
 	
+	reload_fill.size = Vector2(0, reload_fill.size.y)
+	reload_fill.visible = true
+	reload_bar_background.visible = true
+	
 	print("Reloading...")
-	await get_tree().create_timer(reload_duration).timeout
+	
+	var tween: Tween = create_tween()
+	tween.set_trans(Tween.TRANS_SINE)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.tween_property(reload_fill, "size", Vector2(40, reload_fill.size.y), reload_duration)
+	
+	await tween.finished
 	
 	current_ammo = max_ammo
 	is_reloading = false
+	ammo_changed.emit(player_id, current_ammo)
 	
+	reload_fill.visible = false
+	reload_bar_background.visible = false
 	print("Reloaded!")
 
 func die() -> void:

@@ -37,3 +37,25 @@ position = Vector2(10, 0)
 
 [node name="InputHandler" type="Node" parent="."]
 script = ExtResource("2_08t41")
+
+[node name="PlayerUI" type="Node2D" parent="."]
+
+[node name="ReloadBarBackground" type="ColorRect" parent="PlayerUI"]
+visible = false
+offset_left = -13.0
+offset_top = -21.0
+offset_right = 27.0
+offset_bottom = -15.0
+scale = Vector2(0.616269, 0.478477)
+color = Color(0.219501, 0.219501, 0.219501, 1)
+
+[node name="ReloadFill" type="ColorRect" parent="PlayerUI/ReloadBarBackground"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -3.0
+offset_right = 40.0
+offset_bottom = 3.0
+grow_vertical = 2
+color = Color(0.0605303, 0.0605303, 0.0605303, 1)

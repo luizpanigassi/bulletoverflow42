@@ -1,6 +1,7 @@
 extends Node
 
 @onready var entities: Node2D = $"../../Entities"
+@onready var hud: CanvasLayer = $"../../UI/Hud"
 
 @export var player_scene: PackedScene
 
@@ -18,6 +19,8 @@ func _ready() -> void:
 	for spawn in found_spawns:
 		spawn_points.append(spawn as Marker2D)
 	
+	await hud.ready
+	hud.update_score(scores[1], scores[2])
 	start_round()
 
 func get_random_spawn_positions() -> Array[Marker2D]:
@@ -30,7 +33,9 @@ func spawn_player(player_id: int, spawn_position: Vector2) -> void:
 	player_instance.player_id = player_id
 	player_instance.global_position = spawn_position
 	player_instance.died.connect(_on_player_died)
+	player_instance.ammo_changed.connect(hud.update_ammo)
 	entities.add_child(player_instance)
+	hud.update_ammo(player_id, player_instance.current_ammo)
 
 func _on_player_died(dead_player_id: int) -> void:
 	if not round_active:
@@ -57,6 +62,8 @@ func start_round() -> void:
 func end_round(winner_id: int) -> void:
 	round_active = false
 	scores[winner_id] += 1
+	
+	hud.update_score(scores[1], scores[2])
 	
 	print("Player vencedor: ", winner_id)
 	print(scores)
