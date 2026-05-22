@@ -11,9 +11,13 @@ config_version=5
 [application]
 
 config/name="Bullet Overflow"
-run/main_scene="uid://bjkw6jbk6w8sk"
+run/main_scene="uid://cm12txyyfgnss"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.svg"
+
+[autoload]
+
+MatchData="*res://scripts/system/match_data.gd"
 
 [global_group]
 

@@ -1,0 +1,53 @@
+[gd_resource type="SpriteFrames" load_steps=8 format=3 uid="uid://5bynkm6p5drk"]
+
+[ext_resource type="Texture2D" uid="uid://b0c02umwfu68w" path="res://assets/sprites/the_monk/monk_spritesheet.png" id="1_4r8o8"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_664bv"]
+atlas = ExtResource("1_4r8o8")
+region = Rect2(96, 71, 96, 71)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_yvjh6"]
+atlas = ExtResource("1_4r8o8")
+region = Rect2(384, 71, 96, 71)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qmry8"]
+atlas = ExtResource("1_4r8o8")
+region = Rect2(672, 71, 96, 71)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_scone"]
+atlas = ExtResource("1_4r8o8")
+region = Rect2(960, 71, 96, 71)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qtdhp"]
+atlas = ExtResource("1_4r8o8")
+region = Rect2(1248, 71, 96, 71)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wpfxh"]
+atlas = ExtResource("1_4r8o8")
+region = Rect2(1536, 71, 96, 71)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_664bv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_yvjh6")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qmry8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_scone")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qtdhp")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wpfxh")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 10.0
+}]

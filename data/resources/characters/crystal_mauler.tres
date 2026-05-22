@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="CharacterData" load_steps=5 format=3 uid="uid://dscrb05ovndr4"]
+
+[ext_resource type="Script" uid="uid://dmah7hn6j74rr" path="res://scripts/system/character_data.gd" id="1_2h2ph"]
+[ext_resource type="Script" uid="uid://culsiip4m0cas" path="res://scripts/system/character_animation_offset.gd" id="1_dxb4p"]
+[ext_resource type="SpriteFrames" uid="uid://d3frj4larhrx7" path="res://assets/sprites/crystal_mauler/crystal_mauler.tres" id="2_sutql"]
+
+[sub_resource type="Resource" id="Resource_dxb4p"]
+script = ExtResource("1_dxb4p")
+animation_name = &"idle"
+offset = Vector2(0, -46)
+metadata/_custom_type_script = "uid://culsiip4m0cas"
+
+[resource]
+script = ExtResource("1_2h2ph")
+character_name = "Crytal Mauler"
+sprite_frames = ExtResource("2_sutql")
+animation_offsets = Array[ExtResource("1_dxb4p")]([SubResource("Resource_dxb4p")])
+metadata/_custom_type_script = "uid://dmah7hn6j74rr"

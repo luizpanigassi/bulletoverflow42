@@ -29,8 +29,18 @@ func get_random_spawn_positions() -> Array[Marker2D]:
 	return [shuffled_spawns[0], shuffled_spawns[1]]
 
 func spawn_player(player_id: int, spawn_position: Vector2) -> void:
-	var player_instance: CharacterBody2D = player_scene.instantiate()
+	var player_instance: Player = player_scene.instantiate() as Player
+	if not player_instance:
+		push_error("Player scene did not instantiate as Player")
+		return
+	
 	player_instance.player_id = player_id
+	
+	if player_id == 1:
+		player_instance.character_data = MatchData.p1_character
+	else:
+		player_instance.character_data = MatchData.p2_character
+		
 	player_instance.global_position = spawn_position
 	player_instance.died.connect(_on_player_died)
 	player_instance.ammo_changed.connect(hud.update_ammo)

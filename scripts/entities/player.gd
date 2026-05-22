@@ -1,4 +1,5 @@
 extends CharacterBody2D
+class_name Player
 
 signal died(player_id: int)
 signal ammo_changed(player_id: int, ammo: int)
@@ -6,6 +7,7 @@ signal ammo_changed(player_id: int, ammo: int)
 @onready var input_handler: Node = $InputHandler
 @onready var reload_fill: ColorRect = $PlayerUI/ReloadBarBackground/ReloadFill
 @onready var reload_bar_background: ColorRect = $PlayerUI/ReloadBarBackground
+@onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 @export var speed: float = 300.0
 @export var JUMP_FORCE: float = -500.0
@@ -33,28 +35,20 @@ var is_dashing: bool = false
 var can_dash: bool = true
 var current_ammo: int = 0
 var is_reloading: bool = false
+var character_data: CharacterData
 
 func _ready() -> void:
-	if player_id == 1:
-		input_handler.left_action = "p1_left"
-		input_handler.right_action = "p1_right"
-		input_handler.jump_action = "p1_jump"
-		input_handler.shoot_action = "p1_shoot"
-		input_handler.dash_action = "p1_dash"
-		input_handler.reload_action = "p1_reload"
-		input_handler.up_action = "p1_up"
-		input_handler.down_action = "p1_down"
-	elif player_id == 2:
-		input_handler.left_action = "p2_left"
-		input_handler.right_action = "p2_right"
-		input_handler.jump_action = "p2_jump"
-		input_handler.shoot_action = "p2_shoot"
-		input_handler.dash_action = "p2_dash"
-		input_handler.reload_action = "p2_reload"
-		input_handler.up_action = "p2_up"
-		input_handler.down_action = "p2_down"
-		
+	input_handler.set_player_id(player_id)
 	current_ammo = max_ammo
+	
+	if character_data:
+		animated_sprite.sprite_frames = character_data.sprite_frames
+
+	if not animated_sprite.animation_changed.is_connected(_on_animation_changed):
+		animated_sprite.animation_changed.connect(_on_animation_changed)
+
+	animated_sprite.play("idle")
+	apply_animation_offset(animated_sprite.animation)
 
 func _physics_process(delta: float) -> void:
 	input_handler.process_input()
@@ -68,11 +62,15 @@ func _physics_process(delta: float) -> void:
 	if input_handler.move_input != 0:
 		facing_direction = input_handler.move_input
 	
+	if facing_direction < 0:
+		animated_sprite.flip_h = true
+	else:
+		animated_sprite.flip_h = false
 	if input_handler.jump_pressed:
 		jump_buffer_timer = jump_buffer_duration
 	else:
 		jump_buffer_timer -= delta
-	
+
 	var target_speed: float = input_handler.move_input * speed
 	
 	if not is_on_floor() and not is_dashing:
@@ -208,3 +206,12 @@ func reload() -> void:
 func die() -> void:
 	died.emit(player_id)
 	queue_free()
+
+func _on_animation_changed() -> void:
+	apply_animation_offset(animated_sprite.animation)
+
+func apply_animation_offset(animation_name: StringName) -> void:
+	if character_data:
+		animated_sprite.offset = character_data.get_animation_offset(animation_name)
+	else:
+		animated_sprite.offset = Vector2.ZERO

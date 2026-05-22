@@ -1,13 +1,14 @@
-[gd_scene load_steps=6 format=3 uid="uid://caopbqh62ytq5"]
+[gd_scene load_steps=7 format=3 uid="uid://caopbqh62ytq5"]
 
 [ext_resource type="Script" uid="uid://bmf8uudlfnclx" path="res://scripts/entities/player.gd" id="1_ucweq"]
 [ext_resource type="PackedScene" uid="uid://7ymisuxr0c70" path="res://scenes/entities/projectile_basic.tscn" id="2_1ie0h"]
 [ext_resource type="Script" uid="uid://tsfvcspskld0" path="res://scripts/entities/input_handler.gd" id="2_08t41"]
+[ext_resource type="SpriteFrames" uid="uid://5bynkm6p5drk" path="res://assets/sprites/the_monk/monk.tres" id="4_42nxq"]
 
-[sub_resource type="CanvasTexture" id="CanvasTexture_0qees"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_5u6hq"]
+size = Vector2(18.0869, 33.1092)
 
-[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_0qees"]
-radius = 11.0
+[sub_resource type="CanvasTexture" id="CanvasTexture_yw3xw"]
 
 [node name="Player" type="CharacterBody2D" groups=["players"]]
 script = ExtResource("1_ucweq")
@@ -18,17 +19,15 @@ shoot_cooldown = 0.3
 dash_speed = 500.0
 dash_cooldown = 0.7
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-position = Vector2(-0.500001, -1)
-scale = Vector2(21, 28)
-texture = SubResource("CanvasTexture_0qees")
-
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-shape = SubResource("CapsuleShape2D_0qees")
+position = Vector2(-0.5, -4.5)
+scale = Vector2(1.38222, 1.29873)
+shape = SubResource("RectangleShape2D_5u6hq")
 
 [node name="Hurtbox" type="Area2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+scale = Vector2(5.56678, 1.95802)
 
 [node name="WeaponPivot" type="Node2D" parent="."]
 position = Vector2(10, 0)
@@ -59,3 +58,13 @@ offset_right = 40.0
 offset_bottom = 3.0
 grow_vertical = 2
 color = Color(0.0605303, 0.0605303, 0.0605303, 1)
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(3, 18)
+scale = Vector2(-62.2202, 1.43743)
+texture = SubResource("CanvasTexture_yw3xw")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = ExtResource("4_42nxq")
+animation = &"idle"
+frame_progress = 0.696613
