@@ -1,3 +1,53 @@
 # Godot 4+ specific ignores
 .godot/
 /android/
+
+# Export presets credentials
+export_presets.cfg
+
+# Mono / C#
+.mono/
+data_*/
+mono_crash.*.json
+
+# Build folders
+bin/
+obj/
+
+# Visual Studio / Rider
+.vscode/
+.idea/
+*.csproj
+*.sln
+*.user
+*.dotSettings
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# Godot export files
+*.pck
+*.apk
+*.aab
+*.ipa
+*.exe
+*.x86_64
+*.zip
+
+# Linux binaries
+*.x86_32
+
+# Mac binaries
+*.app
+
+# Web exports
+*.wasm
+*.html
