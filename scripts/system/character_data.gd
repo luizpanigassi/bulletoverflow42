@@ -1,6 +1,7 @@
 extends Resource
 class_name CharacterData
 
+@export var character_id: StringName = &""
 @export var character_name: String
 @export var sprite_frames: SpriteFrames
 @export var animation_offsets: Array[CharacterAnimationOffset] = []

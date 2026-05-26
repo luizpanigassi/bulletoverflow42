@@ -12,6 +12,7 @@ metadata/_custom_type_script = "uid://culsiip4m0cas"
 
 [resource]
 script = ExtResource("1_2h2ph")
+character_id = &"crystal_mauler"
 character_name = "Crytal Mauler"
 sprite_frames = ExtResource("2_sutql")
 animation_offsets = Array[ExtResource("1_dxb4p")]([SubResource("Resource_dxb4p")])

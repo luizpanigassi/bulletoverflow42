@@ -118,8 +118,24 @@ func update_ui() -> void:
 func try_start_match() -> void:
 	if not p1_ready or not p2_ready:
 		return
-		
-	MatchData.p1_character = characters[p1_index]
-	MatchData.p2_character = characters[p2_index]
-	
+
+	var session := SessionConfig.new()
+	session.mode = &"local"
+	session.match_id = &""
+	session.arena_id = &"arena_test"
+	session.session_seed = randi()
+	session.host_id = &""
+	session.players = [
+		_make_player_state(1, characters[p1_index].character_id, true),
+		_make_player_state(2, characters[p2_index].character_id, true),
+	]
+
+	MatchData.session = session
 	get_tree().change_scene_to_file("res://scenes/game.tscn")
+
+func _make_player_state(slot: int, character_id: StringName, is_ready: bool)  -> PlayerSessionState:
+	var state := PlayerSessionState.new()
+	state.slot = slot
+	state.character_id = character_id
+	state.ready = is_ready
+	return state

@@ -1,0 +1,98 @@
+Perfeito. Vamos priorizar do jeito que reduz retrabalho e já deixa o jogo pronto para plugar no backend depois.
+
+**Prioridade 1: separar o que é jogo local do que é sessão de rede**
+- Criar um modelo de sessão serializável, com dados simples:
+  - `mode`
+  - `match_id`
+  - `arena_id`
+  - `player_slot`
+  - `character_id`
+  - `ready`
+  - `seed`
+- Manter `CharacterData` só como dado visual local do Godot.
+- Parar de usar `Resource` como contrato entre jogo e backend.
+- Objetivo: o backend vai falar em JSON/IDs, não em `.tres`.
+
+**Prioridade 2: criar dois fluxos claros**
+- Fluxo local:
+  - seleção local
+  - start local
+  - jogo local
+  - input direto
+- Fluxo multiplayer:
+  - lobby
+  - ready sincronizado
+  - host/start controlado
+  - match recebido do backend
+  - input remoto/sincronizado
+
+**Prioridade 3: criar um ponto único de entrada da partida**
+- O jogo precisa iniciar a cena principal sempre do mesmo jeito.
+- Só muda a fonte dos dados:
+  - local: vem do próprio client
+  - online: vem da sessão/rede/backend
+- Isso evita duplicar lógica em várias cenas.
+
+**Prioridade 4: adaptar os dados do personagem**
+- Cada personagem precisa ter um ID estável.
+- Exemplo conceitual:
+  - `huntress`
+  - `ranger`
+  - `monk`
+- O jogo usa esse ID para:
+  - montar visual
+  - montar offsets
+  - selecionar loadout
+- O backend também vai usar esse mesmo ID.
+
+**Prioridade 5: preparar o `GameManager` para receber configuração**
+- Em vez de depender só de `MatchData` local, ele deve aceitar uma configuração de sessão.
+- Essa configuração pode vir de:
+  - menu local
+  - backend
+  - replay/teste
+- Isso deixa o mesmo `GameManager` útil para os dois modos.
+
+**Prioridade 6: preparar a camada de input**
+- Local:
+  - lê `InputMap`
+- Online:
+  - recebe input vindo da rede
+- O jogo não deve assumir que input sempre vem do teclado.
+- O `InputHandler` deve virar uma interface, não só leitura direta do teclado.
+
+**Prioridade 7: preparar a UI para os dois mundos**
+- Menu local:
+  - seleção de personagem
+  - ready
+  - start
+- Lobby online:
+  - host
+  - ready
+  - start autorizado
+  - status de conexão
+- Não misturar essas duas responsabilidades na mesma tela.
+
+**Ordem prática de execução**
+1. Definir o modelo de sessão.
+2. Separar personagem visual de personagem de rede.
+3. Fazer `GameManager` aceitar configuração de sessão.
+4. Manter o modo local funcionando com essa nova base.
+5. Só depois plugar a camada online.
+6. Por último, integrar backend e socket.
+
+**O que eu acho da tua estratégia**
+- Está certa.
+- O principal acerto é esse: manter o jogo jogável localmente enquanto prepara a borda de integração.
+- O erro seria tentar “inventar backend” dentro do jogo agora.
+- O ideal é deixar o jogo pronto para consumir dados externos, não para já depender deles.
+
+**Resumo do foco**
+- Agora: base limpa, IDs estáveis, sessão serializável, dois modos.
+- Depois: backend e realtime.
+- Resultado: menos retrabalho e integração bem mais suave.
+
+Se quiser, eu posso seguir com o próximo passo e te entregar uma checklist ainda mais operacional, tipo:
+- “o que criar no Godot esta semana”
+- “o que sua equipe de backend vai esperar receber”
+- “o que já deve existir no contrato entre os dois”.

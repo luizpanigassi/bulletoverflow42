@@ -6,6 +6,7 @@
 
 [resource]
 script = ExtResource("1_e4pix")
+character_id = &"huntress"
 character_name = "The Huntress"
 sprite_frames = ExtResource("2_s0qpn")
 animation_offsets = Array[ExtResource("1_86lgd")]([null])

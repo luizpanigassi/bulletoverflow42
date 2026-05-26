@@ -12,6 +12,7 @@ metadata/_custom_type_script = "uid://culsiip4m0cas"
 
 [resource]
 script = ExtResource("2_mu6jy")
+character_id = &"spearwoman"
 character_name = "The Spearwoman"
 sprite_frames = ExtResource("3_mu6jy")
 animation_offsets = Array[ExtResource("1_hrffh")]([SubResource("Resource_qr1td")])

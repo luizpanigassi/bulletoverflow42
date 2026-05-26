@@ -12,6 +12,7 @@ metadata/_custom_type_script = "uid://culsiip4m0cas"
 
 [resource]
 script = ExtResource("2_6066r")
+character_id = &"monk"
 character_name = "The Monk"
 sprite_frames = ExtResource("3_6066r")
 animation_offsets = Array[ExtResource("1_0ejrx")]([SubResource("Resource_iit6d")])
