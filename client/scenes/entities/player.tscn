@@ -1,0 +1,67 @@
+[gd_scene load_steps=7 format=3 uid="uid://caopbqh62ytq5"]
+
+[ext_resource type="Script" uid="uid://bmf8uudlfnclx" path="res://client/scripts/entities/player.gd" id="1_ucweq"]
+[ext_resource type="PackedScene" uid="uid://7ymisuxr0c70" path="res://client/scenes/entities/projectile_basic.tscn" id="2_1ie0h"]
+[ext_resource type="Script" uid="uid://tsfvcspskld0" path="res://client/scripts/entities/input_handler.gd" id="2_08t41"]
+[ext_resource type="SpriteFrames" uid="uid://db5k3nhsihuyr" path="res://client/assets/sprites/explorer/explorer.tres" id="4_42nxq"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_5u6hq"]
+size = Vector2(18.0869, 33.1092)
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_yw3xw"]
+
+[node name="Player" type="CharacterBody2D" groups=["players"]]
+script = ExtResource("1_ucweq")
+projectile_scene = ExtResource("2_1ie0h")
+shoot_cooldown = 0.5
+dash_speed = 500.0
+dash_cooldown = 0.7
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-0.5, -4.5)
+scale = Vector2(1.38222, 1.29873)
+shape = SubResource("RectangleShape2D_5u6hq")
+
+[node name="Hurtbox" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
+scale = Vector2(5.56678, 1.95802)
+
+[node name="WeaponPivot" type="Node2D" parent="."]
+position = Vector2(10, 0)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+
+[node name="InputHandler" type="Node" parent="."]
+script = ExtResource("2_08t41")
+
+[node name="PlayerUI" type="Node2D" parent="."]
+
+[node name="ReloadBarBackground" type="ColorRect" parent="PlayerUI"]
+visible = false
+offset_left = -13.0
+offset_top = -21.0
+offset_right = 27.0
+offset_bottom = -15.0
+scale = Vector2(0.616269, 0.478477)
+color = Color(0.219501, 0.219501, 0.219501, 1)
+
+[node name="ReloadFill" type="ColorRect" parent="PlayerUI/ReloadBarBackground"]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -3.0
+offset_right = 40.0
+offset_bottom = 3.0
+grow_vertical = 2
+color = Color(0.0605303, 0.0605303, 0.0605303, 1)
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(3, 18)
+scale = Vector2(-62.2202, 1.43743)
+texture = SubResource("CanvasTexture_yw3xw")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = ExtResource("4_42nxq")
+animation = &"attack_down"
