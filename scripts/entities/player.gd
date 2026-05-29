@@ -1,6 +1,8 @@
 extends CharacterBody2D
 class_name Player
 
+const InputSnapshot = preload("res://scripts/system/input_snapshot.gd")
+
 signal died(player_id: int)
 signal ammo_changed(player_id: int, ammo: int)
 
@@ -29,6 +31,8 @@ var is_reloading: bool = false
 var character_data: CharacterData
 var facing_axis: StringName = &"down"
 var is_attacking: bool = false
+var external_input_snapshot: InputSnapshot
+var use_external_input: bool = false
 
 func _ready() -> void:
 	input_handler.set_player_id(player_id)
@@ -48,29 +52,29 @@ func _ready() -> void:
 	_update_animation(true)
 
 func _physics_process(delta: float) -> void:
-	input_handler.process_input()
+	var snapshot := _get_input_snapshot()
 	
-	if input_handler.dash_pressed:
+	if snapshot.dash_pressed:
 		start_dash()
 		
-	if input_handler.reload_pressed:
+	if snapshot.reload_pressed:
 		reload()
 	
-	_update_facing_from_input()
+	_update_facing_from_input(snapshot)
 
 	if is_dashing:
 		move_and_slide()
 		return
 	
-	var target_velocity: Vector2 = input_handler.move_direction * speed
-	if input_handler.move_direction != Vector2.ZERO:
+	var target_velocity: Vector2 = snapshot.move_direction * speed
+	if snapshot.move_direction != Vector2.ZERO:
 		velocity = velocity.move_toward(target_velocity, acceleration * delta)
 	else:
 		velocity = velocity.move_toward(Vector2.ZERO, deceleration * delta)
 		
 	move_and_slide()
 	
-	if input_handler.shoot_pressed:
+	if snapshot.shoot_pressed:
 		shoot()
 
 	_update_animation()
@@ -194,10 +198,10 @@ func apply_animation_offset(animation_name: StringName) -> void:
 	else:
 		animated_sprite.offset = Vector2.ZERO
 
-func _update_facing_from_input() -> void:
-	var source_direction: Vector2 = input_handler.move_direction
-	if source_direction == Vector2.ZERO and input_handler.aim_direction != Vector2.ZERO:
-		source_direction = input_handler.aim_direction
+func _update_facing_from_input(snapshot: InputSnapshot) -> void:
+	var source_direction: Vector2 = snapshot.move_direction
+	if source_direction == Vector2.ZERO and snapshot.aim_direction != Vector2.ZERO:
+		source_direction = snapshot.aim_direction
 
 	if source_direction != Vector2.ZERO:
 		facing_axis = _resolve_direction(source_direction)
@@ -219,7 +223,8 @@ func _update_animation(force: bool = false) -> void:
 		return
 
 	var target_animation: StringName
-	if input_handler.move_direction != Vector2.ZERO:
+	var snapshot := _get_input_snapshot()
+	if snapshot.move_direction != Vector2.ZERO:
 		target_animation = _animation_name("run")
 	else:
 		target_animation = _animation_name("idle")
@@ -260,3 +265,14 @@ func _configure_attack_animation_loops() -> void:
 	for animation_name in attack_animations:
 		if animated_sprite.sprite_frames.has_animation(animation_name):
 			animated_sprite.sprite_frames.set_animation_loop(animation_name, false)
+
+func set_external_input(snapshot: InputSnapshot) -> void:
+	external_input_snapshot = snapshot
+	use_external_input = snapshot != null
+
+func _get_input_snapshot() -> InputSnapshot:
+	if use_external_input and external_input_snapshot:
+		return external_input_snapshot
+
+	input_handler.process_input()
+	return input_handler.get_snapshot()
