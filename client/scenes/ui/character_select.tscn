@@ -1,0 +1,117 @@
+[gd_scene load_steps=3 format=3 uid="uid://cm12txyyfgnss"]
+
+[ext_resource type="Script" uid="uid://wn3r78f8wl2s" path="res://client/scripts/ui/character_select.gd" id="1_ci853"]
+[ext_resource type="Script" uid="uid://tsfvcspskld0" path="res://client/scripts/entities/input_handler.gd" id="2_hwgyf"]
+
+[node name="CharacterSelect" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ci853")
+
+[node name="InputHandlerP1" type="Node" parent="."]
+script = ExtResource("2_hwgyf")
+
+[node name="InputHandlerP2" type="Node" parent="."]
+script = ExtResource("2_hwgyf")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="TitleLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 467.0
+offset_top = 64.0
+offset_right = 618.0
+offset_bottom = 87.0
+text = "CHOOSE YOUR FIGHTER"
+
+[node name="P1Panel" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 344.0
+offset_top = 247.0
+offset_right = 384.0
+offset_bottom = 324.0
+
+[node name="P1Title" type="Label" parent="P1Panel"]
+layout_mode = 2
+text = "Player 1"
+
+[node name="P1CharacterName" type="Label" parent="P1Panel"]
+layout_mode = 2
+
+[node name="P1ReadyLabel" type="Label" parent="P1Panel"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="P1Panel"]
+layout_mode = 2
+
+[node name="P1Next" type="Button" parent="P1Panel/HBoxContainer"]
+layout_mode = 2
+text = "Next"
+
+[node name="P1Prev" type="Button" parent="P1Panel/HBoxContainer"]
+layout_mode = 2
+text = "Previous"
+
+[node name="P1Ready" type="Button" parent="P1Panel"]
+layout_mode = 2
+text = "Ready"
+
+[node name="P2Panel" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 697.0
+offset_top = 245.0
+offset_right = 737.0
+offset_bottom = 322.0
+
+[node name="P2Title" type="Label" parent="P2Panel"]
+layout_mode = 2
+text = "Player 2"
+
+[node name="P2CharacterName" type="Label" parent="P2Panel"]
+layout_mode = 2
+
+[node name="P2ReadyLabel" type="Label" parent="P2Panel"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="P2Panel"]
+layout_mode = 2
+
+[node name="P2Next" type="Button" parent="P2Panel/HBoxContainer"]
+layout_mode = 2
+text = "Next"
+
+[node name="P2Prev" type="Button" parent="P2Panel/HBoxContainer"]
+layout_mode = 2
+text = "Previous"
+
+[node name="P2Ready" type="Button" parent="P2Panel"]
+layout_mode = 2
+text = "Ready"
+
+[node name="StartLabel" type="Label" parent="."]
+layout_mode = 0
+offset_left = 497.0
+offset_top = 473.0
+offset_right = 624.0
+offset_bottom = 496.0
+text = "EVERYONE READY?"
+
+[node name="StartButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 546.0
+offset_top = 508.0
+offset_right = 607.0
+offset_bottom = 539.0
+text = "START!
+"
