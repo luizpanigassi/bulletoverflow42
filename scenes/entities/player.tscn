@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://bmf8uudlfnclx" path="res://scripts/entities/player.gd" id="1_ucweq"]
 [ext_resource type="PackedScene" uid="uid://7ymisuxr0c70" path="res://scenes/entities/projectile_basic.tscn" id="2_1ie0h"]
 [ext_resource type="Script" uid="uid://tsfvcspskld0" path="res://scripts/entities/input_handler.gd" id="2_08t41"]
-[ext_resource type="SpriteFrames" uid="uid://5bynkm6p5drk" path="res://assets/sprites/the_monk/monk.tres" id="4_42nxq"]
+[ext_resource type="SpriteFrames" uid="uid://db5k3nhsihuyr" path="res://assets/sprites/explorer/explorer.tres" id="4_42nxq"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5u6hq"]
 size = Vector2(18.0869, 33.1092)
@@ -12,10 +12,8 @@ size = Vector2(18.0869, 33.1092)
 
 [node name="Player" type="CharacterBody2D" groups=["players"]]
 script = ExtResource("1_ucweq")
-JUMP_FORCE = -600.0
-jump_buffer_duration = 0.15
 projectile_scene = ExtResource("2_1ie0h")
-shoot_cooldown = 0.3
+shoot_cooldown = 0.5
 dash_speed = 500.0
 dash_cooldown = 0.7
 
@@ -66,5 +64,4 @@ texture = SubResource("CanvasTexture_yw3xw")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = ExtResource("4_42nxq")
-animation = &"idle"
-frame_progress = 0.696613
+animation = &"attack_down"

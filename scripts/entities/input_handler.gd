@@ -12,6 +12,9 @@ var reload_action: String = ""
 var up_action: String = ""
 var down_action: String = ""
 var move_input: float = 0.0
+var move_vector: Vector2 = Vector2.ZERO
+var move_direction: Vector2 = Vector2.ZERO
+var last_move_direction: Vector2 = Vector2.RIGHT
 var jump_pressed: bool = false
 var jump_held: bool = false
 var shoot_pressed: bool = false
@@ -21,6 +24,7 @@ var aim_direction: Vector2 = Vector2.ZERO
 var prev_pressed: bool = false
 var next_pressed: bool = false
 var confirm_pressed: bool = false
+@onready var player_node: Node2D = get_parent() as Node2D
 
 func _ready() -> void:
 	_apply_mapping()
@@ -40,18 +44,29 @@ func _apply_mapping() -> void:
 	up_action = "%s_up" % prefix
 	down_action = "%s_down" % prefix
 
-func process_input():
+func process_input() -> void:
 	var horizontal: float = Input.get_axis(left_action, right_action)
 	var vertical: float = Input.get_axis(up_action, down_action)
 	
 	move_input = horizontal
+	move_vector = Vector2(horizontal, vertical)
+	if move_vector != Vector2.ZERO:
+		move_direction = move_vector.normalized()
+		last_move_direction = move_direction
+	else:
+		move_direction = Vector2.ZERO
 	jump_pressed = Input.is_action_just_pressed(jump_action)
 	jump_held = Input.is_action_pressed(jump_action)
 	shoot_pressed = Input.is_action_just_pressed(shoot_action)
 	dash_pressed = Input.is_action_just_pressed(dash_action)
 	reload_pressed = Input.is_action_just_pressed(reload_action)
 	
-	aim_direction = Vector2(horizontal, vertical).normalized()
+	if player_node:
+		var mouse_position: Vector2 = player_node.get_global_mouse_position()
+		var mouse_direction: Vector2 = mouse_position - player_node.global_position
+		aim_direction = mouse_direction.normalized()
+	else:
+		aim_direction = Vector2.ZERO
 	
 	prev_pressed = Input.is_action_just_pressed(left_action)
 	next_pressed = Input.is_action_just_pressed(right_action)

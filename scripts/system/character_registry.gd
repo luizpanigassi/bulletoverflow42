@@ -2,11 +2,9 @@ extends Node
 class_name CharacterRegistry
 
 const CHARACTERS: Dictionary = {
-	&"huntress": preload("res://data/resources/characters/huntress.tres"),
-	&"ranger": preload("res://data/resources/characters/ranger.tres"),
-	&"crystal_mauler": preload("res://data/resources/characters/crystal_mauler.tres"),
-	&"spearwoman": preload("res://data/resources/characters/spearwoman.tres"),
-	&"monk": preload("res://data/resources/characters/monk.tres"),
+	&"adventurer": preload("res://data/resources/characters/adventurer.tres"),
+	&"crimson_warrior": preload("res://data/resources/characters/crimson_warrior.tres"),
+	&"explorer": preload("res://data/resources/characters/explorer.tres"),
 }
 
 static func get_character(character_id: StringName) -> CharacterData:

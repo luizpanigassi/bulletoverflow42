@@ -25,11 +25,9 @@ var p2_ready: bool = false
 
 func _ready() -> void:
 	characters = [
-		preload("res://data/resources/characters/huntress.tres"),
-		preload("res://data/resources/characters/ranger.tres"),
-		preload("res://data/resources/characters/crystal_mauler.tres"),
-		preload("res://data/resources/characters/spearwoman.tres"),
-		preload("res://data/resources/characters/monk.tres")
+		preload("res://data/resources/characters/adventurer.tres"),
+		preload("res://data/resources/characters/crimson_warrior.tres"),
+		preload("res://data/resources/characters/explorer.tres"),		
 	]
 	
 	input_handler_p1.set_player_id(1)

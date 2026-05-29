@@ -10,14 +10,8 @@ signal ammo_changed(player_id: int, ammo: int)
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 @export var speed: float = 300.0
-@export var JUMP_FORCE: float = -500.0
-@export var GRAVITY: float = 1200.0
 @export var acceleration: float = 1800.0
 @export var deceleration: float = 2200.0
-@export var air_acceleration: float = 1200.0
-@export var jump_cut_multiplier: float = 0.5
-@export var coyote_time_duration: float = 0.1
-@export var jump_buffer_duration: float = 0.12
 @export var player_id: int = 1
 @export var projectile_scene: PackedScene
 @export var shoot_cooldown: float = 0.35
@@ -27,15 +21,14 @@ signal ammo_changed(player_id: int, ammo: int)
 @export var max_ammo: int = 3
 @export var reload_duration: float = 1.2
 
-var coyote_timer: float = 0.0
-var jump_buffer_timer: float = 0.0
-var facing_direction: float = 1.0
 var can_shoot: bool = true
 var is_dashing: bool = false
 var can_dash: bool = true
 var current_ammo: int = 0
 var is_reloading: bool = false
 var character_data: CharacterData
+var facing_axis: StringName = &"down"
+var is_attacking: bool = false
 
 func _ready() -> void:
 	input_handler.set_player_id(player_id)
@@ -43,12 +36,16 @@ func _ready() -> void:
 	
 	if character_data:
 		animated_sprite.sprite_frames = character_data.sprite_frames
+		_configure_attack_animation_loops()
 
 	if not animated_sprite.animation_changed.is_connected(_on_animation_changed):
 		animated_sprite.animation_changed.connect(_on_animation_changed)
 
-	animated_sprite.play("idle")
-	apply_animation_offset(animated_sprite.animation)
+	if not animated_sprite.animation_finished.is_connected(_on_animation_finished):
+		animated_sprite.animation_finished.connect(_on_animation_finished)
+
+	animated_sprite.flip_h = false
+	_update_animation(true)
 
 func _physics_process(delta: float) -> void:
 	input_handler.process_input()
@@ -59,54 +56,24 @@ func _physics_process(delta: float) -> void:
 	if input_handler.reload_pressed:
 		reload()
 	
-	if input_handler.move_input != 0:
-		facing_direction = input_handler.move_input
-	
-	if facing_direction < 0:
-		animated_sprite.flip_h = true
-	else:
-		animated_sprite.flip_h = false
-	if input_handler.jump_pressed:
-		jump_buffer_timer = jump_buffer_duration
-	else:
-		jump_buffer_timer -= delta
+	_update_facing_from_input()
 
-	var target_speed: float = input_handler.move_input * speed
-	
-	if not is_on_floor() and not is_dashing:
-		velocity.y += GRAVITY * delta
-		
 	if is_dashing:
 		move_and_slide()
 		return
-		
-	if is_on_floor():
-		coyote_timer = coyote_time_duration
+	
+	var target_velocity: Vector2 = input_handler.move_direction * speed
+	if input_handler.move_direction != Vector2.ZERO:
+		velocity = velocity.move_toward(target_velocity, acceleration * delta)
 	else:
-		coyote_timer -= delta
-	
-	if is_on_floor():
-		if input_handler.move_input != 0:
-			velocity.x = move_toward(velocity.x, target_speed, acceleration * delta)
-		else:
-			velocity.x = move_toward(velocity.x, 0, deceleration * delta)
-	
-	else:
-		velocity.x = move_toward(velocity.x, target_speed, air_acceleration * delta)
-	
-	if jump_buffer_timer > 0 and coyote_timer > 0:
-		velocity.y = JUMP_FORCE
-		 
-		coyote_timer = 0
-		jump_buffer_timer = 0
-		
-	if velocity.y < 0 and not input_handler.jump_held:
-		velocity.y *= jump_cut_multiplier
+		velocity = velocity.move_toward(Vector2.ZERO, deceleration * delta)
 		
 	move_and_slide()
 	
 	if input_handler.shoot_pressed:
 		shoot()
+
+	_update_animation()
 	
 func shoot() -> void:
 	if current_ammo <= 0:
@@ -120,6 +87,7 @@ func shoot() -> void:
 		return
 	
 	can_shoot = false
+	_start_attack_animation()
 	
 	var projectile: Area2D = projectile_scene.instantiate()
 	
@@ -132,7 +100,7 @@ func shoot() -> void:
 	var shoot_direction: Vector2 = input_handler.aim_direction
 	
 	if shoot_direction == Vector2.ZERO:
-		shoot_direction = Vector2(facing_direction, 0)
+		shoot_direction = input_handler.last_move_direction
 		
 	projectile.direction = shoot_direction.normalized()
 	
@@ -153,14 +121,15 @@ func start_dash() -> void:
 	
 	is_dashing = true
 	can_dash = false
+	is_attacking = false
 	
-	velocity.y = 0
-	var dash_direction: Vector2 = input_handler.aim_direction
+	var dash_direction: Vector2 = input_handler.move_direction
 	
 	if dash_direction == Vector2.ZERO:
-		dash_direction = Vector2(facing_direction, 0)
+		dash_direction = input_handler.last_move_direction
 	
 	velocity = dash_direction * dash_speed
+	_apply_dash_pose()
 	
 	end_dash()
 	reset_dash_cooldown()
@@ -168,6 +137,7 @@ func start_dash() -> void:
 func end_dash() -> void:
 	await get_tree().create_timer(dash_duration).timeout
 	is_dashing = false
+	_update_animation()
 	
 func reset_dash_cooldown() -> void:
 	await get_tree().create_timer(dash_cooldown).timeout
@@ -210,8 +180,83 @@ func die() -> void:
 func _on_animation_changed() -> void:
 	apply_animation_offset(animated_sprite.animation)
 
+func _on_animation_finished() -> void:
+	if not is_attacking:
+		return
+
+	if animated_sprite.animation.begins_with("attack_"):
+		is_attacking = false
+		_update_animation()
+
 func apply_animation_offset(animation_name: StringName) -> void:
 	if character_data:
 		animated_sprite.offset = character_data.get_animation_offset(animation_name)
 	else:
 		animated_sprite.offset = Vector2.ZERO
+
+func _update_facing_from_input() -> void:
+	var source_direction: Vector2 = input_handler.move_direction
+	if source_direction == Vector2.ZERO and input_handler.aim_direction != Vector2.ZERO:
+		source_direction = input_handler.aim_direction
+
+	if source_direction != Vector2.ZERO:
+		facing_axis = _resolve_direction(source_direction)
+
+func _resolve_direction(direction: Vector2) -> StringName:
+	if direction == Vector2.ZERO:
+		return facing_axis
+
+	if absf(direction.x) > absf(direction.y):
+		return &"left" if direction.x < 0.0 else &"right"
+
+	return &"up" if direction.y < 0.0 else &"down"
+
+func _animation_name(prefix: String) -> StringName:
+	return StringName("%s_%s" % [prefix, facing_axis])
+
+func _update_animation(force: bool = false) -> void:
+	if not force and (is_dashing or is_attacking):
+		return
+
+	var target_animation: StringName
+	if input_handler.move_direction != Vector2.ZERO:
+		target_animation = _animation_name("run")
+	else:
+		target_animation = _animation_name("idle")
+
+	if animated_sprite.animation != target_animation:
+		animated_sprite.play(target_animation)
+	elif not animated_sprite.is_playing():
+		animated_sprite.play(target_animation)
+
+func _start_attack_animation() -> void:
+	if is_dashing:
+		return
+
+	is_attacking = true
+	var attack_animation: StringName = _animation_name("attack")
+	animated_sprite.play(attack_animation)
+
+func _apply_dash_pose() -> void:
+	var run_animation: StringName = _animation_name("run")
+	if animated_sprite.animation != run_animation:
+		animated_sprite.play(run_animation)
+
+	animated_sprite.frame = 0
+	animated_sprite.frame_progress = 0.0
+	animated_sprite.stop()
+
+func _configure_attack_animation_loops() -> void:
+	if not animated_sprite.sprite_frames:
+		return
+
+	var attack_animations: Array[StringName] = [
+		&"attack_up",
+		&"attack_down",
+		&"attack_left",
+		&"attack_right",
+	]
+
+	for animation_name in attack_animations:
+		if animated_sprite.sprite_frames.has_animation(animation_name):
+			animated_sprite.sprite_frames.set_animation_loop(animation_name, false)

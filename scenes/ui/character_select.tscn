@@ -14,9 +14,11 @@ script = ExtResource("1_ci853")
 
 [node name="InputHandlerP1" type="Node" parent="."]
 script = ExtResource("2_hwgyf")
+player_id = null
 
 [node name="InputHandlerP2" type="Node" parent="."]
 script = ExtResource("2_hwgyf")
+player_id = null
 
 [node name="Background" type="ColorRect" parent="."]
 layout_mode = 1
