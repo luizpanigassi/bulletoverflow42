@@ -1,6 +1,8 @@
 extends Node
 class_name InputHandler
 
+const InputSnapshot = preload("res://scripts/system/input_snapshot.gd")
+
 @export_range(1, 4, 1) var player_id: int = 1
 
 var left_action: String = ""
@@ -72,3 +74,18 @@ func process_input() -> void:
 	next_pressed = Input.is_action_just_pressed(right_action)
 	confirm_pressed = Input.is_action_just_pressed(jump_action)
 	move_input = horizontal
+
+func get_snapshot() -> InputSnapshot:
+	var snapshot := InputSnapshot.new()
+	snapshot.move_direction = move_direction
+	snapshot.last_move_direction = last_move_direction
+	snapshot.aim_direction = aim_direction
+	snapshot.shoot_pressed = shoot_pressed
+	snapshot.dash_pressed = dash_pressed
+	snapshot.reload_pressed = reload_pressed
+	snapshot.jump_pressed = jump_pressed
+	snapshot.jump_held = jump_held
+	snapshot.prev_pressed = prev_pressed
+	snapshot.next_pressed = next_pressed
+	snapshot.confirm_pressed = confirm_pressed
+	return snapshot
