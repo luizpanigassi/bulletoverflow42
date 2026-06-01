@@ -23,6 +23,7 @@ MatchData="*res://client/scripts/system/match_data.gd"
 
 players=""
 spawn_points=""
+walls=""
 
 [input]
 

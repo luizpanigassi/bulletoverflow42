@@ -6,7 +6,7 @@
 [ext_resource type="SpriteFrames" uid="uid://db5k3nhsihuyr" path="res://client/assets/sprites/explorer/explorer.tres" id="4_42nxq"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5u6hq"]
-size = Vector2(18.0869, 33.1092)
+size = Vector2(18.0869, 31.5693)
 
 [sub_resource type="CanvasTexture" id="CanvasTexture_yw3xw"]
 
@@ -18,7 +18,7 @@ dash_speed = 500.0
 dash_cooldown = 0.7
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(-0.5, -4.5)
+position = Vector2(-0.5, -3.50002)
 scale = Vector2(1.38222, 1.29873)
 shape = SubResource("RectangleShape2D_5u6hq")
 
