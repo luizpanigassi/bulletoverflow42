@@ -6,6 +6,8 @@
 
 [node name="SpawnPoints" type="Node2D" parent="."]
 
+[node name="PowerUpSpawns" type="Node2D" parent="."]
+
 [node name="KillZones" type="Node2D" parent="."]
 
 [node name="Background" type="Node2D" parent="."]

@@ -1,13 +1,46 @@
-[gd_scene load_steps=5 format=3 uid="uid://bjkw6jbk6w8sk"]
+[gd_scene load_steps=10 format=3 uid="uid://bjkw6jbk6w8sk"]
 
 [ext_resource type="PackedScene" uid="uid://caopbqh62ytq5" path="res://client/scenes/entities/player.tscn" id="1_uwrxv"]
 [ext_resource type="PackedScene" uid="uid://dqy308v3kj2br" path="res://client/scenes/arenas/arena_test.tscn" id="1_yqjtg"]
 [ext_resource type="Script" uid="uid://bah4epjadpoi" path="res://client/scripts/system/game_manager.gd" id="3_lnu2h"]
 [ext_resource type="PackedScene" uid="uid://b3ejcg7c68nop" path="res://client/scenes/ui/hud.tscn" id="4_lbhrr"]
+[ext_resource type="PackedScene" uid="uid://djr1ohdoysxw0" path="res://client/scenes/entities/powerup.tscn" id="5_uq6q5"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_uq6q5"]
+size = Vector2(20, 674)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_w2vtr"]
+size = Vector2(1166.5, 10)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wvq1j"]
+size = Vector2(13.25, 676.75)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_iaaq1"]
+size = Vector2(1166, 20)
 
 [node name="Game" type="Node2D"]
 
 [node name="World" type="Node2D" parent="."]
+
+[node name="Boundaries" type="StaticBody2D" parent="World"]
+
+[node name="WestBoundary" type="CollisionShape2D" parent="World/Boundaries"]
+light_mask = 3
+visibility_layer = 3
+position = Vector2(-580, -9)
+shape = SubResource("RectangleShape2D_uq6q5")
+
+[node name="NorthBoundary" type="CollisionShape2D" parent="World/Boundaries"]
+position = Vector2(3, -330)
+shape = SubResource("RectangleShape2D_w2vtr")
+
+[node name="EastBoundary" type="CollisionShape2D" parent="World/Boundaries"]
+position = Vector2(580.375, -6.375)
+shape = SubResource("RectangleShape2D_wvq1j")
+
+[node name="SouthBoundary" type="CollisionShape2D" parent="World/Boundaries"]
+position = Vector2(1, 333)
+shape = SubResource("RectangleShape2D_iaaq1")
 
 [node name="ArenaBase" parent="World" instance=ExtResource("1_yqjtg")]
 position = Vector2(-237, -175)
@@ -24,6 +57,7 @@ position = Vector2(59, 174)
 [node name="GameManager" type="Node" parent="Managers"]
 script = ExtResource("3_lnu2h")
 player_scene = ExtResource("1_uwrxv")
+powerup_scene = ExtResource("5_uq6q5")
 
 [node name="UI" type="CanvasLayer" parent="."]
 
