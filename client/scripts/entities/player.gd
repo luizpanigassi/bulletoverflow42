@@ -10,18 +10,23 @@ signal ammo_changed(player_id: int, ammo: int)
 @onready var reload_fill: ColorRect = $PlayerUI/ReloadBarBackground/ReloadFill
 @onready var reload_bar_background: ColorRect = $PlayerUI/ReloadBarBackground
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
+@onready var player_id_label: Label = $PlayerIdLabel
+@onready var powerup_icon: Sprite2D = $PowerupIcon
 
-@export var speed: float = 300.0
+@export var base_speed: float = 300.0
 @export var acceleration: float = 1800.0
 @export var deceleration: float = 2200.0
 @export var player_id: int = 1
 @export var projectile_scene: PackedScene
-@export var shoot_cooldown: float = 0.35
+@export var base_shoot_cooldown: float = 0.35
 @export var dash_speed: float = 850.0
 @export var dash_duration: float = 0.15
 @export var dash_cooldown: float = 0.6
 @export var max_ammo: int = 3
 @export var reload_duration: float = 1.2
+@export var shield_icon: Texture2D
+@export var rapid_fire_icon: Texture2D
+@export var speed_icon: Texture2D
 
 var can_shoot: bool = true
 var is_dashing: bool = false
@@ -33,6 +38,12 @@ var facing_axis: StringName = &"down"
 var is_attacking: bool = false
 var external_input_snapshot: InputSnapshot
 var use_external_input: bool = false
+
+var active_effects: Dictionary = {}
+var speed_multiplier: float = 1.0
+var cooldown_multiplier: float = 1.0
+var shield_hits: int = 0
+var active_powerup: int = -1
 
 func _ready() -> void:
 	input_handler.set_player_id(player_id)
@@ -49,6 +60,7 @@ func _ready() -> void:
 		animated_sprite.animation_finished.connect(_on_animation_finished)
 
 	animated_sprite.flip_h = false
+	player_id_label.text = "Player %d" % player_id
 	_update_animation(true)
 
 func _physics_process(delta: float) -> void:
@@ -66,7 +78,7 @@ func _physics_process(delta: float) -> void:
 		move_and_slide()
 		return
 	
-	var target_velocity: Vector2 = snapshot.move_direction * speed
+	var target_velocity: Vector2 = snapshot.move_direction * get_speed()
 	if snapshot.move_direction != Vector2.ZERO:
 		velocity = velocity.move_toward(target_velocity, acceleration * delta)
 	else:
@@ -78,7 +90,13 @@ func _physics_process(delta: float) -> void:
 		shoot()
 
 	_update_animation()
+
+func get_speed() -> float:
+	return base_speed * speed_multiplier
 	
+func get_shoot_cooldown() -> float:
+	return base_shoot_cooldown * cooldown_multiplier
+
 func shoot() -> void:
 	if current_ammo <= 0:
 		reload()
@@ -116,7 +134,7 @@ func shoot() -> void:
 	reset_shoot_cooldown()
 	
 func reset_shoot_cooldown() -> void:
-	await get_tree().create_timer(shoot_cooldown).timeout
+	await get_tree().create_timer(get_shoot_cooldown()).timeout
 	can_shoot = true
 	
 func start_dash() -> void:
@@ -276,3 +294,73 @@ func _get_input_snapshot() -> InputSnapshot:
 
 	input_handler.process_input()
 	return input_handler.get_snapshot()
+
+func apply_powerup(powerup_type: PowerupTypes.Type) -> void:
+	clear_all_powerups()
+	
+	set_powerup_icon(powerup_type)
+	
+	match powerup_type:
+		PowerupTypes.Type.RAPID_FIRE:
+			_apply_rapid_fire()
+			
+		PowerupTypes.Type.SPEED_BOOST:
+			_apply_speed_boost()
+			
+		PowerupTypes.Type.SHIELD:
+			_apply_shield()
+			
+func _apply_rapid_fire() -> void:
+	cooldown_multiplier = 0.5
+	print("Rapid fire engaged")
+	
+	await get_tree().create_timer(5.0).timeout
+	
+	cooldown_multiplier = 1.0
+	clear_powerup_icon(PowerupTypes.Type.RAPID_FIRE)
+	print("Rapid fire over")
+	
+func _apply_speed_boost() -> void:
+	speed_multiplier = 1.4
+	print("Speed boost engaged")
+	
+	await get_tree().create_timer(5.0).timeout
+	
+	speed_multiplier = 1
+	clear_powerup_icon(PowerupTypes.Type.SPEED_BOOST)
+	print("Speed boost over")
+	
+func _apply_shield() -> void:
+	if shield_hits > 0:
+		print("Nope, you got a shield")
+		return
+	print("Shield engaged")
+	shield_hits = 1
+
+func set_powerup_icon(powerup_type: PowerupTypes.Type) -> void:
+	active_powerup = powerup_type
+	
+	match powerup_type:
+		PowerupTypes.Type.SHIELD:
+			powerup_icon.texture = shield_icon
+		PowerupTypes.Type.RAPID_FIRE:
+			powerup_icon.texture = rapid_fire_icon
+		PowerupTypes.Type.SPEED_BOOST:
+			powerup_icon.texture = speed_icon
+			
+	powerup_icon.visible = true
+	
+func clear_powerup_icon(powerup_type: PowerupTypes.Type) -> void:
+	if active_powerup != powerup_type:
+		return
+		
+	active_powerup = -1
+	powerup_icon.visible = false
+
+func clear_all_powerups() -> void:
+	speed_multiplier = 1.0
+	cooldown_multiplier = 1.0
+	shield_hits = 0
+	
+	active_powerup = -1
+	powerup_icon.visible = false

@@ -1,36 +1,29 @@
-[gd_scene load_steps=7 format=3 uid="uid://caopbqh62ytq5"]
+[gd_scene load_steps=9 format=3 uid="uid://caopbqh62ytq5"]
 
 [ext_resource type="Script" uid="uid://bmf8uudlfnclx" path="res://client/scripts/entities/player.gd" id="1_ucweq"]
 [ext_resource type="PackedScene" uid="uid://7ymisuxr0c70" path="res://client/scenes/entities/projectile_basic.tscn" id="2_1ie0h"]
 [ext_resource type="Script" uid="uid://tsfvcspskld0" path="res://client/scripts/entities/input_handler.gd" id="2_08t41"]
+[ext_resource type="Texture2D" uid="uid://d2vjehh1xriim" path="res://client/assets/sprites/powerups/shield_icon.png" id="3_lql3w"]
 [ext_resource type="SpriteFrames" uid="uid://db5k3nhsihuyr" path="res://client/assets/sprites/explorer/explorer.tres" id="4_42nxq"]
+[ext_resource type="Texture2D" uid="uid://dnampmapa1ebc" path="res://client/assets/sprites/powerups/fire_icon.png" id="4_v2rgo"]
+[ext_resource type="Texture2D" uid="uid://cwbwf8ipwcdj6" path="res://client/assets/sprites/powerups/speed_icon.png" id="5_r7se2"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5u6hq"]
 size = Vector2(18.0869, 31.5693)
 
-[sub_resource type="CanvasTexture" id="CanvasTexture_yw3xw"]
-
 [node name="Player" type="CharacterBody2D" groups=["players"]]
 script = ExtResource("1_ucweq")
 projectile_scene = ExtResource("2_1ie0h")
-shoot_cooldown = 0.5
 dash_speed = 500.0
 dash_cooldown = 0.7
+shield_icon = ExtResource("3_lql3w")
+rapid_fire_icon = ExtResource("4_v2rgo")
+speed_icon = ExtResource("5_r7se2")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(-0.5, -3.50002)
 scale = Vector2(1.38222, 1.29873)
 shape = SubResource("RectangleShape2D_5u6hq")
-
-[node name="Hurtbox" type="Area2D" parent="."]
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox"]
-scale = Vector2(5.56678, 1.95802)
-
-[node name="WeaponPivot" type="Node2D" parent="."]
-position = Vector2(10, 0)
-
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 
 [node name="InputHandler" type="Node" parent="."]
 script = ExtResource("2_08t41")
@@ -57,11 +50,19 @@ offset_bottom = 3.0
 grow_vertical = 2
 color = Color(0.0605303, 0.0605303, 0.0605303, 1)
 
-[node name="Sprite2D" type="Sprite2D" parent="."]
-position = Vector2(3, 18)
-scale = Vector2(-62.2202, 1.43743)
-texture = SubResource("CanvasTexture_yw3xw")
-
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
 sprite_frames = ExtResource("4_42nxq")
 animation = &"attack_down"
+
+[node name="PlayerIdLabel" type="Label" parent="."]
+offset_left = -19.0
+offset_top = 16.0
+offset_right = 20.0
+offset_bottom = 39.0
+theme_override_font_sizes/font_size = 9
+text = "Player 1"
+horizontal_alignment = 1
+
+[node name="PowerupIcon" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(0, -36)

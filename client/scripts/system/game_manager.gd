@@ -4,10 +4,13 @@ extends Node
 @onready var hud: CanvasLayer = $"../../UI/Hud"
 
 @export var player_scene: PackedScene
+@export var powerup_scene: PackedScene
 
 var round_active: bool = false
 
 var spawn_points: Array[Marker2D] = []
+var powerup_spawn_points: Array[Marker2D] = []
+var active_powerup: Powerup = null
 var scores: Dictionary ={
 	1: 0,
 	2: 0
@@ -15,13 +18,18 @@ var scores: Dictionary ={
 
 func _ready() -> void:
 	var found_spawns: Array[Node] = get_tree().get_nodes_in_group("spawn_points")
+	var found_powerup_spawns: Array[Node] = get_tree().get_nodes_in_group("powerup_spawns")
 	
 	for spawn in found_spawns:
 		spawn_points.append(spawn as Marker2D)
+		
+	for powerup_spawn in found_powerup_spawns:
+		powerup_spawn_points.append(powerup_spawn as Marker2D)
 	
 	await hud.ready
 	hud.update_score(scores[1], scores[2])
 	start_round()
+	start_powerup_loop.call_deferred()
 
 func get_random_spawn_positions() -> Array[Marker2D]:
 	var shuffled_spawns: Array[Marker2D] = spawn_points.duplicate()
@@ -75,13 +83,16 @@ func start_round() -> void:
 	if players.size() < 2:
 		push_error("Session needs at least 2 players")
 		return
-
-
+		
 	spawn_player(players[0], selected_spawns[0].global_position)
 	spawn_player(players[1], selected_spawns[1].global_position)
 	
 func end_round(winner_id: int) -> void:
 	round_active = false
+	
+	if is_instance_valid(active_powerup):
+		active_powerup.queue_free()
+	
 	scores[winner_id] += 1
 	
 	hud.update_score(scores[1], scores[2])
@@ -101,3 +112,38 @@ func clear_players() -> void:
 	
 	for player in players:
 		player.queue_free()
+
+func start_powerup_loop() -> void:
+	while true:
+		var wait_time := randf_range(1.0, 20.0)
+		
+		await get_tree().create_timer(wait_time).timeout
+		
+		if not round_active:
+			continue
+			
+		spawn_random_powerup()
+		
+func spawn_random_powerup() -> void:
+	if powerup_spawn_points.is_empty():
+		return
+	if is_instance_valid(active_powerup):
+		return
+		
+	var spawn_point: Marker2D = powerup_spawn_points.pick_random()
+	var powerup: Powerup = powerup_scene.instantiate() as Powerup
+	var powerup_types := [
+		PowerupTypes.Type.RAPID_FIRE,
+		PowerupTypes.Type.SPEED_BOOST,
+		PowerupTypes.Type.SHIELD,
+	]
+	powerup.powerup_type = powerup_types.pick_random()
+		
+	powerup.global_position = spawn_point.global_position
+	entities.add_child(powerup)
+	
+	active_powerup = powerup
+	powerup.tree_exited.connect(_on_powerup_removed)
+	
+func _on_powerup_removed() -> void:
+	active_powerup = null
