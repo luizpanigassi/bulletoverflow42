@@ -1,34 +1,55 @@
-# Bullet Overflow - Contrato Inicial de Integração Client ↔ Backend
+# Bullet Overflow - Contrato de Integração Cliente ↔ Backend
 
 ## Visão Geral
 
-O cliente Godot é responsável apenas pela execução da partida e renderização do jogo.
+O projeto utiliza autenticação e gerenciamento de sessão pela aplicação web.
 
-Autenticação, OAuth, criação de sessão, matchmaking, ranking e leaderboard são responsabilidades da aplicação web e do backend.
+O cliente Godot não realiza login nem OAuth diretamente. Toda autenticação é responsabilidade do frontend web e do backend.
 
-O Godot deve receber uma sessão já pronta e conectar ao servidor multiplayer utilizando os dados fornecidos.
+Após a autenticação, o backend fornece os dados necessários para que o cliente Godot inicie a partida.
 
 ---
 
-# Dados Necessários para Iniciar uma Partida
+# Fluxo Geral
 
-Antes de iniciar uma partida, o cliente precisa receber algo equivalente a:
+```text
+Usuário acessa o site
+        ↓
+Frontend inicia OAuth
+        ↓
+Backend autentica usuário
+        ↓
+Backend cria sessão da partida
+        ↓
+Frontend recebe dados da sessão
+        ↓
+Frontend carrega o jogo Godot
+        ↓
+Godot recebe os dados da sessão
+        ↓
+Partida inicia
+```
+
+---
+
+# Dados de Sessão
+
+O cliente Godot espera receber uma sessão contendo:
 
 ```json
 {
   "match_id": "match_123",
-  "player_slot": 1,
   "arena_id": "arena_01",
   "seed": 123456,
-  "server_url": "wss://example.com/game",
+
   "players": [
     {
-      "user_id": "user_a",
+      "user_id": "user_001",
       "slot": 1,
       "character_id": "character_01"
     },
     {
-      "user_id": "user_b",
+      "user_id": "user_002",
       "slot": 2,
       "character_id": "character_02"
     }
@@ -36,185 +57,257 @@ Antes de iniciar uma partida, o cliente precisa receber algo equivalente a:
 }
 ```
 
-## Descrição dos Campos
-
-| Campo       | Descrição                                         |
-| ----------- | ------------------------------------------------- |
-| match_id    | Identificador único da partida                    |
-| player_slot | Slot controlado por este cliente                  |
-| arena_id    | Arena selecionada                                 |
-| seed        | Seed utilizada para randomizações determinísticas |
-| server_url  | Endereço do servidor multiplayer                  |
-| players     | Lista dos participantes da partida                |
-
 ---
 
-# Seleção de Arena
+# Campos Obrigatórios
 
-A seleção da arena será feita na aplicação web antes do início da partida.
+## match_id
 
-O Godot apenas recebe o identificador da arena e carrega a cena correspondente.
+Identificador único da partida.
 
 Exemplo:
 
 ```json
 {
-  "arena_id": "arena_01"
+  "match_id": "match_123"
 }
 ```
 
-Escopo atual do projeto:
+---
 
-* arena_01
-* arena_02
-* arena_03
+## arena_id
 
-Não existe previsão de geração procedural de mapas.
+Arena selecionada para a partida.
+
+Atualmente existem apenas 3 arenas.
+
+Valores válidos:
+
+```text
+arena_01
+arena_02
+arena_03
+```
 
 ---
 
-# Seleção de Personagem
+## seed
 
-A seleção de personagem será feita na aplicação web antes do início da partida.
-
-O cliente receberá o personagem escolhido através da sessão.
+Seed utilizada para elementos determinísticos da partida.
 
 Exemplo:
 
 ```json
 {
+  "seed": 123456
+}
+```
+
+---
+
+## players
+
+Lista contendo exatamente dois jogadores.
+
+Cada jogador deve possuir:
+
+```json
+{
+  "user_id": "user_001",
+  "slot": 1,
   "character_id": "character_01"
 }
 ```
 
-O Godot utilizará esse identificador para carregar os dados do personagem correspondente.
+---
+
+## slot
+
+Define qual jogador é Player 1 e qual é Player 2.
+
+Valores válidos:
+
+```text
+1
+2
+```
 
 ---
 
-# Sistemas Atualmente Implementados no Cliente
+## character_id
 
-## Jogador
+Personagem previamente escolhido pelo jogador na aplicação web.
 
-* Movimento
-* Dash
-* Disparo
-* Recarga
-* Sistema de morte
-* Sistema de animações
-
-## Projéteis
-
-* Direção
-* Tempo de vida
-* Ricochete em paredes
-* Identificação do jogador que disparou
-
-## Powerups
-
-Powerups atualmente implementados:
-
-| Tipo        | Efeito                             |
-| ----------- | ---------------------------------- |
-| RAPID_FIRE  | Redução do cooldown de tiro        |
-| SPEED_BOOST | Aumento da velocidade de movimento |
-| SHIELD      | Bloqueia um disparo recebido       |
-
-## Fluxo de Partida
-
-* Início de rodada
-* Fim de rodada
-* Controle de placar
-* Respawn dos jogadores entre rodadas
+O cliente Godot apenas consome esse valor.
 
 ---
 
-# Pacote de Input (Cliente → Servidor)
+# Formato da Partida
 
-O cliente foi estruturado para trabalhar com Input Snapshots.
+A partida utiliza o formato "Vai a Cinco".
 
-Formato sugerido:
+Regras:
+
+* Cada eliminação encerra a rodada.
+* O vencedor da rodada recebe 1 ponto.
+* Após um pequeno intervalo uma nova rodada é iniciada.
+* A arena permanece a mesma durante toda a partida.
+* O primeiro jogador a atingir 5 pontos vence.
+* Ao atingir 5 pontos a partida é encerrada.
+
+## Sistema de Ranking
+
+Ao término da partida:
+
+- O vencedor recebe +3 pontos de ranking.
+- O perdedor recebe -1 ponto de ranking.
+
+O cálculo e persistência do ranking são responsabilidade exclusiva do backend.
+
+O cliente Godot não realiza qualquer cálculo ou atualização de ranking.
+
+---
+
+# Sistema de Arenas
+
+Atualmente existem 3 arenas.
+
+A arena é definida antes do início da partida.
+
+O cliente recebe:
 
 ```json
 {
-  "type": "input",
-  "tick": 0,
-  "move_x": 0,
-  "move_y": 0,
-  "aim_x": 0,
-  "aim_y": 0,
-  "shoot": false,
-  "dash": false,
-  "reload": false
+  "arena_id": "arena_02"
 }
 ```
 
-Observação:
-
-O cliente deve enviar intenções do jogador e não posições finais.
-
-A movimentação e validação devem ser autoritativas no servidor.
+e carrega a arena correspondente.
 
 ---
 
-# Snapshot de Estado (Servidor → Cliente)
+# Sistema de Powerups
 
-Formato sugerido:
+Existem atualmente 3 powerups:
+
+```text
+RAPID_FIRE
+SPEED_BOOST
+SHIELD
+```
+
+### Rapid Fire
+
+Reduz o cooldown entre disparos temporariamente.
+
+### Speed Boost
+
+Aumenta a velocidade de movimentação temporariamente.
+
+### Shield
+
+Bloqueia um impacto de projétil.
+
+---
+
+# Multiplayer
+
+O servidor será autoritativo.
+
+O cliente envia apenas entradas do jogador.
+
+Exemplos:
+
+* movimento
+* direção de mira
+* disparo
+* dash
+* reload
+
+O servidor valida as ações e replica o estado para os clientes.
+
+---
+
+# Leaderboard
+
+O cliente Godot não atualiza o leaderboard.
+
+Fluxo esperado:
+
+```text
+Partida termina
+        ↓
+Backend identifica vencedor
+        ↓
+Backend salva resultado
+        ↓
+Backend atualiza ranking
+```
+
+---
+
+# Eventos Esperados
+
+## Início de Partida
 
 ```json
 {
-  "type": "snapshot",
-  "tick": 0,
-  "players": [],
-  "projectiles": [],
-  "powerups": []
+  "type": "match_start",
+  "match_id": "match_123"
 }
 ```
 
-O servidor é responsável por determinar o estado válido da partida.
-
 ---
 
-# Evento de Spawn de Powerup
-
-Formato sugerido:
-
-```json
-{
-  "type": "powerup_spawn",
-  "powerup_type": 1,
-  "spawn_index": 3
-}
-```
-
-Observações:
-
-* Os pontos de spawn de powerup já existem nas arenas.
-* O cliente prefere receber um índice de spawn ao invés de coordenadas.
-* Isso garante sincronização simples entre cliente e servidor.
-
----
-
-# Evento de Fim de Rodada
-
-Formato sugerido:
+## Fim de Rodada
 
 ```json
 {
   "type": "round_end",
   "winner_slot": 1,
-  "score_p1": 2,
-  "score_p2": 1
+  "score_p1": 3,
+  "score_p2": 2
 }
 ```
 
 ---
 
-# Observações Gerais
+## Atualização de Placar
 
-* O cliente já possui estrutura preparada para multiplayer através de Input Snapshots.
-* As arenas possuem Spawn Points para jogadores e Powerup Spawn Points para itens.
-* A seleção de personagem será feita fora do Godot.
-* A seleção de arena será feita fora do Godot.
-* O Godot apenas consome os dados da sessão e executa a partida.
-* O protocolo final pode ser ajustado em conjunto durante a integração.
-* O escopo do projeto permanecerá limitado às três arenas e aos sistemas atualmente implementados.
+```json
+{
+  "type": "score_update",
+  "score_p1": 4,
+  "score_p2": 3
+}
+```
+
+---
+
+## Fim de Partida
+
+```json
+{
+  "type": "match_end",
+  "winner_slot": 1,
+  "score_p1": 5,
+  "score_p2": 3
+}
+```
+
+---
+
+# Escopo Atual
+
+O projeto atual contempla:
+
+* Multiplayer 1x1
+* 3 arenas
+* Sistema de rounds
+* Formato vai a cinco
+* 3 powerups
+* OAuth via aplicação web
+* Leaderboard global
+* Modo treino sem impacto no ranking
+
+Qualquer funcionalidade fora dessa lista deve ser considerada fora do escopo atual do projeto.
