@@ -154,13 +154,16 @@ Regras:
 * A arena permanece a mesma durante toda a partida.
 * O primeiro jogador a atingir 5 pontos vence.
 * Ao atingir 5 pontos a partida é encerrada.
+* O cliente exibe uma tela de vitória antes de retornar ao fluxo de matchmaking.
+
+---
 
 ## Sistema de Ranking
 
 Ao término da partida:
 
-- O vencedor recebe +3 pontos de ranking.
-- O perdedor recebe -1 ponto de ranking.
+* O vencedor recebe +3 pontos de ranking.
+* O perdedor recebe -1 ponto de ranking.
 
 O cálculo e persistência do ranking são responsabilidade exclusiva do backend.
 
@@ -210,6 +213,25 @@ Bloqueia um impacto de projétil.
 
 ---
 
+## Autoridade dos Powerups
+
+O servidor é responsável por:
+
+* Definir quando um powerup aparece.
+* Definir qual powerup apareceu.
+* Definir onde o powerup apareceu.
+* Validar a coleta do powerup.
+* Informar aos clientes qual jogador coletou o powerup.
+
+O cliente é responsável por:
+
+* Exibir o powerup na arena.
+* Exibir ícones e efeitos visuais.
+* Aplicar efeitos locais de gameplay.
+* Controlar temporizadores visuais dos buffs.
+
+---
+
 # Multiplayer
 
 O servidor será autoritativo.
@@ -256,6 +278,37 @@ Backend atualiza ranking
   "match_id": "match_123"
 }
 ```
+
+---
+
+## Spawn de Powerup
+
+Enviado pelo servidor quando um powerup aparece na arena.
+
+```json
+{
+  "type": "powerup_spawn",
+  "powerup_id": "pw_001",
+  "powerup_type": "RAPID_FIRE",
+  "spawn_point_id": 2
+}
+```
+
+---
+
+## Coleta de Powerup
+
+Enviado pelo servidor quando um jogador coleta um powerup.
+
+```json
+{
+  "type": "powerup_collected",
+  "player_slot": 1,
+  "powerup_type": "RAPID_FIRE"
+}
+```
+
+O cliente aplica localmente os efeitos visuais e mecânicos correspondentes ao powerup recebido.
 
 ---
 
