@@ -2,12 +2,15 @@ extends Node
 
 @onready var entities: Node2D = $"../../Entities"
 @onready var hud: CanvasLayer = $"../../UI/Hud"
+@onready var match_end_screen = $"../../UI/MatchEndScreen"
+@onready var match_end_label = $"../../UI/MatchEndScreen/Label"
+@onready var round_result_screen = $"../../UI/RoundResultScreen"
 
 @export var player_scene: PackedScene
 @export var powerup_scene: PackedScene
 
+var match_finished: bool = false
 var round_active: bool = false
-
 var spawn_points: Array[Marker2D] = []
 var powerup_spawn_points: Array[Marker2D] = []
 var active_powerup: Powerup = null
@@ -15,6 +18,10 @@ var scores: Dictionary ={
 	1: 0,
 	2: 0
 }
+
+const SCORE_TO_WIN: int = 5
+
+signal match_ended(winner_id: int)
 
 func _ready() -> void:
 	var found_spawns: Array[Node] = get_tree().get_nodes_in_group("spawn_points")
@@ -66,10 +73,10 @@ func _on_player_died(dead_player_id: int) -> void:
 	else:
 		winner_id = 1
 	
-	print("Player morreu: ", dead_player_id)
 	end_round(winner_id)
 	
 func start_round() -> void:
+	round_result_screen.hide_screen()
 	if MatchData.session == null:
 		push_error("No session available")
 		return
@@ -96,15 +103,20 @@ func end_round(winner_id: int) -> void:
 	scores[winner_id] += 1
 	
 	hud.update_score(scores[1], scores[2])
-	
-	print("Player vencedor: ", winner_id)
-	print(scores)
-	
-	reset_round()
+		
+	if scores[winner_id] >= SCORE_TO_WIN:
+		end_match(winner_id)
+		
+		await get_tree().create_timer(5.0).timeout
+		_return_to_matchmaking()
+	else:
+		round_result_screen.show_round_result(winner_id, scores[1], scores[2])
+		await get_tree().create_timer(2.0).timeout
+		round_result_screen.hide_screen()
+		
+		reset_round()
 	
 func reset_round() -> void:
-	await get_tree().create_timer(2.0).timeout
-	
 	start_round()
 	
 func clear_players() -> void:
@@ -114,7 +126,7 @@ func clear_players() -> void:
 		player.queue_free()
 
 func start_powerup_loop() -> void:
-	while true:
+	while not match_finished:
 		var wait_time := randf_range(1.0, 20.0)
 		
 		await get_tree().create_timer(wait_time).timeout
@@ -147,3 +159,24 @@ func spawn_random_powerup() -> void:
 	
 func _on_powerup_removed() -> void:
 	active_powerup = null
+
+func end_match(winner_id: int) -> void:
+	round_result_screen.hide_screen()
+	show_winner(winner_id)
+	clear_players()
+	
+	if is_instance_valid(active_powerup):
+		active_powerup.queue_free()
+		
+	active_powerup = null
+	round_active = false
+	match_finished = true
+	match_ended.emit(winner_id)
+
+func show_winner(winner_id: int) -> void:
+	match_end_screen.visible = true
+	match_end_label.text = "PLAYER %d WINS!" % winner_id
+
+func _return_to_matchmaking() -> void:
+	print("Returning to matchmaking...")
+	pass

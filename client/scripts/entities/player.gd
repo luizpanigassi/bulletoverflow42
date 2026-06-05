@@ -114,7 +114,6 @@ func shoot() -> void:
 	var projectile: Area2D = projectile_scene.instantiate()
 	
 	current_ammo -= 1
-	print("Ammo: ", current_ammo)
 	ammo_changed.emit(player_id, current_ammo)
 	
 	projectile.global_position = global_position
@@ -178,8 +177,6 @@ func reload() -> void:
 	reload_fill.visible = true
 	reload_bar_background.visible = true
 	
-	print("Reloading...")
-	
 	var tween: Tween = create_tween()
 	tween.set_trans(Tween.TRANS_SINE)
 	tween.set_ease(Tween.EASE_OUT)
@@ -193,7 +190,6 @@ func reload() -> void:
 	
 	reload_fill.visible = false
 	reload_bar_background.visible = false
-	print("Reloaded!")
 
 func die() -> void:
 	died.emit(player_id)
@@ -312,29 +308,23 @@ func apply_powerup(powerup_type: PowerupTypes.Type) -> void:
 			
 func _apply_rapid_fire() -> void:
 	cooldown_multiplier = 0.5
-	print("Rapid fire engaged")
 	
 	await get_tree().create_timer(5.0).timeout
 	
 	cooldown_multiplier = 1.0
 	clear_powerup_icon(PowerupTypes.Type.RAPID_FIRE)
-	print("Rapid fire over")
 	
 func _apply_speed_boost() -> void:
 	speed_multiplier = 1.4
-	print("Speed boost engaged")
 	
 	await get_tree().create_timer(5.0).timeout
 	
 	speed_multiplier = 1
 	clear_powerup_icon(PowerupTypes.Type.SPEED_BOOST)
-	print("Speed boost over")
 	
 func _apply_shield() -> void:
 	if shield_hits > 0:
-		print("Nope, you got a shield")
 		return
-	print("Shield engaged")
 	shield_hits = 1
 
 func set_powerup_icon(powerup_type: PowerupTypes.Type) -> void:
