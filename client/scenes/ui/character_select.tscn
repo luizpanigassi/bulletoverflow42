@@ -23,6 +23,8 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_top = 1.0
+offset_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 1)
@@ -30,17 +32,17 @@ color = Color(0, 0, 0, 1)
 [node name="TitleLabel" type="Label" parent="."]
 layout_mode = 0
 offset_left = 467.0
-offset_top = 64.0
-offset_right = 618.0
-offset_bottom = 87.0
+offset_top = 65.0
+offset_right = 650.0
+offset_bottom = 88.0
 text = "CHOOSE YOUR FIGHTER"
 
 [node name="P1Panel" type="VBoxContainer" parent="."]
 layout_mode = 0
 offset_left = 344.0
-offset_top = 247.0
-offset_right = 384.0
-offset_bottom = 324.0
+offset_top = 248.0
+offset_right = 468.0
+offset_bottom = 395.0
 
 [node name="P1Title" type="Label" parent="P1Panel"]
 layout_mode = 2
@@ -70,9 +72,9 @@ text = "Ready"
 [node name="P2Panel" type="VBoxContainer" parent="."]
 layout_mode = 0
 offset_left = 697.0
-offset_top = 245.0
-offset_right = 737.0
-offset_bottom = 322.0
+offset_top = 246.0
+offset_right = 821.0
+offset_bottom = 393.0
 
 [node name="P2Title" type="Label" parent="P2Panel"]
 layout_mode = 2
@@ -102,16 +104,16 @@ text = "Ready"
 [node name="StartLabel" type="Label" parent="."]
 layout_mode = 0
 offset_left = 497.0
-offset_top = 473.0
-offset_right = 624.0
-offset_bottom = 496.0
+offset_top = 474.0
+offset_right = 641.0
+offset_bottom = 497.0
 text = "EVERYONE READY?"
 
 [node name="StartButton" type="Button" parent="."]
 layout_mode = 0
 offset_left = 546.0
-offset_top = 508.0
+offset_top = 509.0
 offset_right = 607.0
-offset_bottom = 539.0
+offset_bottom = 540.0
 text = "START!
 "

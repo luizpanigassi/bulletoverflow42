@@ -82,6 +82,7 @@ func start_round() -> void:
 		return
 
 	round_active = true
+	clear_projectiles()
 	clear_players()
 	
 	var selected_spawns: Array[Marker2D] = get_random_spawn_positions()
@@ -118,7 +119,13 @@ func end_round(winner_id: int) -> void:
 	
 func reset_round() -> void:
 	start_round()
+
+func clear_projectiles() -> void:
+	var projectiles: Array[Node] = get_tree().get_nodes_in_group("projectiles")
 	
+	for projectile in projectiles:
+		projectile.queue_free()
+
 func clear_players() -> void:
 	var players: Array[Node] = get_tree().get_nodes_in_group("players")
 	

@@ -19,12 +19,18 @@ config/icon="res://client/icon.svg"
 
 MatchData="*res://client/scripts/system/match_data.gd"
 
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+
 [global_group]
 
 players=""
 spawn_points=""
 walls=""
 powerup_spawns=""
+projectiles=""
 
 [input]
 

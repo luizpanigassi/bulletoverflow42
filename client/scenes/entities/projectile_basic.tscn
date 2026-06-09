@@ -9,7 +9,7 @@ size = Vector2(3.25, 4)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_dkmn5"]
 
-[node name="ProjectileBasic" type="Area2D"]
+[node name="ProjectileBasic" type="Area2D" groups=["projectiles"]]
 script = ExtResource("1_sghnx")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]

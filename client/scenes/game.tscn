@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://bjkw6jbk6w8sk"]
+[gd_scene load_steps=7 format=3 uid="uid://bjkw6jbk6w8sk"]
 
 [ext_resource type="PackedScene" uid="uid://caopbqh62ytq5" path="res://client/scenes/entities/player.tscn" id="1_uwrxv"]
 [ext_resource type="PackedScene" uid="uid://dqy308v3kj2br" path="res://client/scenes/arenas/arena_test.tscn" id="1_yqjtg"]
@@ -7,47 +7,57 @@
 [ext_resource type="PackedScene" uid="uid://djr1ohdoysxw0" path="res://client/scenes/entities/powerup.tscn" id="5_uq6q5"]
 [ext_resource type="Script" uid="uid://nl7rbt2m6eb3" path="res://client/scripts/ui/round_result_screen.gd" id="6_w2vtr"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_uq6q5"]
-size = Vector2(20, 674)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_w2vtr"]
-size = Vector2(1166.5, 10)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_wvq1j"]
-size = Vector2(13.25, 676.75)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_iaaq1"]
-size = Vector2(1166, 20)
-
 [node name="Game" type="Node2D"]
 
 [node name="World" type="Node2D" parent="."]
-
-[node name="Boundaries" type="StaticBody2D" parent="World"]
-
-[node name="WestBoundary" type="CollisionShape2D" parent="World/Boundaries"]
-light_mask = 3
-visibility_layer = 3
-position = Vector2(-580, -9)
-shape = SubResource("RectangleShape2D_uq6q5")
-
-[node name="NorthBoundary" type="CollisionShape2D" parent="World/Boundaries"]
-position = Vector2(3, -330)
-shape = SubResource("RectangleShape2D_w2vtr")
-
-[node name="EastBoundary" type="CollisionShape2D" parent="World/Boundaries"]
-position = Vector2(580.375, -6.375)
-shape = SubResource("RectangleShape2D_wvq1j")
-
-[node name="SouthBoundary" type="CollisionShape2D" parent="World/Boundaries"]
-position = Vector2(1, 333)
-shape = SubResource("RectangleShape2D_iaaq1")
+position = Vector2(641, 360)
 
 [node name="ArenaBase" parent="World" instance=ExtResource("1_yqjtg")]
 position = Vector2(-237, -175)
 
+[node name="SpawnPoints" parent="World/ArenaBase" index="1"]
+position = Vector2(0, 0)
+
 [node name="SpawnPointA" parent="World/ArenaBase/SpawnPoints" index="0"]
 position = Vector2(59, 174)
+
+[node name="PowerUpSpawns" parent="World/ArenaBase" index="2"]
+position = Vector2(0, 0)
+
+[node name="KillZones" parent="World/ArenaBase" index="3"]
+position = Vector2(0, 0)
+
+[node name="GroundMapLayer" parent="World/ArenaBase" index="6"]
+position = Vector2(0, 0)
+
+[node name="WallMapLayer" parent="World/ArenaBase" index="7"]
+position = Vector2(0, 0)
+
+[node name="PropsMapLayer" parent="World/ArenaBase" index="8"]
+position = Vector2(0, 0)
+
+[node name="RightWrapArea2" parent="World/ArenaBase" index="9"]
+position = Vector2(-404, -185)
+collision_mask = 1
+script = null
+
+[node name="LeftWrapArea" parent="World/ArenaBase" index="10"]
+position = Vector2(-404, -185)
+collision_mask = 1
+script = null
+
+[node name="Left" parent="World/ArenaBase/LeftWrapArea" index="0"]
+light_mask = 1
+
+[node name="BottomWrapArea" parent="World/ArenaBase" index="11"]
+light_mask = 1
+position = Vector2(-404, -185)
+script = null
+
+[node name="TopWrapArea" parent="World/ArenaBase" index="12"]
+light_mask = 1
+position = Vector2(-404, -185)
+script = null
 
 [node name="Entities" type="Node2D" parent="."]
 
@@ -134,5 +144,6 @@ text = "MATCH POINT!"
 horizontal_alignment = 1
 
 [node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(639, 360)
 
 [editable path="World/ArenaBase"]
