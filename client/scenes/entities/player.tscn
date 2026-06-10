@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://caopbqh62ytq5"]
+[gd_scene load_steps=13 format=3 uid="uid://caopbqh62ytq5"]
 
 [ext_resource type="Script" uid="uid://bmf8uudlfnclx" path="res://client/scripts/entities/player.gd" id="1_ucweq"]
 [ext_resource type="PackedScene" uid="uid://7ymisuxr0c70" path="res://client/scenes/entities/projectile_basic.tscn" id="2_1ie0h"]
@@ -7,6 +7,10 @@
 [ext_resource type="SpriteFrames" uid="uid://db5k3nhsihuyr" path="res://client/assets/sprites/explorer/explorer.tres" id="4_42nxq"]
 [ext_resource type="Texture2D" uid="uid://dnampmapa1ebc" path="res://client/assets/sprites/powerups/fire_icon.png" id="4_v2rgo"]
 [ext_resource type="Texture2D" uid="uid://cwbwf8ipwcdj6" path="res://client/assets/sprites/powerups/speed_icon.png" id="5_r7se2"]
+[ext_resource type="Texture2D" uid="uid://cy4ijeqcy55op" path="res://client/assets/sprites/ui/bullet_empty.png" id="6_cqr6a"]
+[ext_resource type="Texture2D" uid="uid://d0s876h1jf18w" path="res://client/assets/sprites/ui/bullet_one.png" id="7_fqhrj"]
+[ext_resource type="Texture2D" uid="uid://bjp2ib3yrlrvt" path="res://client/assets/sprites/ui/bullet_two.png" id="8_stvim"]
+[ext_resource type="Texture2D" uid="uid://dyy6amu0buc42" path="res://client/assets/sprites/ui/bullet_full.png" id="9_jc3t8"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5u6hq"]
 size = Vector2(18.0869, 31.5693)
@@ -20,6 +24,10 @@ dash_cooldown = 0.7
 shield_icon = ExtResource("3_lql3w")
 rapid_fire_icon = ExtResource("4_v2rgo")
 speed_icon = ExtResource("5_r7se2")
+ammo_0_texture = ExtResource("6_cqr6a")
+ammo_1_texture = ExtResource("7_fqhrj")
+ammo_2_texture = ExtResource("8_stvim")
+ammo_3_texture = ExtResource("9_jc3t8")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(-0.5, -3.50002)
@@ -57,9 +65,9 @@ animation = &"attack_down"
 
 [node name="PlayerIdLabel" type="Label" parent="."]
 offset_left = -19.0
-offset_top = 16.0
+offset_top = 30.0
 offset_right = 20.0
-offset_bottom = 39.0
+offset_bottom = 53.0
 theme_override_font_sizes/font_size = 9
 text = "Player 1"
 horizontal_alignment = 1
@@ -67,3 +75,8 @@ horizontal_alignment = 1
 [node name="PowerupIcon" type="Sprite2D" parent="."]
 visible = false
 position = Vector2(0, -26)
+scale = Vector2(1.2, 1.2)
+
+[node name="AmmoIcon" type="Sprite2D" parent="."]
+position = Vector2(0, 25)
+scale = Vector2(0.75, 0.75)

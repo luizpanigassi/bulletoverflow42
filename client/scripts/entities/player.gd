@@ -12,6 +12,7 @@ signal ammo_changed(player_id: int, ammo: int)
 @onready var animated_sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var player_id_label: Label = $PlayerIdLabel
 @onready var powerup_icon: Sprite2D = $PowerupIcon
+@onready var ammo_icon: Sprite2D = $AmmoIcon
 
 @export var base_speed: float = 300.0
 @export var acceleration: float = 1800.0
@@ -27,6 +28,10 @@ signal ammo_changed(player_id: int, ammo: int)
 @export var shield_icon: Texture2D
 @export var rapid_fire_icon: Texture2D
 @export var speed_icon: Texture2D
+@export var ammo_0_texture: Texture2D
+@export var ammo_1_texture: Texture2D
+@export var ammo_2_texture: Texture2D
+@export var ammo_3_texture: Texture2D
 
 var can_shoot: bool = true
 var is_dashing: bool = false
@@ -48,6 +53,7 @@ var active_powerup: int = -1
 func _ready() -> void:
 	input_handler.set_player_id(player_id)
 	current_ammo = max_ammo
+	update_ammo_icon()
 	
 	if character_data:
 		animated_sprite.sprite_frames = character_data.sprite_frames
@@ -114,6 +120,7 @@ func shoot() -> void:
 	var projectile: Area2D = projectile_scene.instantiate()
 	
 	current_ammo -= 1
+	update_ammo_icon()
 	ammo_changed.emit(player_id, current_ammo)
 	
 	projectile.global_position = global_position
@@ -185,6 +192,7 @@ func reload() -> void:
 	await tween.finished
 	
 	current_ammo = max_ammo
+	update_ammo_icon()
 	is_reloading = false
 	ammo_changed.emit(player_id, current_ammo)
 	
@@ -354,3 +362,14 @@ func clear_all_powerups() -> void:
 	
 	active_powerup = -1
 	powerup_icon.visible = false
+
+func update_ammo_icon() -> void:
+	match current_ammo:
+		0:
+			ammo_icon.texture = ammo_0_texture
+		1:
+			ammo_icon.texture = ammo_1_texture
+		2:
+			ammo_icon.texture = ammo_2_texture
+		3:
+			ammo_icon.texture = ammo_3_texture

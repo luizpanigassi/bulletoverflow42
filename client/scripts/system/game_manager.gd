@@ -63,9 +63,7 @@ func spawn_player(player_state: PlayerSessionState, spawn_position: Vector2) -> 
 	player_instance.character_data = character_data
 	player_instance.global_position = spawn_position
 	player_instance.died.connect(_on_player_died)
-	player_instance.ammo_changed.connect(hud.update_ammo)
 	entities.add_child(player_instance)
-	hud.update_ammo(player_state.slot, player_instance.current_ammo)
 
 func _on_player_died(dead_player_id: int) -> void:
 	if not round_active:
