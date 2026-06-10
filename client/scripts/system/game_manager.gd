@@ -5,6 +5,7 @@ extends Node
 @onready var match_end_screen = $"../../UI/MatchEndScreen"
 @onready var match_end_label = $"../../UI/MatchEndScreen/Label"
 @onready var round_result_screen = $"../../UI/RoundResultScreen"
+@onready var arena_container = $"../../World/ArenaContainer"
 
 @export var player_scene: PackedScene
 @export var powerup_scene: PackedScene
@@ -20,10 +21,14 @@ var scores: Dictionary ={
 }
 
 const SCORE_TO_WIN: int = 5
+const ARENAS := {
+	"arena_test": preload("res://client/scenes/arenas/arena_test.tscn")
+}
 
 signal match_ended(winner_id: int)
 
 func _ready() -> void:
+	load_arena()
 	var found_spawns: Array[Node] = get_tree().get_nodes_in_group("spawn_points")
 	var found_powerup_spawns: Array[Node] = get_tree().get_nodes_in_group("powerup_spawns")
 	
@@ -187,3 +192,18 @@ func show_winner(winner_id: int) -> void:
 func _return_to_matchmaking() -> void:
 	print("Returning to matchmaking...")
 	pass
+
+func load_arena() -> void:
+	if MatchData.session == null:
+		return
+	
+	var arena_id := String(MatchData.session.arena_id)
+	
+	if not ARENAS.has(arena_id):
+		push_error("Arena not found: %s" % arena_id)
+		return
+		
+	var arena_scene: PackedScene = ARENAS[arena_id]
+	var arena = arena_scene.instantiate()
+	
+	arena_container.add_child(arena)

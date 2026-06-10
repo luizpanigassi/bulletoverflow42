@@ -1,7 +1,6 @@
-[gd_scene load_steps=7 format=3 uid="uid://bjkw6jbk6w8sk"]
+[gd_scene load_steps=6 format=3 uid="uid://bjkw6jbk6w8sk"]
 
 [ext_resource type="PackedScene" uid="uid://caopbqh62ytq5" path="res://client/scenes/entities/player.tscn" id="1_uwrxv"]
-[ext_resource type="PackedScene" uid="uid://dqy308v3kj2br" path="res://client/scenes/arenas/arena_test.tscn" id="1_yqjtg"]
 [ext_resource type="Script" uid="uid://bah4epjadpoi" path="res://client/scripts/system/game_manager.gd" id="3_lnu2h"]
 [ext_resource type="PackedScene" uid="uid://b3ejcg7c68nop" path="res://client/scenes/ui/hud.tscn" id="4_lbhrr"]
 [ext_resource type="PackedScene" uid="uid://djr1ohdoysxw0" path="res://client/scenes/entities/powerup.tscn" id="5_uq6q5"]
@@ -9,55 +8,12 @@
 
 [node name="Game" type="Node2D"]
 
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(640, 360)
+
 [node name="World" type="Node2D" parent="."]
-position = Vector2(641, 360)
 
-[node name="ArenaBase" parent="World" instance=ExtResource("1_yqjtg")]
-position = Vector2(-237, -175)
-
-[node name="SpawnPoints" parent="World/ArenaBase" index="1"]
-position = Vector2(0, 0)
-
-[node name="SpawnPointA" parent="World/ArenaBase/SpawnPoints" index="0"]
-position = Vector2(59, 174)
-
-[node name="PowerUpSpawns" parent="World/ArenaBase" index="2"]
-position = Vector2(0, 0)
-
-[node name="KillZones" parent="World/ArenaBase" index="3"]
-position = Vector2(0, 0)
-
-[node name="GroundMapLayer" parent="World/ArenaBase" index="6"]
-position = Vector2(0, 0)
-
-[node name="WallMapLayer" parent="World/ArenaBase" index="7"]
-position = Vector2(0, 0)
-
-[node name="PropsMapLayer" parent="World/ArenaBase" index="8"]
-position = Vector2(0, 0)
-
-[node name="RightWrapArea2" parent="World/ArenaBase" index="9"]
-position = Vector2(-404, -185)
-collision_mask = 1
-script = null
-
-[node name="LeftWrapArea" parent="World/ArenaBase" index="10"]
-position = Vector2(-404, -185)
-collision_mask = 1
-script = null
-
-[node name="Left" parent="World/ArenaBase/LeftWrapArea" index="0"]
-light_mask = 1
-
-[node name="BottomWrapArea" parent="World/ArenaBase" index="11"]
-light_mask = 1
-position = Vector2(-404, -185)
-script = null
-
-[node name="TopWrapArea" parent="World/ArenaBase" index="12"]
-light_mask = 1
-position = Vector2(-404, -185)
-script = null
+[node name="ArenaContainer" type="Node2D" parent="World"]
 
 [node name="Entities" type="Node2D" parent="."]
 
@@ -142,8 +98,3 @@ grow_vertical = 2
 theme_override_font_sizes/font_size = 30
 text = "MATCH POINT!"
 horizontal_alignment = 1
-
-[node name="Camera2D" type="Camera2D" parent="."]
-position = Vector2(639, 360)
-
-[editable path="World/ArenaBase"]
