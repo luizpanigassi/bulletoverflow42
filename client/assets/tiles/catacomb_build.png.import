@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://3fgxmjnuitmq"
-path="res://.godot/imported/TX Tileset Stone Ground.png-5ea1c33360f7a62f0b280bafbc621a30.ctex"
+uid="uid://c8bgry7lq6mk2"
+path="res://.godot/imported/catacomb_build.png-f4ebbc283c5d61eb6cb3da628c0c3d1c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://client/assets/dowloaded_unsorted/Pixel Art Top Down - Basic v1.2.3/Texture/TX Tileset Stone Ground.png"
-dest_files=["res://.godot/imported/TX Tileset Stone Ground.png-5ea1c33360f7a62f0b280bafbc621a30.ctex"]
+source_file="res://client/assets/tiles/catacomb_build.png"
+dest_files=["res://.godot/imported/catacomb_build.png-f4ebbc283c5d61eb6cb3da628c0c3d1c.ctex"]
 
 [params]
 

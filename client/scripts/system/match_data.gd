@@ -1,6 +1,10 @@
 extends Node
 
 var session: SessionConfig
+var arena_ids := [
+	&"arena_ruins",
+	&"arena_badlands",
+]
 
 func clear_session() -> void:
 	session = null
@@ -9,7 +13,7 @@ func set_local_session(p1_character_id: StringName, p2_character_id: StringName)
 	session = SessionConfig.new()
 	session.mode = &"local"
 	session.match_id = &""
-	session.arena_id = &"arena_test"
+	session.arena_id = arena_ids.pick_random()
 	session.session_seed = randi()
 	session.host_id = &""
 	session.players = [
