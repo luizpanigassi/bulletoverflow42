@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://uy0a8kasa13f"
-path="res://.godot/imported/TX Props.png-16f37d5aa16a72f99ab0296acebcc530.ctex"
+uid="uid://du4t10xen8b75"
+path="res://.godot/imported/badlands_ground.png-c352814fe832a3ec6c0475488a1564af.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://client/assets/dowloaded_unsorted/Pixel Art Top Down - Basic v1.2.3/Texture/TX Props.png"
-dest_files=["res://.godot/imported/TX Props.png-16f37d5aa16a72f99ab0296acebcc530.ctex"]
+source_file="res://client/assets/tiles/badlands_ground.png"
+dest_files=["res://.godot/imported/badlands_ground.png-c352814fe832a3ec6c0475488a1564af.ctex"]
 
 [params]
 

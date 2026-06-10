@@ -1,116 +1,116 @@
 [gd_scene load_steps=3 format=4 uid="uid://dqy308v3kj2br"]
 
-[ext_resource type="PackedScene" uid="uid://dhn7t71k0n0r" path="res://client/scenes/arenas/arena_base.tscn" id="1_hvy0g"]
-[ext_resource type="PackedScene" uid="uid://cf6r6iwedm5wa" path="res://client/scenes/world/spawn_point.tscn" id="3_sx3lf"]
+[ext_resource type="PackedScene" uid="uid://dhn7t71k0n0r" path="res://client/scenes/arenas/arena_base.tscn" id="1_7baxs"]
+[ext_resource type="PackedScene" uid="uid://cf6r6iwedm5wa" path="res://client/scenes/world/spawn_point.tscn" id="2_7rfpp"]
 
-[node name="ArenaBase" instance=ExtResource("1_hvy0g")]
+[node name="ArenaBase" instance=ExtResource("1_7baxs")]
 
 [node name="SpawnPoints" parent="." index="0"]
 visible = false
 
-[node name="SpawnPoint7" parent="SpawnPoints" index="0" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint7" parent="SpawnPoints" index="0" instance=ExtResource("2_7rfpp")]
 position = Vector2(63, 160)
 
-[node name="SpawnPoint6" parent="SpawnPoints" index="1" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint6" parent="SpawnPoints" index="1" instance=ExtResource("2_7rfpp")]
 position = Vector2(191, 159)
 
-[node name="SpawnPoint" parent="SpawnPoints" index="2" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint" parent="SpawnPoints" index="2" instance=ExtResource("2_7rfpp")]
 position = Vector2(304, 110)
 
-[node name="SpawnPoint2" parent="SpawnPoints" index="3" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint2" parent="SpawnPoints" index="3" instance=ExtResource("2_7rfpp")]
 position = Vector2(401, 160)
 
-[node name="SpawnPoint3" parent="SpawnPoints" index="4" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint3" parent="SpawnPoints" index="4" instance=ExtResource("2_7rfpp")]
 position = Vector2(627, 142)
 
-[node name="SpawnPoint4" parent="SpawnPoints" index="5" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint4" parent="SpawnPoints" index="5" instance=ExtResource("2_7rfpp")]
 position = Vector2(815, 125)
 
-[node name="SpawnPoint5" parent="SpawnPoints" index="6" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint5" parent="SpawnPoints" index="6" instance=ExtResource("2_7rfpp")]
 position = Vector2(1008, 145)
 
-[node name="SpawnPoint8" parent="SpawnPoints" index="7" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint8" parent="SpawnPoints" index="7" instance=ExtResource("2_7rfpp")]
 position = Vector2(1154, 190)
 
-[node name="SpawnPoint9" parent="SpawnPoints" index="8" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint9" parent="SpawnPoints" index="8" instance=ExtResource("2_7rfpp")]
 position = Vector2(112, 253)
 
-[node name="SpawnPoint10" parent="SpawnPoints" index="9" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint10" parent="SpawnPoints" index="9" instance=ExtResource("2_7rfpp")]
 position = Vector2(112, 354)
 
-[node name="SpawnPoint11" parent="SpawnPoints" index="10" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint11" parent="SpawnPoints" index="10" instance=ExtResource("2_7rfpp")]
 position = Vector2(175, 446)
 
-[node name="SpawnPoint12" parent="SpawnPoints" index="11" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint12" parent="SpawnPoints" index="11" instance=ExtResource("2_7rfpp")]
 position = Vector2(161, 590)
 
-[node name="SpawnPoint13" parent="SpawnPoints" index="12" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint13" parent="SpawnPoints" index="12" instance=ExtResource("2_7rfpp")]
 position = Vector2(273, 318)
 
-[node name="SpawnPoint14" parent="SpawnPoints" index="13" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint14" parent="SpawnPoints" index="13" instance=ExtResource("2_7rfpp")]
 position = Vector2(288, 559)
 
-[node name="SpawnPoint15" parent="SpawnPoints" index="14" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint15" parent="SpawnPoints" index="14" instance=ExtResource("2_7rfpp")]
 position = Vector2(369, 320)
 
-[node name="SpawnPoint16" parent="SpawnPoints" index="15" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint16" parent="SpawnPoints" index="15" instance=ExtResource("2_7rfpp")]
 position = Vector2(448, 270)
 
-[node name="SpawnPoint17" parent="SpawnPoints" index="16" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint17" parent="SpawnPoints" index="16" instance=ExtResource("2_7rfpp")]
 position = Vector2(592, 239)
 
-[node name="SpawnPoint18" parent="SpawnPoints" index="17" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint18" parent="SpawnPoints" index="17" instance=ExtResource("2_7rfpp")]
 position = Vector2(833, 240)
 
-[node name="SpawnPoint19" parent="SpawnPoints" index="18" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint19" parent="SpawnPoints" index="18" instance=ExtResource("2_7rfpp")]
 position = Vector2(721, 287)
 
-[node name="SpawnPoint20" parent="SpawnPoints" index="19" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint20" parent="SpawnPoints" index="19" instance=ExtResource("2_7rfpp")]
 position = Vector2(369, 448)
 
-[node name="SpawnPoint21" parent="SpawnPoints" index="20" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint21" parent="SpawnPoints" index="20" instance=ExtResource("2_7rfpp")]
 position = Vector2(529, 385)
 
-[node name="SpawnPoint22" parent="SpawnPoints" index="21" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint22" parent="SpawnPoints" index="21" instance=ExtResource("2_7rfpp")]
 position = Vector2(417, 574)
 
-[node name="SpawnPoint23" parent="SpawnPoints" index="22" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint23" parent="SpawnPoints" index="22" instance=ExtResource("2_7rfpp")]
 position = Vector2(529, 511)
 
-[node name="SpawnPoint24" parent="SpawnPoints" index="23" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint24" parent="SpawnPoints" index="23" instance=ExtResource("2_7rfpp")]
 position = Vector2(754, 384)
 
-[node name="SpawnPoint25" parent="SpawnPoints" index="24" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint25" parent="SpawnPoints" index="24" instance=ExtResource("2_7rfpp")]
 position = Vector2(912, 351)
 
-[node name="SpawnPoint26" parent="SpawnPoints" index="25" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint26" parent="SpawnPoints" index="25" instance=ExtResource("2_7rfpp")]
 position = Vector2(1024, 350)
 
-[node name="SpawnPoint27" parent="SpawnPoints" index="26" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint27" parent="SpawnPoints" index="26" instance=ExtResource("2_7rfpp")]
 position = Vector2(1170, 352)
 
-[node name="SpawnPoint28" parent="SpawnPoints" index="27" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint28" parent="SpawnPoints" index="27" instance=ExtResource("2_7rfpp")]
 position = Vector2(673, 495)
 
-[node name="SpawnPoint29" parent="SpawnPoints" index="28" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint29" parent="SpawnPoints" index="28" instance=ExtResource("2_7rfpp")]
 position = Vector2(593, 592)
 
-[node name="SpawnPoint30" parent="SpawnPoints" index="29" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint30" parent="SpawnPoints" index="29" instance=ExtResource("2_7rfpp")]
 position = Vector2(864, 464)
 
-[node name="SpawnPoint31" parent="SpawnPoints" index="30" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint31" parent="SpawnPoints" index="30" instance=ExtResource("2_7rfpp")]
 position = Vector2(768, 575)
 
-[node name="SpawnPoint32" parent="SpawnPoints" index="31" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint32" parent="SpawnPoints" index="31" instance=ExtResource("2_7rfpp")]
 position = Vector2(1136, 465)
 
-[node name="SpawnPoint33" parent="SpawnPoints" index="32" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint33" parent="SpawnPoints" index="32" instance=ExtResource("2_7rfpp")]
 position = Vector2(929, 576)
 
-[node name="SpawnPoint34" parent="SpawnPoints" index="33" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint34" parent="SpawnPoints" index="33" instance=ExtResource("2_7rfpp")]
 position = Vector2(1057, 574)
 
-[node name="SpawnPoint35" parent="SpawnPoints" index="34" instance=ExtResource("3_sx3lf")]
+[node name="SpawnPoint35" parent="SpawnPoints" index="34" instance=ExtResource("2_7rfpp")]
 position = Vector2(1152, 591)
 
 [node name="PowerUpSpawns" parent="." index="1"]
@@ -223,6 +223,10 @@ position = Vector2(928, 575)
 
 [node name="PowerUpSpawn36" type="Marker2D" parent="PowerUpSpawns" index="35" groups=["powerup_spawns"]]
 position = Vector2(770, 575)
+
+[node name="PlantsMapLayer" parent="." index="3"]
+z_index = 8
+tile_map_data = PackedByteArray("AAAYABYAAAABAAQAAAAYABcAAAABAAUAAAAYABgAAAABAAYAAAAZABQAAAACAAIAAAAZABUAAAACAAMAAAAZABYAAAACAAQAAAAZABcAAAACAAUAAAAZABgAAAACAAYAAAAZABkAAAACAAcAAAAaABMAAAADAAEAAAAaABQAAAADAAIAAAAaABUAAAADAAMAAAAaABYAAAADAAQAAAAaABcAAAADAAUAAAAaABgAAAADAAYAAAAaABkAAAADAAcAAAAbABIAAAAEAAAAAAAbABMAAAAEAAEAAAAbABQAAAAEAAIAAAAbABUAAAAEAAMAAAAbABYAAAAEAAQAAAAbABcAAAAEAAUAAAAbABgAAAAEAAYAAAAbABkAAAAEAAcAAAAbABoAAAAEAAgAAAAbABsAAAAEAAkAAAAcABIAAAAFAAAAAAAcABMAAAAFAAEAAAAcABQAAAAFAAIAAAAcABUAAAAFAAMAAAAcABYAAAAFAAQAAAAcABcAAAAFAAUAAAAcABgAAAAFAAYAAAAcABkAAAAFAAcAAAAcABoAAAAFAAgAAAAcABsAAAAFAAkAAAAdABMAAAAGAAEAAAAdABQAAAAGAAIAAAAdABUAAAAGAAMAAAAdABYAAAAGAAQAAAAdABcAAAAGAAUAAAAdABgAAAAGAAYAAAAdABkAAAAGAAcAAAAeABQAAAAHAAIAAAAeABUAAAAHAAMAAAAeABYAAAAHAAQAAAAeABcAAAAHAAUAAAAeABgAAAAHAAYAAAAfABYAAAAIAAQAAAAfABcAAAAIAAUAAAA2AA0AAAABAAQAAAA2AA4AAAABAAUAAAA2AA8AAAABAAYAAAA3AAsAAAACAAIAAAA3AAwAAAACAAMAAAA3AA0AAAACAAQAAAA3AA4AAAACAAUAAAA3AA8AAAACAAYAAAA3ABAAAAACAAcAAAA4AAoAAAADAAEAAAA4AAsAAAADAAIAAAA4AAwAAAADAAMAAAA4AA0AAAADAAQAAAA4AA4AAAADAAUAAAA4AA8AAAADAAYAAAA4ABAAAAADAAcAAAA5AAkAAAAEAAAAAAA5AAoAAAAEAAEAAAA5AAsAAAAEAAIAAAA5AAwAAAAEAAMAAAA5AA0AAAAEAAQAAAA5AA4AAAAEAAUAAAA5AA8AAAAEAAYAAAA5ABAAAAAEAAcAAAA5ABEAAAAEAAgAAAA5ABIAAAAEAAkAAAA6AAkAAAAFAAAAAAA6AAoAAAAFAAEAAAA6AAsAAAAFAAIAAAA6AAwAAAAFAAMAAAA6AA0AAAAFAAQAAAA6AA4AAAAFAAUAAAA6AA8AAAAFAAYAAAA6ABAAAAAFAAcAAAA6ABEAAAAFAAgAAAA6ABIAAAAFAAkAAAA7AAoAAAAGAAEAAAA7AAsAAAAGAAIAAAA7AAwAAAAGAAMAAAA7AA0AAAAGAAQAAAA7AA4AAAAGAAUAAAA7AA8AAAAGAAYAAAA7ABAAAAAGAAcAAAA8AAsAAAAHAAIAAAA8AAwAAAAHAAMAAAA8AA0AAAAHAAQAAAA8AA4AAAAHAAUAAAA8AA8AAAAHAAYAAAA9AA0AAAAIAAQAAAA9AA4AAAAIAAUAAAAIAA4AAAABAAQAAAAIAA8AAAABAAUAAAAIABAAAAABAAYAAAAJAAwAAAACAAIAAAAJAA0AAAACAAMAAAAJAA4AAAACAAQAAAAJAA8AAAACAAUAAAAJABAAAAACAAYAAAAJABEAAAACAAcAAAAKAAsAAAADAAEAAAAKAAwAAAADAAIAAAAKAA0AAAADAAMAAAAKAA4AAAADAAQAAAAKAA8AAAADAAUAAAAKABAAAAADAAYAAAAKABEAAAADAAcAAAALAAoAAAAEAAAAAAALAAsAAAAEAAEAAAALAAwAAAAEAAIAAAALAA0AAAAEAAMAAAALAA4AAAAEAAQAAAALAA8AAAAEAAUAAAALABAAAAAEAAYAAAALABEAAAAEAAcAAAALABIAAAAEAAgAAAALABMAAAAEAAkAAAAMAAoAAAAFAAAAAAAMAAsAAAAFAAEAAAAMAAwAAAAFAAIAAAAMAA0AAAAFAAMAAAAMAA4AAAAFAAQAAAAMAA8AAAAFAAUAAAAMABAAAAAFAAYAAAAMABEAAAAFAAcAAAAMABIAAAAFAAgAAAAMABMAAAAFAAkAAAANAAsAAAAGAAEAAAANAAwAAAAGAAIAAAANAA0AAAAGAAMAAAANAA4AAAAGAAQAAAANAA8AAAAGAAUAAAANABAAAAAGAAYAAAANABEAAAAGAAcAAAAOAAwAAAAHAAIAAAAOAA0AAAAHAAMAAAAOAA4AAAAHAAQAAAAOAA8AAAAHAAUAAAAOABAAAAAHAAYAAAAPAA4AAAAIAAQAAAAPAA8AAAAIAAUAAAAJABYAAAAEABwAAAAJABcAAAAEAB0AAAAKABYAAAAFABwAAAAKABcAAAAFAB0AAAATABQAAAAEABwAAAATABUAAAAEAB0AAAAUABQAAAAFABwAAAAUABUAAAAFAB0AAAAkABwAAAAEABwAAAAkAB0AAAAEAB0AAAAlABwAAAAFABwAAAAlAB0AAAAFAB0AAAAyABUAAAAEABwAAAAyABYAAAAEAB0AAAAzABUAAAAFABwAAAAzABYAAAAFAB0AAAAqABQAAAAEABwAAAAqABUAAAAEAB0AAAArABQAAAAFABwAAAArABUAAAAFAB0AAAAhABIAAAACABwAAAAhABMAAAACAB0AAAAiABIAAAADABwAAAAiABMAAAADAB0AAAAaAA0AAAACABwAAAAaAA4AAAACAB0AAAAbAA0AAAADABwAAAAbAA4AAAADAB0AAAAwABEAAAAEABgAAAAwABIAAAAEABkAAAAxABEAAAAFABgAAAAxABIAAAAFABkAAAAmAAsAAAAEABgAAAAmAAwAAAAEABkAAAAnAAsAAAAFABgAAAAnAAwAAAAFABkAAAA8ABsAAAAEABgAAAA8ABwAAAAEABkAAAA9ABsAAAAFABgAAAA9ABwAAAAFABkAAAA=")
 
 [node name="GroundMapLayer" parent="." index="4"]
 z_index = -8

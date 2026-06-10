@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d1htpyaqhrq38"
-path="res://.godot/imported/TX Tileset Grass.png-a10c858f3dfff1c73242d08a7c1599e3.ctex"
+uid="uid://3o76dsc2ek5o"
+path="res://.godot/imported/badlands_walls.png-c8b3faa44dc415baeec23bcd8b489a5f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://client/assets/dowloaded_unsorted/Pixel Art Top Down - Basic v1.2.3/Texture/TX Tileset Grass.png"
-dest_files=["res://.godot/imported/TX Tileset Grass.png-a10c858f3dfff1c73242d08a7c1599e3.ctex"]
+source_file="res://client/assets/tiles/badlands_walls.png"
+dest_files=["res://.godot/imported/badlands_walls.png-c8b3faa44dc415baeec23bcd8b489a5f.ctex"]
 
 [params]
 

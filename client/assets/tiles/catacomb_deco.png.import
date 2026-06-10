@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dncjvhvy2oq5h"
-path="res://.godot/imported/TX Tileset Wall.png-52cd0370e1ac95f34089766427ee8104.ctex"
+uid="uid://cm7w3h3cgfst"
+path="res://.godot/imported/catacomb_deco.png-dbbb5696d7b458a5ac6d83c676df46c8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://client/assets/dowloaded_unsorted/Pixel Art Top Down - Basic v1.2.3/Texture/TX Tileset Wall.png"
-dest_files=["res://.godot/imported/TX Tileset Wall.png-52cd0370e1ac95f34089766427ee8104.ctex"]
+source_file="res://client/assets/tiles/catacomb_deco.png"
+dest_files=["res://.godot/imported/catacomb_deco.png-dbbb5696d7b458a5ac6d83c676df46c8.ctex"]
 
 [params]
 
