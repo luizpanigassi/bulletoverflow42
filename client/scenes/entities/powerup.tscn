@@ -9,6 +9,7 @@
 size = Vector2(22, 20)
 
 [node name="Powerup" type="Area2D"]
+collision_layer = 8
 script = ExtResource("1_3vh62")
 speed_boost_texture = ExtResource("2_anemp")
 rapid_fire_texture = ExtResource("3_mgxig")

@@ -12,6 +12,7 @@
 size = Vector2(18.0869, 31.5693)
 
 [node name="Player" type="CharacterBody2D" groups=["players"]]
+collision_mask = 10
 script = ExtResource("1_ucweq")
 projectile_scene = ExtResource("2_1ie0h")
 dash_speed = 500.0
