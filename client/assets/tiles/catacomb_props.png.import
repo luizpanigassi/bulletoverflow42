@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c8bgry7lq6mk2"
-path="res://.godot/imported/catacomb_build.png-f4ebbc283c5d61eb6cb3da628c0c3d1c.ctex"
+uid="uid://cm7w3h3cgfst"
+path="res://.godot/imported/catacomb_props.png-8ca5ee0418c6c22e3a7d2e29907550b5.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://client/assets/tiles/catacomb_build.png"
-dest_files=["res://.godot/imported/catacomb_build.png-f4ebbc283c5d61eb6cb3da628c0c3d1c.ctex"]
+source_file="res://client/assets/tiles/catacomb_props.png"
+dest_files=["res://.godot/imported/catacomb_props.png-8ca5ee0418c6c22e3a7d2e29907550b5.ctex"]
 
 [params]
 

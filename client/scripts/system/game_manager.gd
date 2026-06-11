@@ -23,7 +23,8 @@ var scores: Dictionary ={
 const SCORE_TO_WIN: int = 5
 const ARENAS := {
 	"arena_ruins": preload("res://client/scenes/arenas/arena_ruins.tscn"),
-	"arena_badlands": preload("res://client/scenes/arenas/arena_badlands.tscn")
+	"arena_badlands": preload("res://client/scenes/arenas/arena_badlands.tscn"),
+	"arena_catacombs": preload("res://client/scenes/arenas/arena_catacombs.tscn")
 }
 
 signal match_ended(winner_id: int)

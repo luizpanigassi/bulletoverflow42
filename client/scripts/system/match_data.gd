@@ -4,6 +4,7 @@ var session: SessionConfig
 var arena_ids := [
 	&"arena_ruins",
 	&"arena_badlands",
+	&"arena_catacombs",
 ]
 
 func clear_session() -> void:

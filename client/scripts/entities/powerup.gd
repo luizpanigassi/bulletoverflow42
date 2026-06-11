@@ -8,9 +8,18 @@ class_name Powerup
 @export var shield_texture: Texture2D
 
 var powerup_type: PowerupTypes.Type
+var float_time: float = 0.0
 
 func _ready():
 	configure_visual()
+	
+func _process(delta: float) -> void:
+	float_time += delta
+	var wave: float = sin(float_time * 2.0)
+
+	sprite.position.y = wave * 6.0
+	sprite.scale = Vector2.ONE * (1.2 + wave * 0.2)
+	
 
 func _on_body_entered(body: Node2D) -> void:
 	if not body is Player:
