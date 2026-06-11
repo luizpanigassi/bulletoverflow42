@@ -38,14 +38,8 @@ func _on_body_entered(body: Node2D) -> void:
 	if body.player_id == owner_id:
 		return
 	
-	if body.shield_hits > 0:
-		body.shield_hits -= 1
-		body.clear_powerup_icon(PowerupTypes.Type.SHIELD)
+	if body.take_hit():
 		queue_free()
-		return
-		
-	body.die()
-	queue_free()
 	
 func _on_visible_on_screen_notifier_2d_screen_exited() -> void:
 	queue_free()

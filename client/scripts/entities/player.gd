@@ -43,6 +43,7 @@ var facing_axis: StringName = &"down"
 var is_attacking: bool = false
 var external_input_snapshot: InputSnapshot
 var use_external_input: bool = false
+var is_invulnerable: bool = false
 
 var active_effects: Dictionary = {}
 var speed_multiplier: float = 1.0
@@ -147,7 +148,9 @@ func start_dash() -> void:
 	if not can_dash:
 		return
 	
+	animated_sprite.modulate.a = 0.5
 	is_dashing = true
+	is_invulnerable = true
 	can_dash = false
 	is_attacking = false
 	
@@ -165,6 +168,10 @@ func start_dash() -> void:
 func end_dash() -> void:
 	await get_tree().create_timer(dash_duration).timeout
 	is_dashing = false
+	is_invulnerable = false
+	
+	animated_sprite.modulate.a = 1.0
+	
 	_update_animation()
 	
 func reset_dash_cooldown() -> void:
@@ -202,6 +209,18 @@ func reload() -> void:
 func die() -> void:
 	died.emit(player_id)
 	queue_free()
+
+func take_hit() -> bool:
+	if is_invulnerable:
+		return false
+		
+	if shield_hits > 0:
+		shield_hits -= 1
+		clear_powerup_icon(PowerupTypes.Type.SHIELD)
+		return true
+	
+	die()
+	return true
 
 func _on_animation_changed() -> void:
 	apply_animation_offset(animated_sprite.animation)
