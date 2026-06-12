@@ -12,7 +12,6 @@ extends Control
 @onready var p2_ready_button: Button = $P2Panel/P2Ready
 @onready var start_match_button: Button = $StartButton
 @onready var input_handler_p1: Node = $InputHandlerP1
-@onready var input_handler_p2: Node = $InputHandlerP2
 
 @export var player_id: int = 1
 
@@ -31,8 +30,7 @@ func _ready() -> void:
 	]
 	
 	input_handler_p1.set_player_id(1)
-	input_handler_p2.set_player_id(2)
-	
+		
 	p1_prev_button.pressed.connect(_on_p1_prev_pressed)
 	p1_next_button.pressed.connect(_on_p1_next_pressed)
 	p1_ready_button.pressed.connect(_on_p1_ready_pressed)
@@ -47,23 +45,14 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	input_handler_p1.process_input()
-	input_handler_p2.process_input()
 	
 	if input_handler_p1.prev_pressed:
 		_on_p1_prev_pressed()
 	elif input_handler_p1.next_pressed:
 		_on_p1_next_pressed()
 		
-	if input_handler_p2.prev_pressed:
-		_on_p2_prev_pressed()
-	elif input_handler_p2.next_pressed:
-		_on_p2_next_pressed()
-		
 	if input_handler_p1.confirm_pressed:
 		_on_p1_ready_pressed()
-	
-	if input_handler_p2.confirm_pressed:
-		_on_p2_ready_pressed()
 
 #p1 buttons
 func _on_p1_prev_pressed() -> void:

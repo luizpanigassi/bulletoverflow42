@@ -32,6 +32,7 @@ signal ammo_changed(player_id: int, ammo: int)
 @export var ammo_1_texture: Texture2D
 @export var ammo_2_texture: Texture2D
 @export var ammo_3_texture: Texture2D
+@export var is_bot: bool = false
 
 var can_shoot: bool = true
 var is_dashing: bool = false
@@ -44,12 +45,15 @@ var is_attacking: bool = false
 var external_input_snapshot: InputSnapshot
 var use_external_input: bool = false
 var is_invulnerable: bool = false
+var controls_enabled: bool = true
 
 var active_effects: Dictionary = {}
 var speed_multiplier: float = 1.0
 var cooldown_multiplier: float = 1.0
 var shield_hits: int = 0
 var active_powerup: int = -1
+
+var current_snapshot: InputSnapshot
 
 func _ready() -> void:
 	input_handler.set_player_id(player_id)
@@ -71,7 +75,11 @@ func _ready() -> void:
 	_update_animation(true)
 
 func _physics_process(delta: float) -> void:
-	var snapshot := _get_input_snapshot()
+	if not controls_enabled:
+		return
+	
+	current_snapshot = _get_input_snapshot()
+	var snapshot := current_snapshot
 	
 	if snapshot.dash_pressed:
 		start_dash()
@@ -126,10 +134,10 @@ func shoot() -> void:
 	
 	projectile.global_position = global_position
 	
-	var shoot_direction: Vector2 = input_handler.aim_direction
+	var shoot_direction: Vector2 = current_snapshot.aim_direction
 	
 	if shoot_direction == Vector2.ZERO:
-		shoot_direction = input_handler.last_move_direction
+		shoot_direction = current_snapshot.last_move_direction
 		
 	projectile.direction = shoot_direction.normalized()
 	
@@ -148,16 +156,16 @@ func start_dash() -> void:
 	if not can_dash:
 		return
 	
-	animated_sprite.modulate.a = 0.5
+	animated_sprite.modulate.a = 0.3
 	is_dashing = true
 	is_invulnerable = true
 	can_dash = false
 	is_attacking = false
 	
-	var dash_direction: Vector2 = input_handler.move_direction
+	var dash_direction: Vector2 = current_snapshot.move_direction
 	
 	if dash_direction == Vector2.ZERO:
-		dash_direction = input_handler.last_move_direction
+		dash_direction = current_snapshot.last_move_direction
 	
 	velocity = dash_direction * dash_speed
 	_apply_dash_pose()
@@ -264,8 +272,8 @@ func _update_animation(force: bool = false) -> void:
 		return
 
 	var target_animation: StringName
-	var snapshot := _get_input_snapshot()
-	if snapshot.move_direction != Vector2.ZERO:
+	
+	if velocity.length() > 0.1:
 		target_animation = _animation_name("run")
 	else:
 		target_animation = _animation_name("idle")
@@ -315,6 +323,9 @@ func _get_input_snapshot() -> InputSnapshot:
 	if use_external_input and external_input_snapshot:
 		return external_input_snapshot
 
+	if is_bot:
+		return InputSnapshot.new()
+		
 	input_handler.process_input()
 	return input_handler.get_snapshot()
 

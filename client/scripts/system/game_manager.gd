@@ -6,10 +6,14 @@ extends Node
 @onready var match_end_label = $"../../UI/MatchEndScreen/Label"
 @onready var round_result_screen = $"../../UI/RoundResultScreen"
 @onready var arena_container = $"../../World/ArenaContainer"
+@onready var round_countdown_screen = $"../../UI/RoundCountdownScreen"
 
 @export var player_scene: PackedScene
 @export var powerup_scene: PackedScene
 
+var player1: Player
+var player2: Player
+var bot_controller: Node
 var match_finished: bool = false
 var round_active: bool = false
 var spawn_points: Array[Marker2D] = []
@@ -20,12 +24,14 @@ var scores: Dictionary ={
 	2: 0
 }
 
+const BotControllerScene = preload("res://client/scripts/system/bot_controller.gd")
 const SCORE_TO_WIN: int = 5
 const ARENAS := {
 	"arena_ruins": preload("res://client/scenes/arenas/arena_ruins.tscn"),
 	"arena_badlands": preload("res://client/scenes/arenas/arena_badlands.tscn"),
 	"arena_catacombs": preload("res://client/scenes/arenas/arena_catacombs.tscn")
 }
+const MIN_SPAWN_DISTANCE := 600.0
 
 signal match_ended(winner_id: int)
 
@@ -46,11 +52,28 @@ func _ready() -> void:
 	start_powerup_loop.call_deferred()
 
 func get_random_spawn_positions() -> Array[Marker2D]:
-	var shuffled_spawns: Array[Marker2D] = spawn_points.duplicate()
-	shuffled_spawns.shuffle()
-	return [shuffled_spawns[0], shuffled_spawns[1]]
+	var valid_pairs: Array = []
+	
+	for i in range(spawn_points.size()):
+		for j in range(i + 1, spawn_points.size()):
+			var a := spawn_points[i]
+			var b := spawn_points[j]
+			
+			if a.global_position.distance_to(b.global_position) >= MIN_SPAWN_DISTANCE:
+				valid_pairs.append([a, b])
+				
+	if valid_pairs.is_empty():
+		push_error("No valid spawn point pairs found")
+		var shuffled: Array[Marker2D] = spawn_points.duplicate()
+		shuffled.shuffle()
+		
+		return [shuffled[0], shuffled[1]]
+	
+	var pair: Array = valid_pairs.pick_random()
+	
+	return [pair[0] as Marker2D, pair[1] as Marker2D] 
 
-func spawn_player(player_state: PlayerSessionState, spawn_position: Vector2) -> void:
+func spawn_player(player_state: PlayerSessionState, spawn_position: Vector2, is_bot_player: bool = false) -> Player:
 	var player_instance: Player = player_scene.instantiate() as Player
 	if not player_instance:
 		push_error("Player scene did not instantiate as Player")
@@ -65,7 +88,21 @@ func spawn_player(player_state: PlayerSessionState, spawn_position: Vector2) -> 
 	player_instance.character_data = character_data
 	player_instance.global_position = spawn_position
 	player_instance.died.connect(_on_player_died)
+	player_instance.is_bot = is_bot_player
 	entities.add_child(player_instance)
+	
+	return player_instance
+
+func spawn_bot() -> void:
+	if is_instance_valid(bot_controller):
+		bot_controller.queue_free()
+	
+	bot_controller = BotControllerScene.new()
+	
+	bot_controller.controlled_player = player2
+	bot_controller.target_player = player1
+	
+	add_child(bot_controller)
 
 func _on_player_died(dead_player_id: int) -> void:
 	if not round_active:
@@ -96,9 +133,33 @@ func start_round() -> void:
 	if players.size() < 2:
 		push_error("Session needs at least 2 players")
 		return
-		
-	spawn_player(players[0], selected_spawns[0].global_position)
-	spawn_player(players[1], selected_spawns[1].global_position)
+	
+	var is_bot_match := MatchData.session.game_type == &"vs_bot"
+	
+	player1 = spawn_player(players[0], selected_spawns[0].global_position)
+	player2 = spawn_player(players[1], selected_spawns[1].global_position, is_bot_match)
+	
+	if is_bot_match:
+		spawn_bot()
+	
+	player1.controls_enabled = false
+	player2.controls_enabled = false
+	
+	start_round_countdown()
+	
+func start_round_countdown() -> void:
+	player1.modulate.a = 0.5
+	player2.modulate.a = 0.5
+	
+	await round_countdown_screen.start_countdown()
+	
+	player1.controls_enabled = true
+	player2.controls_enabled = true
+	
+	player1.modulate.a = 1
+	player2.modulate.a = 1
+	
+	round_active = true
 	
 func end_round(winner_id: int) -> void:
 	round_active = false
@@ -134,9 +195,14 @@ func clear_projectiles() -> void:
 func clear_players() -> void:
 	var players: Array[Node] = get_tree().get_nodes_in_group("players")
 	
+	if is_instance_valid(bot_controller):
+		bot_controller.queue_free()
+	
+	bot_controller = null
+	
 	for player in players:
 		player.queue_free()
-
+	
 func start_powerup_loop() -> void:
 	while not match_finished:
 		var wait_time := randf_range(1.0, 20.0)
