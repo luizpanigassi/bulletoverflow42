@@ -57,8 +57,6 @@ func process_input() -> void:
 		last_move_direction = move_direction
 	else:
 		move_direction = Vector2.ZERO
-	jump_pressed = Input.is_action_just_pressed(jump_action)
-	jump_held = Input.is_action_pressed(jump_action)
 	shoot_pressed = Input.is_action_just_pressed(shoot_action)
 	dash_pressed = Input.is_action_just_pressed(dash_action)
 	reload_pressed = Input.is_action_just_pressed(reload_action)
@@ -72,7 +70,7 @@ func process_input() -> void:
 	
 	prev_pressed = Input.is_action_just_pressed(left_action)
 	next_pressed = Input.is_action_just_pressed(right_action)
-	confirm_pressed = Input.is_action_just_pressed(jump_action)
+	confirm_pressed = Input.is_action_just_pressed(dash_action)
 	move_input = horizontal
 
 func get_snapshot() -> InputSnapshot:

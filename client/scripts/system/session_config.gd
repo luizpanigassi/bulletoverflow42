@@ -7,6 +7,7 @@ class_name SessionConfig
 @export var session_seed: int = 0
 @export var host_id: StringName = &""
 @export var players: Array[PlayerSessionState] = []
+@export var game_type: StringName = &"pvp_local"
 
 func to_dict() -> Dictionary:
 	var players_data: Array[Dictionary] = []
@@ -20,6 +21,7 @@ func to_dict() -> Dictionary:
 		"session_seed": session_seed,
 		"host_id": String(host_id),
 		"players": players_data,
+		"game_type": String(game_type),
 	}
 
 static func from_dict(data: Dictionary) -> SessionConfig:
@@ -29,6 +31,7 @@ static func from_dict(data: Dictionary) -> SessionConfig:
 	session.arena_id = StringName(data.get("arena_id", "arena_ruins"))
 	session.session_seed = int(data.get("session_seed", 0))
 	session.host_id = StringName(data.get("host_id", ""))
+	session.game_type = StringName(data.get("game_type", "pvp_local"))
 	
 	var players_data: Array = data.get("players", [])
 	for player_data in players_data:
