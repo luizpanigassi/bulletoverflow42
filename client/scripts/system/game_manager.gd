@@ -83,7 +83,8 @@ func spawn_player(player_state: PlayerSessionState, spawn_position: Vector2, is_
 	if not character_data:
 		push_error("Unknown character_id: %s" % player_state.character_id)
 		return
-
+	
+	player_instance.player_name = player_state.username
 	player_instance.player_id = player_state.slot
 	player_instance.character_data = character_data
 	player_instance.global_position = spawn_position
@@ -151,7 +152,7 @@ func start_round_countdown() -> void:
 	player1.modulate.a = 0.5
 	player2.modulate.a = 0.5
 	
-	await round_countdown_screen.start_countdown()
+	await round_countdown_screen.start_countdown(scores[1], scores[2])
 	
 	player1.controls_enabled = true
 	player2.controls_enabled = true
@@ -177,7 +178,11 @@ func end_round(winner_id: int) -> void:
 		await get_tree().create_timer(5.0).timeout
 		_return_to_matchmaking()
 	else:
-		round_result_screen.show_round_result(winner_id, scores[1], scores[2])
+		var winner: Player = player1
+		
+		if winner_id == 2:
+			winner = player2
+		round_result_screen.show_round_result(winner.player_name, player1.player_name, player2.player_name, scores[1], scores[2])
 		await get_tree().create_timer(2.0).timeout
 		round_result_screen.hide_screen()
 		
@@ -205,7 +210,7 @@ func clear_players() -> void:
 	
 func start_powerup_loop() -> void:
 	while not match_finished:
-		var wait_time := randf_range(1.0, 20.0)
+		var wait_time := randf_range(5.0, 15.0)
 		
 		await get_tree().create_timer(wait_time).timeout
 		
@@ -253,7 +258,13 @@ func end_match(winner_id: int) -> void:
 
 func show_winner(winner_id: int) -> void:
 	match_end_screen.visible = true
-	match_end_label.text = "PLAYER %d WINS!" % winner_id
+	
+	var winner_name := player1.player_name
+	
+	if winner_id == 2:
+		winner_name = player2.player_name
+		
+	match_end_label.text = "%s WINS!" % winner_name
 
 func _return_to_matchmaking() -> void:
 	print("Returning to matchmaking...")

@@ -34,6 +34,7 @@ signal ammo_changed(player_id: int, ammo: int)
 @export var ammo_3_texture: Texture2D
 @export var is_bot: bool = false
 
+var player_name: String = ""
 var can_shoot: bool = true
 var is_dashing: bool = false
 var can_dash: bool = true
@@ -55,6 +56,26 @@ var active_powerup: int = -1
 
 var current_snapshot: InputSnapshot
 
+const FALLBACK_NAMES := [
+	"StackOverflow",
+	"SegFault",
+	"NullPtr",
+	"BSOD",
+	"KernelError",
+	"SyntaxError",
+	"Valgrind",
+	"Trace",
+]
+
+const BOT_NAMES := [
+	"BOT-42",
+	"BOT-TA-TÁ",
+	"BOT-ERR",
+	"BOT-TOM",
+	"BOT-OPIA",
+	"BOT-MAN",
+]
+
 func _ready() -> void:
 	input_handler.set_player_id(player_id)
 	current_ammo = max_ammo
@@ -71,7 +92,7 @@ func _ready() -> void:
 		animated_sprite.animation_finished.connect(_on_animation_finished)
 
 	animated_sprite.flip_h = false
-	player_id_label.text = "Player %d" % player_id
+	initialize_player_name()
 	_update_animation(true)
 
 func _physics_process(delta: float) -> void:
@@ -403,3 +424,15 @@ func update_ammo_icon() -> void:
 			ammo_icon.texture = ammo_2_texture
 		3:
 			ammo_icon.texture = ammo_3_texture
+
+func initialize_player_name() -> void:
+	if not player_name.strip_edges().is_empty:
+		player_id_label.text = player_name
+		return
+		
+	if is_bot:
+		player_name = BOT_NAMES[player_id % BOT_NAMES.size()]
+	else:
+		player_name = FALLBACK_NAMES[(player_id - 1) % FALLBACK_NAMES.size()]
+		
+	player_id_label.text = player_name
