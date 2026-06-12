@@ -8,11 +8,16 @@ signal countdown_finished
 func _ready() -> void:
 	pass
 
-func start_countdown() -> void:
+func start_countdown(score_p1: int, score_p2: int) -> void:
 	visible = true
 	await get_tree().process_frame
 	
-	title_label.text = "Round starting in..."
+	if score_p1 == 4 and score_p2 == 4:
+		title_label.text = "Starting the Final Round!"
+	elif score_p1 == 4 or score_p2 == 4:
+		title_label.text = "One more to go!"
+	else:
+		title_label.text = "Round starting in..."
 	
 	for number in [3, 2, 1]:
 		number_label.text = str(number)
