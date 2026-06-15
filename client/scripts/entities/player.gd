@@ -56,17 +56,6 @@ var active_powerup: int = -1
 
 var current_snapshot: InputSnapshot
 
-const FALLBACK_NAMES := [
-	"StackOverflow",
-	"SegFault",
-	"NullPtr",
-	"BSOD",
-	"KernelError",
-	"SyntaxError",
-	"Valgrind",
-	"Trace",
-]
-
 const BOT_NAMES := [
 	"BOT-42",
 	"BOT-TA-TÁ",
@@ -92,7 +81,7 @@ func _ready() -> void:
 		animated_sprite.animation_finished.connect(_on_animation_finished)
 
 	animated_sprite.flip_h = false
-	initialize_player_name()
+	player_id_label.text = player_name if not player_name.is_empty() else "Player %d" % player_id
 	_update_animation(true)
 
 func _physics_process(delta: float) -> void:
@@ -424,15 +413,3 @@ func update_ammo_icon() -> void:
 			ammo_icon.texture = ammo_2_texture
 		3:
 			ammo_icon.texture = ammo_3_texture
-
-func initialize_player_name() -> void:
-	if not player_name.strip_edges().is_empty:
-		player_id_label.text = player_name
-		return
-		
-	if is_bot:
-		player_name = BOT_NAMES[player_id % BOT_NAMES.size()]
-	else:
-		player_name = FALLBACK_NAMES[(player_id - 1) % FALLBACK_NAMES.size()]
-		
-	player_id_label.text = player_name
