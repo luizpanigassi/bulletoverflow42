@@ -6,6 +6,7 @@ class_name PlayerSessionState
 @export var character_id: StringName = &""
 @export var ready: bool = false
 @export var username: String = ""
+@export var is_bot: bool = false
 
 func to_dict() -> Dictionary:
 	return {
@@ -14,6 +15,7 @@ func to_dict() -> Dictionary:
 		"slot": slot,
 		"character_id": String(character_id),
 		"ready": ready,
+		"is_bot": is_bot,
 	}
 
 static func from_dict(data: Dictionary) -> PlayerSessionState:
@@ -23,5 +25,6 @@ static func from_dict(data: Dictionary) -> PlayerSessionState:
 	state.character_id = StringName(data.get("character_id", ""))
 	state.ready = bool(data.get("ready", false))
 	state.username = String(data.get("username", ""))
+	state.is_bot = bool(data.get("is_bot", false))
 
 	return state

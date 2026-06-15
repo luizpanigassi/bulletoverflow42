@@ -18,6 +18,8 @@ config/icon="res://client/icon.svg"
 [autoload]
 
 MatchData="*res://client/scripts/system/match_data.gd"
+GameEvents="*res://client/scripts/system/game_events.gd"
+NetworkClient="*res://client/scripts/system/network_client.gd"
 
 [display]
 

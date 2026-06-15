@@ -12,3 +12,16 @@ var jump_held: bool = false
 var prev_pressed: bool = false
 var next_pressed: bool = false
 var confirm_pressed: bool = false
+
+func to_dict() -> Dictionary:
+	return {
+		"move_x": move_direction.x,
+		"move_y": move_direction.y,
+		
+		"aim_x": aim_direction.x,
+		"aim_y": aim_direction.y,
+		
+		"shoot": shoot_pressed,
+		"dash": dash_pressed,
+		"reload": reload_pressed,
+	}

@@ -14,6 +14,7 @@ extends Node
 var player1: Player
 var player2: Player
 var bot_controller: Node
+var bot_name: String = ""
 var match_finished: bool = false
 var round_active: bool = false
 var spawn_points: Array[Marker2D] = []
@@ -89,7 +90,7 @@ func spawn_player(player_state: PlayerSessionState, spawn_position: Vector2, is_
 	player_instance.character_data = character_data
 	player_instance.global_position = spawn_position
 	player_instance.died.connect(_on_player_died)
-	player_instance.is_bot = is_bot_player
+	player_instance.is_bot = player_state.is_bot
 	entities.add_child(player_instance)
 	
 	return player_instance
@@ -137,10 +138,15 @@ func start_round() -> void:
 	
 	var is_bot_match := MatchData.session.game_type == &"vs_bot"
 	
+	if is_bot_match and bot_name.is_empty():
+		bot_name = Player.BOT_NAMES.pick_random()
+	
 	player1 = spawn_player(players[0], selected_spawns[0].global_position)
 	player2 = spawn_player(players[1], selected_spawns[1].global_position, is_bot_match)
 	
 	if is_bot_match:
+		player2.player_name = bot_name
+		player2.player_id_label.text = bot_name
 		spawn_bot()
 	
 	player1.controls_enabled = false
@@ -250,7 +256,8 @@ func end_match(winner_id: int) -> void:
 	
 	if is_instance_valid(active_powerup):
 		active_powerup.queue_free()
-		
+	
+	bot_name = ""
 	active_powerup = null
 	round_active = false
 	match_finished = true

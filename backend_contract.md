@@ -14,19 +14,19 @@ Após a autenticação, o backend fornece os dados necessários para que o clien
 
 ```text
 Usuário acessa o site
-        ↓
+		↓
 Frontend inicia OAuth
-        ↓
+		↓
 Backend autentica usuário
-        ↓
+		↓
 Backend cria sessão da partida
-        ↓
+		↓
 Frontend recebe dados da sessão
-        ↓
+		↓
 Frontend carrega o jogo Godot
-        ↓
+		↓
 Godot recebe os dados da sessão
-        ↓
+		↓
 Partida inicia
 ```
 
@@ -43,16 +43,18 @@ O cliente Godot espera receber uma sessão contendo:
   "seed": 123456,
 
   "players": [
-    {
-      "user_id": "user_001",
-      "slot": 1,
-      "character_id": "character_01"
-    },
-    {
-      "user_id": "user_002",
-      "slot": 2,
-      "character_id": "character_02"
-    }
+	{
+	  "user_id": "user_001",
+	  "username": "Username da pessoa",
+	  "slot": 1,
+	  "character_id": "character_01"
+	},
+	{
+	  "user_id": "user_002",
+	  "username": "Username da pessoa",
+	  "slot": 2,
+	  "character_id": "character_02"
+	}
   ]
 }
 ```
@@ -141,6 +143,57 @@ Personagem previamente escolhido pelo jogador na aplicação web.
 O cliente Godot apenas consome esse valor.
 
 ---
+
+## Campos adicionais do jogador
+
+Cada jogador pode conter os seguintes campos opcionais:
+
+```json
+{
+  "username": "Nomedousuário",
+  "is_bot": false
+}
+```
+
+### username
+
+Nome exibido pelo cliente durante a partida.
+
+Caso ausente, o cliente poderá utilizar um valor padrão.
+
+### is_bot
+
+Indica se o participante é controlado por IA.
+
+Valores válidos:
+
+```json
+true
+false
+```
+## Input do Jogador
+
+O cliente envia apenas entradas de controle.
+
+Formato esperado:
+
+```json
+{
+  "type": "player_input",
+
+  "move_x": 0,
+  "move_y": -1,
+
+  "aim_x": 1,
+  "aim_y": 0,
+
+  "shoot": false,
+  "dash": false,
+  "reload": false
+}
+```
+
+O servidor é responsável por validar e simular os efeitos dessas entradas.
 
 # Formato da Partida
 
@@ -258,11 +311,11 @@ Fluxo esperado:
 
 ```text
 Partida termina
-        ↓
+		↓
 Backend identifica vencedor
-        ↓
+		↓
 Backend salva resultado
-        ↓
+		↓
 Backend atualiza ranking
 ```
 
@@ -276,6 +329,32 @@ Backend atualiza ranking
 {
   "type": "match_start",
   "match_id": "match_123"
+}
+```
+---
+
+## Início do round
+
+```
+{
+  "type": "round_start",
+}
+```
+
+---
+
+## Spawn dos players
+
+```
+{
+  "type": "player_spawn",
+
+  "player_slot": 1,
+
+  "character_id": "adventurer",
+
+  "position_x": 100,
+  "position_y": 250
 }
 ```
 
@@ -296,6 +375,60 @@ Enviado pelo servidor quando um powerup aparece na arena.
 
 ---
 
+## Replicação de player_state
+
+Define a posição do player, ou seja, onde ele está, não pra onde ele está se movendo
+
+```
+{
+  "type": "player_state",
+
+  "player_slot": 1,
+
+  "position_x": 150.0,
+  "position_y": 300.0,
+
+  "velocity_x": 0.0,
+  "velocity_y": 0.0,
+
+  "aim_x": 1.0,
+  "aim_y": 0.0
+}
+```
+
+---
+
+## Spawn do projétil
+
+O servidor define onde o tiro aparece e pra onde ele vai
+
+```
+{
+  "type": "projectile_spawn",
+
+  "projectile_id": "proj_001",
+
+  "owner_slot": 1,
+
+  "position_x": 100.0,
+  "position_y": 250.0,
+
+  "direction_x": 1.0,
+  "direction_y": 0.0
+}
+```
+
+E define quando o projétil é destruído
+
+```
+{
+  "type": "projectile_destroy",
+  "projectile_id": "proj_001"
+}
+```
+
+---
+
 ## Coleta de Powerup
 
 Enviado pelo servidor quando um jogador coleta um powerup.
@@ -308,8 +441,14 @@ Enviado pelo servidor quando um jogador coleta um powerup.
 }
 ```
 
-O cliente aplica localmente os efeitos visuais e mecânicos correspondentes ao powerup recebido.
+O cliente aplica localmente os efeitos visuais e mecânicos correspondentes ao powerup recebido, e depois remove o powerup
 
+```
+{
+	"type": "powerup_removed",
+	"powerup_id": "pw_001",
+}
+```
 ---
 
 ## Fim de Rodada
