@@ -25,3 +25,22 @@ func to_dict() -> Dictionary:
 		"dash": dash_pressed,
 		"reload": reload_pressed,
 	}
+
+static func from_dict(data: Dictionary) -> InputSnapshot:
+	var snapshot := InputSnapshot.new()
+	
+	snapshot.move_direction = Vector2(
+		float(data.get("move_x", 0.0)),
+		float(data.get("move_y", 0.0))
+	)
+	
+	snapshot.aim_direction = Vector2(
+		float(data.get("aim_x", 0.0)),
+		float(data.get("aim_y", 0.0))
+	)
+	
+	snapshot.shoot_pressed = bool(data.get("shoot", false))
+	snapshot.dash_pressed = bool(data.get("dash", false))
+	snapshot.reload_pressed = bool(data.get("reload", false))
+	
+	return snapshot

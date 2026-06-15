@@ -15,4 +15,5 @@ signal powerup_spawned(data)
 signal powerup_collected(data)
 
 signal round_ended(winner_id)
+signal score_updated(data)
 signal match_ended(winner_id)

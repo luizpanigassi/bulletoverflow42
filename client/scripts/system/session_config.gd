@@ -33,7 +33,7 @@ static func from_dict(data: Dictionary) -> SessionConfig:
 	session.host_id = StringName(data.get("host_id", ""))
 	session.game_type = StringName(data.get("game_type", "pvp_local"))
 	
-	var players_data: Array = data.get("players", [])
+	var players_data: Array[Dictionary] = data.get("players", [])
 	for player_data in players_data:
 		session.players.append(PlayerSessionState.from_dict(player_data))
 	

@@ -414,7 +414,9 @@ O servidor define onde o tiro aparece e pra onde ele vai
   "position_y": 250.0,
 
   "direction_x": 1.0,
-  "direction_y": 0.0
+  "direction_y": 0.0,
+
+  "speed": 0.0,
 }
 ```
 
