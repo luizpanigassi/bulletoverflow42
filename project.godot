@@ -20,6 +20,9 @@ config/icon="res://client/icon.svg"
 MatchData="*res://client/scripts/system/match_data.gd"
 GameEvents="*res://client/scripts/system/game_events.gd"
 NetworkClient="*res://client/scripts/system/network_client.gd"
+MockMatchServer="*res://client/scripts/mock_server/mock_match_server.gd"
+NetworkInputSender="*res://client/scripts/system/network_input_sender.gd"
+MatchEventReceiver="*res://client/scripts/system/match_event_receiver.gd"
 
 [display]
 

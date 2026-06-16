@@ -1,4 +1,4 @@
-extends Resource
+extends RefCounted
 class_name ProjectileState
 
 @export var projectile_id: String = ""

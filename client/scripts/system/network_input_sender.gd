@@ -5,4 +5,4 @@ func send_input(snapshot: InputSnapshot) -> void:
 	
 	payload["type"] = "player_input"
 	
-	print(JSON.stringify(payload))
+	MockMatchServer.receive_input(payload)
