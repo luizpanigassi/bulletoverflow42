@@ -1,4 +1,4 @@
-extends Resource
+extends RefCounted
 class_name PlayerState
 
 @export var player_slot: int

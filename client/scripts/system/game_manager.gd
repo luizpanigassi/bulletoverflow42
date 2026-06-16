@@ -275,6 +275,7 @@ func show_winner(winner_id: int) -> void:
 
 func _return_to_matchmaking() -> void:
 	print("Returning to matchmaking...")
+	get_tree().quit()
 	pass
 
 func load_arena() -> void:

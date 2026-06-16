@@ -91,6 +91,9 @@ func _physics_process(delta: float) -> void:
 	current_snapshot = _get_input_snapshot()
 	var snapshot := current_snapshot
 	
+	if not is_bot:
+		NetworkInputSender.send_input(snapshot)
+	
 	if snapshot.dash_pressed:
 		start_dash()
 		
