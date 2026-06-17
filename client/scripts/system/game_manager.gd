@@ -144,6 +144,9 @@ func start_round() -> void:
 	player1 = spawn_player(players[0], selected_spawns[0].global_position)
 	player2 = spawn_player(players[1], selected_spawns[1].global_position, is_bot_match)
 	
+	NetworkPlayerSynchronizer.register_player(player1)
+	NetworkPlayerSynchronizer.register_player(player2)
+	
 	if is_bot_match:
 		player2.player_name = bot_name
 		player2.player_id_label.text = bot_name
@@ -212,6 +215,7 @@ func clear_players() -> void:
 	bot_controller = null
 	
 	for player in players:
+		NetworkPlayerSynchronizer.unregister_player(player.player_id)
 		player.queue_free()
 	
 func start_powerup_loop() -> void:

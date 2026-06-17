@@ -18,17 +18,10 @@ size = Vector2(13.746, 24.6395)
 [node name="Player" type="CharacterBody2D" groups=["players"]]
 collision_mask = 10
 script = ExtResource("1_ucweq")
-base_speed = null
-acceleration = null
-deceleration = null
-player_id = null
 projectile_scene = ExtResource("2_1ie0h")
-base_shoot_cooldown = null
 dash_speed = 500.0
 dash_duration = 0.25
 dash_cooldown = 0.7
-max_ammo = null
-reload_duration = null
 shield_icon = ExtResource("3_lql3w")
 rapid_fire_icon = ExtResource("4_v2rgo")
 speed_icon = ExtResource("5_r7se2")
@@ -36,7 +29,6 @@ ammo_0_texture = ExtResource("6_cqr6a")
 ammo_1_texture = ExtResource("7_fqhrj")
 ammo_2_texture = ExtResource("8_stvim")
 ammo_3_texture = ExtResource("9_jc3t8")
-is_bot = null
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(-1.5, -2)

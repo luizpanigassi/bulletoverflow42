@@ -19,8 +19,6 @@ position = Vector2(640, 360)
 
 [node name="Entities" type="Node2D" parent="."]
 
-[node name="Systems" type="Node" parent="."]
-
 [node name="Managers" type="Node" parent="."]
 
 [node name="GameManager" type="Node" parent="Managers"]

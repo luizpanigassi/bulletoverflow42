@@ -55,6 +55,7 @@ var shield_hits: int = 0
 var active_powerup: int = -1
 
 var current_snapshot: InputSnapshot
+var is_network_controlled: bool = false
 
 const BOT_NAMES := [
 	"BOT-42",
@@ -91,7 +92,7 @@ func _physics_process(delta: float) -> void:
 	current_snapshot = _get_input_snapshot()
 	var snapshot := current_snapshot
 	
-	if not is_bot:
+	if player_id == 1:
 		NetworkInputSender.send_input(snapshot)
 	
 	if snapshot.dash_pressed:
@@ -111,8 +112,9 @@ func _physics_process(delta: float) -> void:
 		velocity = velocity.move_toward(target_velocity, acceleration * delta)
 	else:
 		velocity = velocity.move_toward(Vector2.ZERO, deceleration * delta)
-		
-	move_and_slide()
+	
+	if not is_network_controlled:
+		move_and_slide()
 	
 	if snapshot.shoot_pressed:
 		shoot()

@@ -75,14 +75,13 @@ func process_input() -> void:
 
 func get_snapshot() -> InputSnapshot:
 	var snapshot := InputSnapshotRef.new()
+	
 	snapshot.move_direction = move_direction
 	snapshot.last_move_direction = last_move_direction
 	snapshot.aim_direction = aim_direction
 	snapshot.shoot_pressed = shoot_pressed
 	snapshot.dash_pressed = dash_pressed
 	snapshot.reload_pressed = reload_pressed
-	snapshot.jump_pressed = jump_pressed
-	snapshot.jump_held = jump_held
 	snapshot.prev_pressed = prev_pressed
 	snapshot.next_pressed = next_pressed
 	snapshot.confirm_pressed = confirm_pressed

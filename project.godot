@@ -19,10 +19,13 @@ config/icon="res://client/icon.svg"
 
 MatchData="*res://client/scripts/system/match_data.gd"
 GameEvents="*res://client/scripts/system/game_events.gd"
-NetworkClient="*res://client/scripts/system/network_client.gd"
+NetworkClient="*res://client/scripts/network/network_client.gd"
 MockMatchServer="*res://client/scripts/mock_server/mock_match_server.gd"
-NetworkInputSender="*res://client/scripts/system/network_input_sender.gd"
+NetworkInputSender="*res://client/scripts/network/network_input_sender.gd"
 MatchEventReceiver="*res://client/scripts/system/match_event_receiver.gd"
+NetworkPlayerSynchronizer="*res://client/scripts/network/network_player_synchronizer.gd"
+NetworkProjectileSynchronizer="*res://client/scripts/network/network_projectile_synchronizer.gd"
+NetworkPowerupSynchronizer="*res://client/scripts/network/network_powerup_synchronizer.gd"
 
 [display]
 
