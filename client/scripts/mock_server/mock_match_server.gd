@@ -2,6 +2,10 @@ extends Node
 
 var packet_count := 0
 var position := Vector2(100, 200)
+var player_positions := {
+	1: Vector2.ZERO,
+	2: Vector2.ZERO
+}
 var next_powerup_id := 1
 
 const MOVE_SPEED := 300.0
@@ -11,13 +15,15 @@ func _ready() -> void:
 	pass
 
 func receive_input(data: Dictionary) -> void:
-	position += Vector2(data["move_x"], data["move_y"]) * MOVE_SPEED * TICK
+	var slot: int = int(data["player_slot"])
+	
+	player_positions[slot] += Vector2(data["move_x"], data["move_y"]) * MOVE_SPEED * TICK
 	
 	var player_state := {
 		"type": "player_state",
-		"player_slot": 1,
-		"position_x": position.x,
-		"position_y": position.y,
+		"player_slot": slot,
+		"position_x": player_positions[slot].x,
+		"position_y": player_positions[slot].y,
 		"velocity_x": 0,
 		"velocity_y": 0,
 		"aim_x": data["aim_x"],
@@ -56,4 +62,16 @@ func spawn_mock_projectile() -> void:
 		"direction_y": 0,
 		
 		"speed": 500
+	})
+
+func set_spawn(player_id: int, pos: Vector2) -> void:
+	player_positions[player_id] = pos
+	send_spawn(player_id, pos)
+	
+func send_spawn(player_id: int, pos: Vector2) -> void:
+	GameEvents.match_event_received.emit({
+		"type": "player_spawn",
+		"player_slot": player_id,
+		"position_x": pos.x,
+		"position_y": pos.y
 	})

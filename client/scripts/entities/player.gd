@@ -86,6 +86,7 @@ func _ready() -> void:
 	_update_animation(true)
 
 func _physics_process(delta: float) -> void:
+	
 	if not controls_enabled:
 		return
 	

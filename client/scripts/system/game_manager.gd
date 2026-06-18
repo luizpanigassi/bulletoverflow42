@@ -120,6 +120,8 @@ func _on_player_died(dead_player_id: int) -> void:
 	end_round(winner_id)
 	
 func start_round() -> void:
+	
+	
 	round_result_screen.hide_screen()
 	if MatchData.session == null:
 		push_error("No session available")
@@ -131,7 +133,7 @@ func start_round() -> void:
 	
 	var selected_spawns: Array[Marker2D] = get_random_spawn_positions()
 	var players: Array = MatchData.session.players
-
+	
 	if players.size() < 2:
 		push_error("Session needs at least 2 players")
 		return
@@ -146,6 +148,9 @@ func start_round() -> void:
 	
 	NetworkPlayerSynchronizer.register_player(player1)
 	NetworkPlayerSynchronizer.register_player(player2)
+	
+	MockMatchServer.set_spawn(1, selected_spawns[0].global_position)
+	MockMatchServer.set_spawn(2, selected_spawns[1].global_position)
 	
 	if is_bot_match:
 		player2.player_name = bot_name
