@@ -90,7 +90,7 @@ func spawn_player(player_state: PlayerSessionState, spawn_position: Vector2, is_
 	player_instance.character_data = character_data
 	player_instance.global_position = spawn_position
 	player_instance.died.connect(_on_player_died)
-	player_instance.is_bot = player_state.is_bot
+	player_instance.is_bot = player_state.is_bot or is_bot_player
 	entities.add_child(player_instance)
 	
 	return player_instance

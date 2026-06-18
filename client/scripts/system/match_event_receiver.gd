@@ -58,7 +58,6 @@ func _handle_round_start(data: Dictionary) -> void:
 	pass
 	
 func _handle_player_spawn(data: Dictionary) -> void:
-	print("Spawn received: ", data)
 	pass
 	
 func _handle_player_died(data: Dictionary) -> void:

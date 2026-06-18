@@ -17,7 +17,14 @@ func _ready() -> void:
 func receive_input(data: Dictionary) -> void:
 	var slot: int = int(data["player_slot"])
 	
-	player_positions[slot] += Vector2(data["move_x"], data["move_y"]) * MOVE_SPEED * TICK
+	var player = NetworkPlayerSynchronizer.players.get(slot)
+	if is_instance_valid(player):
+		var move_dir := Vector2(data["move_x"], data["move_y"])
+		player.velocity = move_dir * player.get_speed()
+		player.move_and_slide()
+		player_positions[slot] = player.global_position
+	else:
+		player_positions[slot] += Vector2(data["move_x"], data["move_y"]) * MOVE_SPEED * TICK
 	
 	var player_state := {
 		"type": "player_state",

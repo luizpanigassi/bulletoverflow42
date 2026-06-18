@@ -93,8 +93,8 @@ func _physics_process(delta: float) -> void:
 	current_snapshot = _get_input_snapshot()
 	var snapshot := current_snapshot
 	
-	if player_id == 1:
-		NetworkInputSender.send_input(snapshot)
+	if player_id == 1 or is_bot:
+		NetworkInputSender.send_input(snapshot, player_id)
 	
 	if snapshot.dash_pressed:
 		start_dash()
