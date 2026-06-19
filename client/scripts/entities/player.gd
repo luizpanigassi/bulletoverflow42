@@ -86,6 +86,8 @@ func _ready() -> void:
 	_update_animation(true)
 
 func _physics_process(delta: float) -> void:
+	if is_network_controlled and player_id != MatchData.local_player_slot:
+		return
 	if not controls_enabled:
 		return
 	
@@ -111,8 +113,9 @@ func _physics_process(delta: float) -> void:
 	else:
 		velocity = velocity.move_toward(Vector2.ZERO, deceleration * delta)
 	
-	if not is_network_controlled:
-		move_and_slide()
+	var is_offline_match = (MatchData.session == null or MatchData.session.mode == &"local")
+	
+	move_and_slide()
 	
 	var accepted_shot: bool = false
 	
@@ -349,7 +352,7 @@ func _get_input_snapshot() -> InputSnapshot:
 		return external_input_snapshot
 
 	if is_bot:
-		return InputSnapshot.new()
+		return external_input_snapshot if use_external_input else InputSnapshot.new()
 
 	if MatchData.session and MatchData.session.mode == &"online" and player_id != MatchData.local_player_slot:
 		return InputSnapshot.new()

@@ -15,18 +15,28 @@ const TICK := 1.0 / 60.0
 
 func _ready() -> void:
 	GameEvents.round_started.connect(_on_round_started)
+	
+func _physics_process(delta: float) -> void:
+	player_positions[2] += Vector2.RIGHT * 300 * delta
+	
+	GameEvents.match_event_received.emit({
+		"type": "player_state",
+		"player_slot": 2,
+		"position_x": player_positions[2].x,
+		"position_y": player_positions[2].y,
+		"velocity_x": 50,
+		"velocity_y": 0,
+	})
 
 func receive_input(data: Dictionary) -> void:
 	var slot: int = int(data["player_slot"])
-	
+	var move_dir := Vector2(float(data["move_x"]), float(data["move_y"]))
 	var player = NetworkPlayerSynchronizer.players.get(slot)
+	
 	if is_instance_valid(player):
-		var move_dir := Vector2(data["move_x"], data["move_y"])
-		player.velocity = move_dir * player.get_speed()
-		player.move_and_slide()
-		player_positions[slot] = player.global_position
+		player_positions[slot] += move_dir * player.get_speed() * TICK
 	else:
-		player_positions[slot] += Vector2(data["move_x"], data["move_y"]) * MOVE_SPEED * TICK
+		player_positions[slot] += move_dir * MOVE_SPEED * TICK
 	
 	if data.get("shoot", false):
 		var aim_dir := Vector2(data["aim_x"], data["aim_y"])
@@ -140,3 +150,18 @@ func receive_powerup_collect(data: Dictionary) -> void:
 
 func _on_round_started(_data: Dictionary) -> void:
 	round_resolved = false
+
+func receive_wrap(data: Dictionary) -> void:
+	var slot: int = int(data["player_slot"])
+	player_positions[slot] = Vector2(float(data["new_pos_x"]), float(data["new_pos_y"]))
+
+	GameEvents.match_event_received.emit({
+		"type": "player_state",
+		"player_slot": slot,
+		"position_x": player_positions[slot].x,
+		"position_y": player_positions[slot].y,
+		"velocity_x": 0,
+		"velocity_y": 0,
+		"aim_x": 0,
+		"aim_y": 0,
+	})

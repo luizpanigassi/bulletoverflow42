@@ -8,6 +8,18 @@ O cliente Godot não realiza login nem OAuth diretamente. Toda autenticação é
 
 Após a autenticação, o backend fornece os dados necessários para que o cliente Godot inicie a partida.
 
+## Requisitos do backend
+
+O backend precisa entregar uma sessão com URL de WebSocket pronta para uso, além dos dados da partida. O cliente Godot é apenas consumidor da sessão e dos eventos de jogo.
+
+O backend também precisa atuar como autoridade de gameplay em partidas online:
+
+* validar inputs
+* simular movimento
+* simular tiros, projéteis, powerups e colisões
+* manter a posição autoritativa dos jogadores
+* enviar estados frequentes para o cliente
+
 ---
 
 # Fluxo Geral
@@ -38,22 +50,30 @@ O cliente Godot espera receber uma sessão contendo:
 
 ```json
 {
+  "mode": "online",
   "match_id": "match_123",
   "arena_id": "arena_01",
   "seed": 123456,
+  "host_id": "host_001",
+  "websocket_url": "wss://game.example.com/matches/match_123",
+  "game_type": "pvp",
 
   "players": [
 	{
 	  "user_id": "user_001",
 	  "username": "Username da pessoa",
 	  "slot": 1,
-	  "character_id": "character_01"
+    "character_id": "character_01",
+    "ready": true,
+    "is_bot": false
 	},
 	{
 	  "user_id": "user_002",
 	  "username": "Username da pessoa",
 	  "slot": 2,
-	  "character_id": "character_02"
+    "character_id": "character_02",
+    "ready": true,
+    "is_bot": false
 	}
   ]
 }
@@ -90,6 +110,34 @@ arena_01
 arena_02
 arena_03
 ```
+
+O cliente mapeia esses ids para as cenas internas do Godot.
+
+## websocket_url
+
+URL do WebSocket da partida.
+
+Exemplo:
+
+```json
+{
+  "websocket_url": "wss://game.example.com/matches/match_123"
+}
+```
+
+Esse campo é obrigatório para partidas online reais.
+
+## mode
+
+Para partidas online, o backend deve enviar `online`.
+
+## game_type
+
+Para o fluxo atual de PvP 1x1, o backend deve enviar `pvp`.
+
+## host_id
+
+Identificador do host ou sala. Pode ser vazio se o backend não precisar expor esse valor ao cliente.
 
 ---
 
@@ -180,6 +228,7 @@ Formato esperado:
 ```json
 {
   "type": "player_input",
+  "player_slot": 1,
 
   "move_x": 0,
   "move_y": -1,
@@ -195,6 +244,23 @@ Formato esperado:
 
 O servidor é responsável por validar e simular os efeitos dessas entradas.
 
+O backend deve aceitar uma taxa de entrada de até 30 mensagens por segundo por jogador.
+
+## Wrap autoritativo
+
+Como o cliente ainda detecta wrap localmente, o backend deve aceitar também o evento:
+
+```json
+{
+  "type": "player_wrapped",
+  "player_slot": 1,
+  "new_pos_x": 100,
+  "new_pos_y": 200
+}
+```
+
+Ao receber esse evento, o backend deve atualizar a posição autoritativa do jogador e refletir essa posição no próximo `player_state`.
+
 # Formato da Partida
 
 A partida utiliza o formato "Vai a Cinco".
@@ -208,6 +274,83 @@ Regras:
 * O primeiro jogador a atingir 5 pontos vence.
 * Ao atingir 5 pontos a partida é encerrada.
 * O cliente exibe uma tela de vitória antes de retornar ao fluxo de matchmaking.
+
+## Estados que o backend precisa emitir
+
+O cliente espera receber, no mínimo, os seguintes eventos via WebSocket:
+
+* `match_start`
+* `round_start`
+* `player_spawn`
+* `player_state`
+* `player_died`
+* `projectile_spawn`
+* `projectile_destroy`
+* `powerup_spawn`
+* `powerup_collected`
+* `powerup_removed`
+* `round_end`
+* `match_end`
+* `score_update`
+
+### player_state
+
+Esse evento deve ser enviado com frequência suficiente para manter a movimentação estável, idealmente 30 vezes por segundo por jogador.
+
+Formato esperado:
+
+```json
+{
+  "type": "player_state",
+  "player_slot": 1,
+  "position_x": 100,
+  "position_y": 200,
+  "velocity_x": 0,
+  "velocity_y": 0,
+  "aim_x": 1,
+  "aim_y": 0,
+  "hp": 1,
+  "shield_active": false
+}
+```
+
+### player_spawn
+
+```json
+{
+  "type": "player_spawn",
+  "player_slot": 1,
+  "position_x": 100,
+  "position_y": 200
+}
+```
+
+### projectile_spawn
+
+```json
+{
+  "type": "projectile_spawn",
+  "projectile_id": "proj_01_123",
+  "owner_slot": 1,
+  "position_x": 100,
+  "position_y": 200,
+  "direction_x": 1,
+  "direction_y": 0,
+  "speed": 700
+}
+```
+
+### powerup_spawn
+
+```json
+{
+  "type": "powerup_spawn",
+  "powerup_id": 1,
+  "powerup_type": 0,
+  "position_x": 500,
+  "position_y": 300
+}
+```
 
 ---
 

@@ -48,9 +48,7 @@ func receive_event(data: Dictionary) -> void:
 			_handle_score_update(data)
 
 func _handle_player_state(data: Dictionary) -> void:
-	var state := PlayerState.from_dict(data)
-	
-	GameEvents.player_state_updated.emit(state)
+	GameEvents.player_state_updated.emit(data)
 
 func _handle_match_start(data: Dictionary) -> void:
 	print("Match started! ID: ", data.get("match_id", "unknown"))

@@ -5,4 +5,6 @@ func _ready() -> void:
 
 func _on_body_entered(body: Node2D):
 	if body.is_in_group("players"):
+		if MatchData.session and MatchData.session.mode == &"online":
+			return
 		body.die()

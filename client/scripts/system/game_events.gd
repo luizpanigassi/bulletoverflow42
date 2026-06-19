@@ -8,6 +8,8 @@ signal round_started(data)
 signal player_spawned(data)
 signal player_state_updated(state)
 
+signal entity_wrapped(player_slot: int, new_position: Vector2)
+
 signal player_died(player_id)
 
 signal projectile_spawn(data)

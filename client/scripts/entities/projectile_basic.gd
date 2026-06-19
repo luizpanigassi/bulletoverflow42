@@ -51,6 +51,16 @@ func _on_body_entered(body: Node2D) -> void:
 				MockMatchServer.receive_hit(hit_report)
 		queue_free()
 		return
+		
+	if body.has_method("take_hit"):
+		body.take_hit()
+		var hit_report := {
+			"target_slot": body.player_id,
+			"shooter_slot": owner_id
+		}
+		MockMatchServer.receive_hit(hit_report)
+		
+	queue_free()
 
 func _on_visible_on_screen_notifier_2d_screen_exited() -> void:
 	queue_free()

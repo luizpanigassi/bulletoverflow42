@@ -28,9 +28,9 @@ var scores: Dictionary = {
 const BotControllerScene = preload("res://client/scripts/system/bot_controller.gd")
 const SCORE_TO_WIN: int = 5
 const ARENAS := {
-	"arena_ruins": preload("res://client/scenes/arenas/arena_ruins.tscn"),
-	"arena_badlands": preload("res://client/scenes/arenas/arena_badlands.tscn"),
-	"arena_catacombs": preload("res://client/scenes/arenas/arena_catacombs.tscn")
+	"arena_01": preload("res://client/scenes/arenas/arena_ruins.tscn"),
+	"arena_02": preload("res://client/scenes/arenas/arena_badlands.tscn"),
+	"arena_03": preload("res://client/scenes/arenas/arena_catacombs.tscn")
 }
 const MIN_SPAWN_DISTANCE := 600.0
 
@@ -159,7 +159,7 @@ func start_round() -> void:
 	NetworkPlayerSynchronizer.register_player(player1)
 	NetworkPlayerSynchronizer.register_player(player2)
 	
-	if MatchData.session.mode == &"local":
+	if MatchData.session.mode == &"local" or (MatchData.session.mode == &"online" and not NetworkClient.is_network_connected):
 		MockMatchServer.set_spawn(1, selected_spawns[0].global_position)
 		MockMatchServer.set_spawn(2, selected_spawns[1].global_position)
 	
@@ -316,7 +316,7 @@ func load_arena() -> void:
 	
 	arena_container.add_child(arena)
 
-func _on_network_round_started(data: Dictionary) -> void:
+func _on_network_round_started(_data: Dictionary) -> void:
 	if MatchData.session and MatchData.session.mode == &"online":
 		if round_active:
 			return

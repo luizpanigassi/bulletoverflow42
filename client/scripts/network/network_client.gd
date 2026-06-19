@@ -11,7 +11,7 @@ func _ready() -> void:
 	set_process(false)
 
 func connect_to_server(url: String) -> void:
-	print("conectando ao servidor WebSocket: ", url)
+	print("Conectando ao servidor WebSocket: ", url)
 	var err = socket.connect_to_url(url)
 	if err != OK:
 		print("Erro iniciando a conexão: ", err)
