@@ -1,5 +1,6 @@
 extends Node
 
+var round_resolved: bool = false
 var next_projectile_id: int = 1
 var packet_count := 0
 var position := Vector2(100, 200)
@@ -13,7 +14,7 @@ const MOVE_SPEED := 300.0
 const TICK := 1.0 / 60.0
 
 func _ready() -> void:
-	pass
+	GameEvents.round_started.connect(_on_round_started)
 
 func receive_input(data: Dictionary) -> void:
 	var slot: int = int(data["player_slot"])
@@ -104,8 +105,13 @@ func send_spawn(player_id: int, pos: Vector2) -> void:
 	})
 
 func receive_hit(data: Dictionary) -> void:
+	if round_resolved:
+		return
+
+	round_resolved = true
+
 	var target_slot: int = int(data["target_slot"])
-	var shooter_slot: int = (data["shooter_slot"])
+	var shooter_slot: int = int(data["shooter_slot"])
 
 	GameEvents.match_event_received.emit({
 		"type": "player_died",
@@ -131,3 +137,6 @@ func receive_powerup_collect(data: Dictionary) -> void:
 		"type": "powerup_removed",
 		"powerup_id": powerup_id
 	})
+
+func _on_round_started(_data: Dictionary) -> void:
+	round_resolved = false

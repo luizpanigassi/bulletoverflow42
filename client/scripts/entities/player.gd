@@ -92,10 +92,6 @@ func _physics_process(delta: float) -> void:
 	current_snapshot = _get_input_snapshot()
 	var snapshot := current_snapshot
 	
-	if MatchData.session and MatchData.session.mode == &"online":
-		if player_id == MatchData.local_player_slot:
-			NetworkInputSender.send_input(snapshot, player_id)
-	
 	if snapshot.dash_pressed:
 		start_dash()
 		
@@ -118,8 +114,22 @@ func _physics_process(delta: float) -> void:
 	if not is_network_controlled:
 		move_and_slide()
 	
+	var accepted_shot: bool = false
+	
 	if snapshot.shoot_pressed:
+		accepted_shot = can_shoot and not is_reloading and current_ammo > 0
 		shoot()
+
+	if MatchData.session and MatchData.session.mode == &"online":
+		if player_id == MatchData.local_player_slot:
+			var network_snapshot := InputSnapshot.new()
+			network_snapshot.move_direction = snapshot.move_direction
+			network_snapshot.last_move_direction = snapshot.last_move_direction
+			network_snapshot.aim_direction = snapshot.aim_direction
+			network_snapshot.shoot_pressed = accepted_shot
+			network_snapshot.dash_pressed = snapshot.dash_pressed
+			network_snapshot.reload_pressed = snapshot.reload_pressed
+			NetworkInputSender.send_input(network_snapshot, player_id)
 
 	_update_animation()
 
@@ -339,6 +349,9 @@ func _get_input_snapshot() -> InputSnapshot:
 		return external_input_snapshot
 
 	if is_bot:
+		return InputSnapshot.new()
+
+	if MatchData.session and MatchData.session.mode == &"online" and player_id != MatchData.local_player_slot:
 		return InputSnapshot.new()
 		
 	input_handler.process_input()

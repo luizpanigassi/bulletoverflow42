@@ -214,6 +214,9 @@ func end_round(winner_id: int) -> void:
 		reset_round()
 	
 func reset_round() -> void:
+	if MatchData.session and MatchData.session.mode == &"online":
+		GameEvents.match_event_received.emit({"type": "round_start"})
+		return
 	start_round()
 
 func clear_projectiles() -> void:
@@ -315,10 +318,14 @@ func load_arena() -> void:
 
 func _on_network_round_started(data: Dictionary) -> void:
 	if MatchData.session and MatchData.session.mode == &"online":
+		if round_active:
+			return
 		start_round()
 
 func _on_network_round_ended(winner_id: int) -> void:
 	if MatchData.session and MatchData.session.mode == &"online":
+		if not round_active:
+			return
 		end_round(winner_id)
 
 func _on_network_player_died(dead_player_id: int) -> void:
