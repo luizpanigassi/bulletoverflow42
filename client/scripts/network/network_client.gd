@@ -24,7 +24,7 @@ func _process(_delta: float) -> void:
 	var state = socket.get_ready_state()
 
 	if state == WebSocketPeer.STATE_OPEN:
-		if not is_connected:
+		if not is_network_connected:
 			is_network_connected = true
 			connected.emit()
 			print("Conectado com sucesso!")

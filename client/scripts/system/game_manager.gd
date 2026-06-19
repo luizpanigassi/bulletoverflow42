@@ -49,13 +49,17 @@ func _ready() -> void:
 	
 	GameEvents.round_started.connect(_on_network_round_started)
 	GameEvents.round_ended.connect(_on_network_round_ended)
+	GameEvents.player_died.connect(_on_network_player_died)
 
 	await hud.ready
 	hud.update_score(scores[1], scores[2])
 	
 	if MatchData.session == null or MatchData.session.mode == &"local":
 		start_round()
-	start_powerup_loop.call_deferred()
+		start_powerup_loop.call_deferred()
+	elif MatchData.session.mode == &"online" and not NetworkClient.is_network_connected:
+		GameEvents.match_event_received.emit({"type": "match_start", "match_id": String(MatchData.session.match_id)})
+		GameEvents.match_event_received.emit({"type": "round_start"})
 
 func get_random_spawn_positions() -> Array[Marker2D]:
 	var valid_pairs: Array = []
@@ -155,8 +159,9 @@ func start_round() -> void:
 	NetworkPlayerSynchronizer.register_player(player1)
 	NetworkPlayerSynchronizer.register_player(player2)
 	
-	MockMatchServer.set_spawn(1, selected_spawns[0].global_position)
-	MockMatchServer.set_spawn(2, selected_spawns[1].global_position)
+	if MatchData.session.mode == &"local":
+		MockMatchServer.set_spawn(1, selected_spawns[0].global_position)
+		MockMatchServer.set_spawn(2, selected_spawns[1].global_position)
 	
 	if is_bot_match:
 		player2.player_name = bot_name
@@ -314,4 +319,11 @@ func _on_network_round_started(data: Dictionary) -> void:
 
 func _on_network_round_ended(winner_id: int) -> void:
 	if MatchData.session and MatchData.session.mode == &"online":
+		end_round(winner_id)
+
+func _on_network_player_died(dead_player_id: int) -> void:
+	if MatchData.session and MatchData.session.mode == &"online":
+		if not round_active:
+			return
+		var winner_id: int = 2 if dead_player_id == 1 else 1
 		end_round(winner_id)

@@ -53,7 +53,10 @@ func _handle_player_state(data: Dictionary) -> void:
 	GameEvents.player_state_updated.emit(state)
 
 func _handle_match_start(data: Dictionary) -> void:
-	pass
+	print("Match started! ID: ", data.get("match_id", "unknown"))
+	if MatchData.session:
+		MatchData.session.match_id = StringName(data.get("match_id", ""))
+	GameEvents.match_started.emit(data)
 
 func _handle_round_start(data: Dictionary) -> void:
 	GameEvents.round_started.emit(data)
@@ -78,7 +81,13 @@ func _handle_powerup_spawn(data: Dictionary) -> void:
 	GameEvents.powerup_spawned.emit(state)
 	
 func _handle_powerup_collected(data: Dictionary) -> void:
-	pass
+	var player_slot: int = int(data["player_slot"])
+	var powerup_type: int = int(data["powerup_type"])
+
+	GameEvents.powerup_collected.emit({
+		"player_slot": player_slot,
+		"powerup_type": powerup_type
+	})
 	
 func _handle_powerup_removed(data: Dictionary) -> void:
 	GameEvents.powerup_removed.emit(int(data["powerup_id"]))

@@ -102,3 +102,32 @@ func send_spawn(player_id: int, pos: Vector2) -> void:
 		"position_x": pos.x,
 		"position_y": pos.y
 	})
+
+func receive_hit(data: Dictionary) -> void:
+	var target_slot: int = int(data["target_slot"])
+	var shooter_slot: int = (data["shooter_slot"])
+
+	GameEvents.match_event_received.emit({
+		"type": "player_died",
+		"player_slot": target_slot
+	})
+
+	GameEvents.match_event_received.emit({
+		"type": "round_end",
+		"winner_slot": shooter_slot
+	})
+
+func receive_powerup_collect(data: Dictionary) -> void:
+	var player_slot: int = int(data["player_slot"])
+	var powerup_id: int = int(data["powerup_id"])
+
+	GameEvents.match_event_received.emit({
+		"type": "powerup_collected",
+		"player_slot": player_slot,
+		"powerup_type": NetworkPowerupSynchronizer.powerups[powerup_id].powerup_type
+	})
+
+	GameEvents.match_event_received.emit({
+		"type": "powerup_removed",
+		"powerup_id": powerup_id
+	})

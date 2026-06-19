@@ -38,8 +38,20 @@ func _on_body_entered(body: Node2D) -> void:
 	if body.player_id == owner_id:
 		return
 	
+	if MatchData.session and MatchData.session.mode == &"online":
+		var hit_report := {
+			"type": "player_hit",
+			"target_slot": body.player_id,
+			"shooter_slot": owner_id
+		}
+		if NetworkClient.is_connected:
+			NetworkClient.send_message(hit_report)
+		else:
+			MockMatchServer.receive_hit(hit_report)
+		queue_free()
+		return
 	if body.take_hit():
 		queue_free()
-	
+
 func _on_visible_on_screen_notifier_2d_screen_exited() -> void:
 	queue_free()

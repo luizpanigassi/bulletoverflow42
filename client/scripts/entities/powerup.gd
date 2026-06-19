@@ -7,6 +7,7 @@ class_name Powerup
 @export var rapid_fire_texture: Texture2D
 @export var shield_texture: Texture2D
 
+var powerup_id: int = -1
 var powerup_type: PowerupTypes.Type
 var float_time: float = 0.0
 
@@ -25,8 +26,19 @@ func _on_body_entered(body: Node2D) -> void:
 	if not body is Player:
 		return
 		
+	if MatchData.session and MatchData.session.mode == &"online":
+		var collect_request := {
+			"type": "powerup_collect_request",
+			"player_slot": body.player_id,
+			"powerup_id": powerup_id
+		}
+		if NetworkClient.is_connected:
+			NetworkClient.send_message(collect_request)
+		else:
+			MockMatchServer.receive_powerup_collect(collect_request)
+		return
+
 	body.apply_powerup(powerup_type)
-	
 	queue_free()
 
 func configure_visual() -> void:

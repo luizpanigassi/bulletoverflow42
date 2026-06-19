@@ -16,6 +16,7 @@ func _on_powerup_spawned(state: PowerupState) -> void:
 	
 	powerup.global_position = state.position
 	powerup.powerup_type = state.powerup_type
+	powerup.powerup_id = state.powerup_id
 	
 	get_tree().current_scene.add_child(powerup)
 	

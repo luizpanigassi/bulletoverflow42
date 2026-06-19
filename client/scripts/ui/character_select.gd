@@ -12,6 +12,7 @@ extends Control
 @onready var p2_ready_button: Button = $P2Panel/P2Ready
 @onready var start_match_button: Button = $StartButton
 @onready var input_handler_p1: Node = $InputHandlerP1
+@onready var simulate_online_button: Button = $SimulateOnlineButton
 
 @export var player_id: int = 1
 
@@ -26,7 +27,7 @@ func _ready() -> void:
 	characters = [
 		preload("res://client/data/resources/characters/adventurer.tres"),
 		preload("res://client/data/resources/characters/crimson_warrior.tres"),
-		preload("res://client/data/resources/characters/explorer.tres"),		
+		preload("res://client/data/resources/characters/explorer.tres"),
 	]
 	
 	input_handler_p1.set_player_id(1)
@@ -40,6 +41,7 @@ func _ready() -> void:
 	p2_ready_button.pressed.connect(_on_p2_ready_pressed)
 	
 	start_match_button.pressed.connect(try_start_match)
+	simulate_online_button.pressed.connect(_on_simulate_online_pressed)
 	
 	update_ui()
 
@@ -109,6 +111,18 @@ func try_start_match() -> void:
 	MatchData.set_local_session(
 		characters[p1_index].character_id,
 		characters[p2_index].character_id,
+	)
+
+	get_tree().change_scene_to_file("res://client/scenes/game.tscn")
+
+func _on_simulate_online_pressed() -> void:
+	if not p1_ready or not p2_ready:
+		return
+	
+	MatchData.set_online_session_mock(
+		characters[p1_index].character_id,
+		characters[p2_index].character_id,
+		1
 	)
 
 	get_tree().change_scene_to_file("res://client/scenes/game.tscn")

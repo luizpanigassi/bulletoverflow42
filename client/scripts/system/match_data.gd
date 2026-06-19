@@ -55,3 +55,17 @@ func load_session_from_web() -> void:
 				session = SessionConfig.from_dict(dict)
 				NetworkClient.connect_to_server("ws://servidor" + session.match_id)
 				get_tree().change_scene_to_file("res://client/scenes/game.tscn")
+
+func set_online_session_mock(p1_character_id: StringName, p2_character_id: StringName, my_slot: int = 1) -> void:
+	session = SessionConfig.new()
+	session.mode = &"online"
+	session.match_id = &"match_test_001"
+	session.arena_id = arena_ids.pick_random()
+	session.match_seed = randi()
+	session.host_id = &""
+	session.game_type = &"pvp"
+	session.players = [
+		_make_player_state(1, p1_character_id, true),
+		_make_player_state(2, p2_character_id, true),
+	]
+	local_player_slot = my_slot
