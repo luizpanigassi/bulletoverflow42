@@ -6,4 +6,8 @@ func send_input(snapshot: InputSnapshot, player_slot: int) -> void:
 	payload["type"] = "player_input"
 	payload["player_slot"] = player_slot
 	
-	MockMatchServer.receive_input(payload)
+	if MatchData.session and MatchData.session.mode == &"online":
+		if NetworkClient.is_connected:
+			NetworkClient.send_message(payload)
+		else:
+			MockMatchServer.receive_input(payload)

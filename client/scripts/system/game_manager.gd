@@ -20,7 +20,7 @@ var round_active: bool = false
 var spawn_points: Array[Marker2D] = []
 var powerup_spawn_points: Array[Marker2D] = []
 var active_powerup: Powerup = null
-var scores: Dictionary ={
+var scores: Dictionary = {
 	1: 0,
 	2: 0
 }
@@ -47,9 +47,14 @@ func _ready() -> void:
 	for powerup_spawn in found_powerup_spawns:
 		powerup_spawn_points.append(powerup_spawn as Marker2D)
 	
+	GameEvents.round_started.connect(_on_network_round_started)
+	GameEvents.round_ended.connect(_on_network_round_ended)
+
 	await hud.ready
 	hud.update_score(scores[1], scores[2])
-	start_round()
+	
+	if MatchData.session == null or MatchData.session.mode == &"local":
+		start_round()
 	start_powerup_loop.call_deferred()
 
 func get_random_spawn_positions() -> Array[Marker2D]:
@@ -72,7 +77,7 @@ func get_random_spawn_positions() -> Array[Marker2D]:
 	
 	var pair: Array = valid_pairs.pick_random()
 	
-	return [pair[0] as Marker2D, pair[1] as Marker2D] 
+	return [pair[0] as Marker2D, pair[1] as Marker2D]
 
 func spawn_player(player_state: PlayerSessionState, spawn_position: Vector2, is_bot_player: bool = false) -> Player:
 	var player_instance: Player = player_scene.instantiate() as Player
@@ -110,6 +115,9 @@ func _on_player_died(dead_player_id: int) -> void:
 	if not round_active:
 		return
 
+	if MatchData.session and MatchData.session.mode == &"online":
+		return
+
 	var winner_id: int
 	
 	if dead_player_id == 1:
@@ -120,8 +128,6 @@ func _on_player_died(dead_player_id: int) -> void:
 	end_round(winner_id)
 	
 func start_round() -> void:
-	
-	
 	round_result_screen.hide_screen()
 	if MatchData.session == null:
 		push_error("No session available")
@@ -301,3 +307,11 @@ func load_arena() -> void:
 	var arena = arena_scene.instantiate()
 	
 	arena_container.add_child(arena)
+
+func _on_network_round_started(data: Dictionary) -> void:
+	if MatchData.session and MatchData.session.mode == &"online":
+		start_round()
+
+func _on_network_round_ended(winner_id: int) -> void:
+	if MatchData.session and MatchData.session.mode == &"online":
+		end_round(winner_id)

@@ -1,5 +1,6 @@
 extends Node
 
+var local_player_slot: int = 1
 var session: SessionConfig
 var arena_ids := [
 	&"arena_ruins",
@@ -44,3 +45,13 @@ func set_bot_session(p1_character_id: StringName) -> void:
 		_make_player_state(1, p1_character_id, true),
 		_make_player_state(2, &"adventurer", true)
 	]
+
+func load_session_from_web() -> void:
+	if OS.has_feature("web"):
+		var js_data = JavaScriptBridge.eval("window.godotSessionData")
+		if js_data:
+			var dict = JSON.parse_string(String(js_data))
+			if dict is Dictionary:
+				session = SessionConfig.from_dict(dict)
+				NetworkClient.connect_to_server("ws://servidor" + session.match_id)
+				get_tree().change_scene_to_file("res://client/scenes/game.tscn")

@@ -1,5 +1,6 @@
 extends Node
 
+var next_projectile_id: int = 1
 var packet_count := 0
 var position := Vector2(100, 200)
 var player_positions := {
@@ -9,7 +10,7 @@ var player_positions := {
 var next_powerup_id := 1
 
 const MOVE_SPEED := 300.0
-const TICK := 1.0/60.0
+const TICK := 1.0 / 60.0
 
 func _ready() -> void:
 	pass
@@ -26,6 +27,25 @@ func receive_input(data: Dictionary) -> void:
 	else:
 		player_positions[slot] += Vector2(data["move_x"], data["move_y"]) * MOVE_SPEED * TICK
 	
+	if data.get("shoot", false):
+		var aim_dir := Vector2(data["aim_x"], data["aim_y"])
+		if aim_dir == Vector2.ZERO:
+			aim_dir = Vector2.RIGHT
+
+		var proj_id := "proj_%d_%d" % [slot, next_projectile_id]
+		next_projectile_id += 1
+
+		GameEvents.match_event_received.emit({
+			"type": "projectile_spawn",
+			"projectile_id": proj_id,
+			"owner_slot": slot,
+			"position_x": player_positions[slot].x,
+			"position_y": player_positions[slot].y,
+			"direction_x": aim_dir.normalized().x,
+			"direction_y": aim_dir.normalized().y,
+			"speed": 700.0
+		})
+
 	var player_state := {
 		"type": "player_state",
 		"player_slot": slot,

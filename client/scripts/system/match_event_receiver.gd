@@ -2,6 +2,7 @@ extends Node
 
 func _ready() -> void:
 	GameEvents.match_event_received.connect(receive_event)
+	NetworkClient.event_received.connect(receive_event)
 
 func receive_event(data: Dictionary) -> void:
 	var type: String = data.get("type", "")
@@ -55,10 +56,10 @@ func _handle_match_start(data: Dictionary) -> void:
 	pass
 
 func _handle_round_start(data: Dictionary) -> void:
-	pass
+	GameEvents.round_started.emit(data)
 	
 func _handle_player_spawn(data: Dictionary) -> void:
-	pass
+	GameEvents.player_spawned.emit(data)
 	
 func _handle_player_died(data: Dictionary) -> void:
 	GameEvents.player_died.emit(int(data["player_slot"]))
