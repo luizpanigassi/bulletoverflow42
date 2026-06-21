@@ -17,7 +17,7 @@ func _ready() -> void:
 	GameEvents.round_started.connect(_on_round_started)
 	
 func _physics_process(delta: float) -> void:
-	player_positions[2] += Vector2.RIGHT * 300 * delta
+	player_positions[2] += Vector2.RIGHT * 1 * delta
 	
 	GameEvents.match_event_received.emit({
 		"type": "player_state",
