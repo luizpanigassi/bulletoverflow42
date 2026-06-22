@@ -1,5 +1,6 @@
 extends Node
 
+var round_active: bool = false
 var round_resolved: bool = false
 var next_projectile_id: int = 1
 var packet_count := 0
@@ -15,18 +16,7 @@ const TICK := 1.0 / 60.0
 
 func _ready() -> void:
 	GameEvents.round_started.connect(_on_round_started)
-	
-func _physics_process(delta: float) -> void:
-	player_positions[2] += Vector2.RIGHT * 1 * delta
-	
-	GameEvents.match_event_received.emit({
-		"type": "player_state",
-		"player_slot": 2,
-		"position_x": player_positions[2].x,
-		"position_y": player_positions[2].y,
-		"velocity_x": 50,
-		"velocity_y": 0,
-	})
+	GameEvents.round_ended.connect(_on_round_ended)
 
 func receive_input(data: Dictionary) -> void:
 	var slot: int = int(data["player_slot"])
@@ -65,7 +55,8 @@ func receive_input(data: Dictionary) -> void:
 		"velocity_x": 0,
 		"velocity_y": 0,
 		"aim_x": data["aim_x"],
-		"aim_y": data["aim_y"]
+		"aim_y": data["aim_y"],
+		"last_processed_seq": data.get("seq", 0)
 	}
 	
 	GameEvents.match_event_received.emit(player_state)
@@ -150,6 +141,10 @@ func receive_powerup_collect(data: Dictionary) -> void:
 
 func _on_round_started(_data: Dictionary) -> void:
 	round_resolved = false
+	round_active = true
+	
+func _on_round_ended(_winner_id: int) -> void:
+	round_active = false
 
 func receive_wrap(data: Dictionary) -> void:
 	var slot: int = int(data["player_slot"])

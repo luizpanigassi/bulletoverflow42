@@ -26,6 +26,7 @@ MatchEventReceiver="*res://client/scripts/system/match_event_receiver.gd"
 NetworkPlayerSynchronizer="*res://client/scripts/network/network_player_synchronizer.gd"
 NetworkProjectileSynchronizer="*res://client/scripts/network/network_projectile_synchronizer.gd"
 NetworkPowerupSynchronizer="*res://client/scripts/network/network_powerup_synchronizer.gd"
+PlayerInputBuffer="*res://client/scripts/network/player_input_buffer.gd"
 
 [display]
 

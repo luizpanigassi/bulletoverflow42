@@ -80,3 +80,9 @@ func set_online_session_mock(p1_character_id: StringName, p2_character_id: Strin
 		_make_player_state(2, p2_character_id, true),
 	]
 	local_player_slot = my_slot
+
+func is_bot_match() -> bool:
+	return session != null and session.game_type == &"vs_bot"
+	
+func is_online_match() -> bool:
+	return session != null and session.mode == &"online"

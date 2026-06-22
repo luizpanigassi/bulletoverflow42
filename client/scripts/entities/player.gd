@@ -56,6 +56,7 @@ var active_powerup: int = -1
 
 var current_snapshot: InputSnapshot
 var is_network_controlled: bool = false
+var last_processed_seq: int = 0
 
 const BOT_NAMES := [
 	"BOT-42",
@@ -65,6 +66,7 @@ const BOT_NAMES := [
 	"BOT-OPIA",
 	"BOT-MAN",
 ]
+const FIXED_DELTA: float = 1.0 / 60.0
 
 func _ready() -> void:
 	input_handler.set_player_id(player_id)
@@ -88,6 +90,7 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if is_network_controlled and player_id != MatchData.local_player_slot:
 		return
+		
 	if not controls_enabled:
 		return
 	
@@ -114,10 +117,17 @@ func _physics_process(delta: float) -> void:
 		velocity = velocity.move_toward(Vector2.ZERO, deceleration * delta)
 	
 	var is_offline_match = (MatchData.session == null or MatchData.session.mode == &"local")
-	
-	move_and_slide()
-	
 	var accepted_shot: bool = false
+
+	move_and_slide()
+	if MatchData.session == null or MatchData.session.mode == &"local":
+		var snapshot_to_send := InputSnapshot.new()
+		
+		snapshot_to_send.move_direction = snapshot.move_direction
+		snapshot_to_send.aim_direction = snapshot.aim_direction
+		snapshot_to_send.shoot_pressed = accepted_shot
+		
+		NetworkInputSender.send_input(snapshot_to_send, player_id)
 	
 	if snapshot.shoot_pressed:
 		accepted_shot = can_shoot and not is_reloading and current_ammo > 0
@@ -243,6 +253,7 @@ func reload() -> void:
 	reload_bar_background.visible = false
 
 func die() -> void:
+	NetworkPlayerSynchronizer.unregister_player(player_id)
 	died.emit(player_id)
 	queue_free()
 
@@ -434,3 +445,21 @@ func update_ammo_icon() -> void:
 			ammo_icon.texture = ammo_2_texture
 		3:
 			ammo_icon.texture = ammo_3_texture
+
+func reconcile(server_pos: Vector2, last_seq: int) -> void:
+	global_position = server_pos
+	velocity = Vector2.ZERO
+	
+	var inputs := PlayerInputBuffer.get_unacknowledged_inputs(last_seq)
+	for snapshot in inputs:
+		apply_local_input(snapshot)
+
+func apply_local_input(snapshot: InputSnapshot) -> void:
+	var target_velocity = snapshot.move_direction * get_speed()
+	
+	if snapshot.move_direction != Vector2.ZERO:
+		velocity = velocity.move_toward(target_velocity, acceleration * FIXED_DELTA)
+	else:
+		velocity = velocity.move_toward(Vector2.ZERO, deceleration * FIXED_DELTA)
+	
+	global_position += velocity * FIXED_DELTA

@@ -14,6 +14,7 @@ extends Node
 var player1: Player
 var player2: Player
 var bot_controller: Node
+var network_test_controller: Node
 var bot_name: String = ""
 var match_finished: bool = false
 var round_active: bool = false
@@ -25,6 +26,7 @@ var scores: Dictionary = {
 	2: 0
 }
 
+const NetworkTestControllerScene = preload("res://client/scripts/mock_server/mock_remote_player_controller.gd")
 const BotControllerScene = preload("res://client/scripts/system/bot_controller.gd")
 const SCORE_TO_WIN: int = 5
 const ARENAS := {
@@ -115,6 +117,18 @@ func spawn_bot() -> void:
 	
 	add_child(bot_controller)
 
+func spawn_network_test_controller() -> void:
+	if is_instance_valid(network_test_controller):
+		network_test_controller.queue_free()
+		
+	network_test_controller = NetworkTestControllerScene.new()
+	
+	network_test_controller.target_player = player1
+	network_test_controller.controlled_player = player2
+	network_test_controller.player_slot = 2
+	
+	add_child(network_test_controller)
+
 func _on_player_died(dead_player_id: int) -> void:
 	if not round_active:
 		return
@@ -137,7 +151,6 @@ func start_round() -> void:
 		push_error("No session available")
 		return
 
-	round_active = true
 	clear_projectiles()
 	clear_players()
 	
@@ -186,6 +199,7 @@ func start_round_countdown() -> void:
 	player2.modulate.a = 1
 	
 	round_active = true
+	GameEvents.round_started.emit({})
 	
 func end_round(winner_id: int) -> void:
 	round_active = false
