@@ -88,9 +88,6 @@ func _ready() -> void:
 	_update_animation(true)
 
 func _physics_process(delta: float) -> void:
-	if is_network_controlled and player_id != MatchData.local_player_slot:
-		return
-		
 	if not controls_enabled:
 		return
 	
@@ -108,18 +105,22 @@ func _physics_process(delta: float) -> void:
 	if is_dashing:
 		move_and_slide()
 		return
-	
-	var target_velocity: Vector2 = snapshot.move_direction * get_speed()
 
-	if snapshot.move_direction != Vector2.ZERO:
-		velocity = velocity.move_toward(target_velocity, acceleration * delta)
-	else:
-		velocity = velocity.move_toward(Vector2.ZERO, deceleration * delta)
-	
 	var is_offline_match = (MatchData.session == null or MatchData.session.mode == &"local")
 	var accepted_shot: bool = false
-
+	
+	if snapshot.shoot_pressed:
+		if current_ammo <= 0 and not is_reloading:
+			reload()
+		else:
+			accepted_shot = can_shoot and not is_reloading
+		
+	if accepted_shot:
+		shoot()
+		
+	simulate_movement(snapshot, delta)
 	move_and_slide()
+
 	if MatchData.session == null or MatchData.session.mode == &"local":
 		var snapshot_to_send := InputSnapshot.new()
 		
@@ -128,10 +129,6 @@ func _physics_process(delta: float) -> void:
 		snapshot_to_send.shoot_pressed = accepted_shot
 		
 		NetworkInputSender.send_input(snapshot_to_send, player_id)
-	
-	if snapshot.shoot_pressed:
-		accepted_shot = can_shoot and not is_reloading and current_ammo > 0
-		shoot()
 
 	if MatchData.session and MatchData.session.mode == &"online":
 		if player_id == MatchData.local_player_slot:
@@ -455,11 +452,13 @@ func reconcile(server_pos: Vector2, last_seq: int) -> void:
 		apply_local_input(snapshot)
 
 func apply_local_input(snapshot: InputSnapshot) -> void:
+	simulate_movement(snapshot, FIXED_DELTA)
+	move_and_slide()
+
+func simulate_movement(snapshot: InputSnapshot, delta: float) -> void:
 	var target_velocity = snapshot.move_direction * get_speed()
 	
 	if snapshot.move_direction != Vector2.ZERO:
-		velocity = velocity.move_toward(target_velocity, acceleration * FIXED_DELTA)
+		velocity = velocity.move_toward(target_velocity, acceleration * delta)
 	else:
-		velocity = velocity.move_toward(Vector2.ZERO, deceleration * FIXED_DELTA)
-	
-	global_position += velocity * FIXED_DELTA
+		velocity = velocity.move_toward(Vector2.ZERO, deceleration * delta)

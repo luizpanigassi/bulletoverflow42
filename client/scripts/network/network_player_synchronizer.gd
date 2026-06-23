@@ -21,17 +21,22 @@ func unregister_player(player_id: int) -> void:
 		players.erase(player_id)
 
 func _on_player_state_updated(data: Dictionary) -> void:
-	var slot: int = int(data.get("player_slot", 0))
-	var server_pos: Vector2 = Vector2(data["position_x"], data["position_y"])
-	var server_seq = int(data.get("last_processed_seq", 0))
-
-	if slot == MatchData.local_player_slot:
+	if MatchData.session == null or MatchData.session.mode == &"local":
 		return
 		
+	var slot: int = int(data.get("player_slot", 0))
+	var server_pos: Vector2 = Vector2(float(data["position_x"]), float(data["position_y"]))
+	
+	var server_seq = int(data.get("last_processed_seq", 0))
+	
 	var player: Player = players.get(slot)
+	
 	if not is_instance_valid(player):
 		return
-	player.reconcile(server_pos, server_seq)
+	
+	if slot == MatchData.local_player_slot:
+		player.reconcile(server_pos, server_seq)
+		return
 	
 	player.last_processed_seq = server_seq
 	player.global_position = server_pos

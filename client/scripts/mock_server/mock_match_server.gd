@@ -10,6 +10,8 @@ var player_positions := {
 	2: Vector2.ZERO
 }
 var next_powerup_id := 1
+var pending_inputs: Array = []
+var accumulated_time: float = 0.0
 
 const MOVE_SPEED := 300.0
 const TICK := 1.0 / 60.0
@@ -17,49 +19,16 @@ const TICK := 1.0 / 60.0
 func _ready() -> void:
 	GameEvents.round_started.connect(_on_round_started)
 	GameEvents.round_ended.connect(_on_round_ended)
+	
+func _physics_process(delta: float) -> void:
+	accumulated_time += delta
+	
+	while accumulated_time >= TICK:
+		accumulated_time -= TICK
+		process_inputs()
 
 func receive_input(data: Dictionary) -> void:
-	var slot: int = int(data["player_slot"])
-	var move_dir := Vector2(float(data["move_x"]), float(data["move_y"]))
-	var player = NetworkPlayerSynchronizer.players.get(slot)
-	
-	if is_instance_valid(player):
-		player_positions[slot] += move_dir * player.get_speed() * TICK
-	else:
-		player_positions[slot] += move_dir * MOVE_SPEED * TICK
-	
-	if data.get("shoot", false):
-		var aim_dir := Vector2(data["aim_x"], data["aim_y"])
-		if aim_dir == Vector2.ZERO:
-			aim_dir = Vector2.RIGHT
-
-		var proj_id := "proj_%d_%d" % [slot, next_projectile_id]
-		next_projectile_id += 1
-
-		GameEvents.match_event_received.emit({
-			"type": "projectile_spawn",
-			"projectile_id": proj_id,
-			"owner_slot": slot,
-			"position_x": player_positions[slot].x,
-			"position_y": player_positions[slot].y,
-			"direction_x": aim_dir.normalized().x,
-			"direction_y": aim_dir.normalized().y,
-			"speed": 700.0
-		})
-
-	var player_state := {
-		"type": "player_state",
-		"player_slot": slot,
-		"position_x": player_positions[slot].x,
-		"position_y": player_positions[slot].y,
-		"velocity_x": 0,
-		"velocity_y": 0,
-		"aim_x": data["aim_x"],
-		"aim_y": data["aim_y"],
-		"last_processed_seq": data.get("seq", 0)
-	}
-	
-	GameEvents.match_event_received.emit(player_state)
+	pending_inputs.append(data)
 
 func spawn_mock_powerup() -> void:
 	var packet := {
@@ -160,3 +129,54 @@ func receive_wrap(data: Dictionary) -> void:
 		"aim_x": 0,
 		"aim_y": 0,
 	})
+
+func process_inputs() -> void:
+	while pending_inputs.size() > 0:
+		var data = pending_inputs.pop_front()
+		
+		process_player_input(data)
+		
+func process_player_input(data: Dictionary) -> void:
+	var slot: int = int(data["player_slot"])
+	var move_dir := Vector2(float(data["move_x"]), float(data["move_y"]))
+
+	var player = NetworkPlayerSynchronizer.players.get(slot)
+	if is_instance_valid(player) and (slot == MatchData.local_player_slot or not player.is_network_controlled):
+		player_positions[slot] = player.global_position
+	else:
+		player_positions[slot] += move_dir * MOVE_SPEED * TICK
+	
+	player_positions[slot] += move_dir * MOVE_SPEED * TICK
+	
+	if data.get("shoot", false):
+		var aim_dir := Vector2(data["aim_x"], data["aim_y"])
+		if aim_dir == Vector2.ZERO:
+			aim_dir = Vector2.RIGHT
+
+		var proj_id := "proj_%d_%d" % [slot, next_projectile_id]
+		next_projectile_id += 1
+
+		GameEvents.match_event_received.emit({
+			"type": "projectile_spawn",
+			"projectile_id": proj_id,
+			"owner_slot": slot,
+			"position_x": player_positions[slot].x,
+			"position_y": player_positions[slot].y,
+			"direction_x": aim_dir.normalized().x,
+			"direction_y": aim_dir.normalized().y,
+			"speed": 700.0
+		})
+
+	var player_state := {
+		"type": "player_state",
+		"player_slot": slot,
+		"position_x": player_positions[slot].x,
+		"position_y": player_positions[slot].y,
+		"velocity_x": 0,
+		"velocity_y": 0,
+		"aim_x": data["aim_x"],
+		"aim_y": data["aim_y"],
+		"last_processed_seq": data.get("seq", 0)
+	}
+	
+	GameEvents.match_event_received.emit(player_state)
