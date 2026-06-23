@@ -29,19 +29,19 @@ func _process(_delta: float) -> void:
 			connected.emit()
 			print("Conectado com sucesso!")
 
-			while socket.get_available_packet_count() > 0:
-				var packet = socket.get_packet()
-				var text = packet.get_string_from_utf8()
-				var json = JSON.parse_string(text)
-				if json is Dictionary:
-					event_received.emit(json)
+		while socket.get_available_packet_count() > 0:
+			var packet = socket.get_packet()
+			var text = packet.get_string_from_utf8()
+			var json = JSON.parse_string(text)
+			if json is Dictionary:
+				event_received.emit(json)
 		
-		elif state == WebSocketPeer.STATE_CLOSING or state == WebSocketPeer.STATE_CLOSED:
-			if is_connected:
-				is_network_connected = false
-				disconnected.emit()
-				print("Desconectado do servidor!")
-				set_process(false)
+	elif state == WebSocketPeer.STATE_CLOSING or state == WebSocketPeer.STATE_CLOSED:
+		if is_network_connected:
+			is_network_connected = false
+			disconnected.emit()
+			print("Desconectado do servidor!")
+			set_process(false)
 
 func send_message(data: Dictionary) -> void:
 	if socket.get_ready_state() == WebSocketPeer.STATE_OPEN:

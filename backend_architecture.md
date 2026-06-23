@@ -436,7 +436,7 @@ Integrar frontend web.
 
 Objetivo:
 
-Fluxo completo de autenticação e partida.
+Fluxo completo de autenticação e partida. O frontend web realiza o matchmaking e, ao definir os dados de sessão, deve passá-los para o cliente Godot via a função exposta globalmente no navegador: `window.initGameSession(dados_da_sessao)`.
 
 ---
 

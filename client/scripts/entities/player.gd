@@ -445,7 +445,6 @@ func update_ammo_icon() -> void:
 
 func reconcile(server_pos: Vector2, last_seq: int) -> void:
 	global_position = server_pos
-	velocity = Vector2.ZERO
 	
 	var inputs := PlayerInputBuffer.get_unacknowledged_inputs(last_seq)
 	for snapshot in inputs:

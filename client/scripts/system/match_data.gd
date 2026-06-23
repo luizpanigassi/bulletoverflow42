@@ -52,6 +52,10 @@ func set_bot_session(p1_character_id: StringName) -> void:
 func load_session_from_web() -> void:
 	if OS.has_feature("web"):
 		_js_callback = JavaScriptBridge.create_callback(_on_js_session_data)
+		var window = JavaScriptBridge.get_interface("window")
+		if window:
+			window.initGameSession = _js_callback
+			print("JavaScript bridge registered: window.initGameSession")
 
 func _on_js_session_data(args) -> void:
 	var dict = JSON.parse_string(String(args[0]))

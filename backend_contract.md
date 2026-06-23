@@ -20,6 +20,14 @@ O backend também precisa atuar como autoridade de gameplay em partidas online:
 * manter a posição autoritativa dos jogadores
 * enviar estados frequentes para o cliente
 
+### Inicialização no Navegador (Web Bridge)
+
+Quando o jogo é executado em um navegador (Web build), o frontend do site/plataforma deve enviar as informações de sessão/partida invocando a função callback exposta globalmente pelo cliente Godot:
+
+`window.initGameSession(dados_da_sessao)`
+
+Essa chamada pode receber um objeto JavaScript ou uma string JSON contendo os dados descritos na seção **Dados de Sessão** abaixo.
+
 ---
 
 # Fluxo Geral
@@ -188,7 +196,13 @@ Valores válidos:
 
 Personagem previamente escolhido pelo jogador na aplicação web.
 
-O cliente Godot apenas consome esse valor.
+O cliente Godot mapeia este campo diretamente para seus recursos internos.
+
+Valores válidos atualmente:
+
+* `adventurer`
+* `crimson_warrior`
+* `explorer`
 
 ---
 

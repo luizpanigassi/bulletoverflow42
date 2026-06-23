@@ -140,15 +140,15 @@ func process_player_input(data: Dictionary) -> void:
 	var slot: int = int(data["player_slot"])
 	var move_dir := Vector2(float(data["move_x"]), float(data["move_y"]))
 
+	player_positions[slot] += move_dir * MOVE_SPEED * TICK
+
 	var player = NetworkPlayerSynchronizer.players.get(slot)
 	if is_instance_valid(player) and (slot == MatchData.local_player_slot or not player.is_network_controlled):
 		player_positions[slot] = player.global_position
 	else:
 		player_positions[slot] += move_dir * MOVE_SPEED * TICK
 	
-	player_positions[slot] += move_dir * MOVE_SPEED * TICK
-	
-	if data.get("shoot", false):
+	if data.get("shoot", false) and MatchData.session and MatchData.session.mode == &"online":
 		var aim_dir := Vector2(data["aim_x"], data["aim_y"])
 		if aim_dir == Vector2.ZERO:
 			aim_dir = Vector2.RIGHT

@@ -45,6 +45,8 @@ func _ready() -> void:
 	
 	update_ui()
 
+	MatchData.load_session_from_web()
+
 func _process(_delta: float) -> void:
 	input_handler_p1.process_input()
 	
