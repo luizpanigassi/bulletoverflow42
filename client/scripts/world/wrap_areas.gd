@@ -36,7 +36,8 @@ func _on_body_entered(body: Node2D) -> void:
 	body.global_position = new_pos
 	
 	if MatchData.session and MatchData.session.mode == &"online" and body is Player:
-		GameEvents.entity_wrapped.emit(body.player_id, new_pos)
+		if body.player_id == MatchData.local_player_slot:
+			GameEvents.entity_wrapped.emit(body.player_id, new_pos)
 
 func _on_area_entered(area: Area2D) -> void:
 	match wrap_type:

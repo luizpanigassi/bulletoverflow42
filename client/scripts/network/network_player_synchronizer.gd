@@ -39,7 +39,7 @@ func _on_player_state_updated(data: Dictionary) -> void:
 		return
 	
 	player.last_processed_seq = server_seq
-	player.global_position = server_pos
+	player.network_target_position = server_pos
 
 func _on_player_spawned(data: Dictionary) -> void:
 	var slot: int = int(data["player_slot"])
@@ -56,6 +56,7 @@ func _on_player_spawned(data: Dictionary) -> void:
 		
 	if is_instance_valid(player):
 		player.global_position = pos
+		player.network_target_position = pos
 		if MatchData.session == null or MatchData.session.mode == &"local":
 			MockMatchServer.player_positions[slot] = pos
 

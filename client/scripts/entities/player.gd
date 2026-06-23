@@ -57,6 +57,7 @@ var active_powerup: int = -1
 var current_snapshot: InputSnapshot
 var is_network_controlled: bool = false
 var last_processed_seq: int = 0
+var network_target_position: Vector2 = Vector2.ZERO
 
 const BOT_NAMES := [
 	"BOT-42",
@@ -89,6 +90,9 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	if not controls_enabled:
+		return
+		
+	if is_network_controlled and player_id != MatchData.local_player_slot:
 		return
 	
 	current_snapshot = _get_input_snapshot()
@@ -142,6 +146,19 @@ func _physics_process(delta: float) -> void:
 			NetworkInputSender.send_input(network_snapshot, player_id)
 
 	_update_animation()
+
+func _process(delta: float) -> void:
+	if is_network_controlled and player_id != MatchData.local_player_slot:
+		var prev_pos := global_position
+		global_position = global_position.lerp(network_target_position, 1.0 - exp(-delta * 15.0))
+		
+		var movement: Vector2 = global_position - prev_pos
+		
+		if movement.length() > 0.05:
+			facing_axis = _resolve_direction(movement.normalized())
+			_update_animation()
+		else:
+			_update_animation()
 
 func get_speed() -> float:
 	return base_speed * speed_multiplier

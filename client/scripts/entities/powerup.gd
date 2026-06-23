@@ -32,7 +32,7 @@ func _on_body_entered(body: Node2D) -> void:
 			"player_slot": body.player_id,
 			"powerup_id": powerup_id
 		}
-		if NetworkClient.is_connected:
+		if NetworkClient.is_network_connected:
 			NetworkClient.send_message(collect_request)
 		else:
 			MockMatchServer.receive_powerup_collect(collect_request)
