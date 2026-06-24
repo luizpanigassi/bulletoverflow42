@@ -117,3 +117,11 @@ offset_right = 607.0
 offset_bottom = 540.0
 text = "START!
 "
+
+[node name="SimulateOnlineButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 520.0
+offset_top = 548.0
+offset_right = 649.0
+offset_bottom = 579.0
+text = "Simulate online"

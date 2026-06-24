@@ -14,23 +14,25 @@ extends Node
 var player1: Player
 var player2: Player
 var bot_controller: Node
+var network_test_controller: Node
 var bot_name: String = ""
 var match_finished: bool = false
 var round_active: bool = false
 var spawn_points: Array[Marker2D] = []
 var powerup_spawn_points: Array[Marker2D] = []
 var active_powerup: Powerup = null
-var scores: Dictionary ={
+var scores: Dictionary = {
 	1: 0,
 	2: 0
 }
 
+const NetworkTestControllerScene = preload("res://client/scripts/mock_server/mock_remote_player_controller.gd")
 const BotControllerScene = preload("res://client/scripts/system/bot_controller.gd")
 const SCORE_TO_WIN: int = 5
 const ARENAS := {
-	"arena_ruins": preload("res://client/scenes/arenas/arena_ruins.tscn"),
-	"arena_badlands": preload("res://client/scenes/arenas/arena_badlands.tscn"),
-	"arena_catacombs": preload("res://client/scenes/arenas/arena_catacombs.tscn")
+	"arena_01": preload("res://client/scenes/arenas/arena_ruins.tscn"),
+	"arena_02": preload("res://client/scenes/arenas/arena_badlands.tscn"),
+	"arena_03": preload("res://client/scenes/arenas/arena_catacombs.tscn")
 }
 const MIN_SPAWN_DISTANCE := 600.0
 
@@ -47,10 +49,20 @@ func _ready() -> void:
 	for powerup_spawn in found_powerup_spawns:
 		powerup_spawn_points.append(powerup_spawn as Marker2D)
 	
+	GameEvents.round_started.connect(_on_network_round_started)
+	GameEvents.round_ended.connect(_on_network_round_ended)
+	GameEvents.player_died.connect(_on_network_player_died)
+	GameEvents.match_ended.connect(_on_network_match_ended)
+
 	await hud.ready
 	hud.update_score(scores[1], scores[2])
-	start_round()
-	start_powerup_loop.call_deferred()
+	
+	if MatchData.session == null or MatchData.session.mode == &"local":
+		start_round()
+		start_powerup_loop.call_deferred()
+	elif MatchData.session.mode == &"online" and not NetworkClient.is_network_connected:
+		GameEvents.match_event_received.emit({"type": "match_start", "match_id": String(MatchData.session.match_id)})
+		GameEvents.match_event_received.emit({"type": "round_start"})
 
 func get_random_spawn_positions() -> Array[Marker2D]:
 	var valid_pairs: Array = []
@@ -72,7 +84,7 @@ func get_random_spawn_positions() -> Array[Marker2D]:
 	
 	var pair: Array = valid_pairs.pick_random()
 	
-	return [pair[0] as Marker2D, pair[1] as Marker2D] 
+	return [pair[0] as Marker2D, pair[1] as Marker2D]
 
 func spawn_player(player_state: PlayerSessionState, spawn_position: Vector2, is_bot_player: bool = false) -> Player:
 	var player_instance: Player = player_scene.instantiate() as Player
@@ -90,7 +102,7 @@ func spawn_player(player_state: PlayerSessionState, spawn_position: Vector2, is_
 	player_instance.character_data = character_data
 	player_instance.global_position = spawn_position
 	player_instance.died.connect(_on_player_died)
-	player_instance.is_bot = player_state.is_bot
+	player_instance.is_bot = player_state.is_bot or is_bot_player
 	entities.add_child(player_instance)
 	
 	return player_instance
@@ -106,8 +118,23 @@ func spawn_bot() -> void:
 	
 	add_child(bot_controller)
 
+func spawn_network_test_controller() -> void:
+	if is_instance_valid(network_test_controller):
+		network_test_controller.queue_free()
+		
+	network_test_controller = NetworkTestControllerScene.new()
+	
+	network_test_controller.target_player = player1
+	network_test_controller.controlled_player = player2
+	network_test_controller.player_slot = 2
+	
+	add_child(network_test_controller)
+
 func _on_player_died(dead_player_id: int) -> void:
 	if not round_active:
+		return
+
+	if MatchData.session and MatchData.session.mode == &"online":
 		return
 
 	var winner_id: int
@@ -125,13 +152,12 @@ func start_round() -> void:
 		push_error("No session available")
 		return
 
-	round_active = true
 	clear_projectiles()
 	clear_players()
 	
 	var selected_spawns: Array[Marker2D] = get_random_spawn_positions()
 	var players: Array = MatchData.session.players
-
+	
 	if players.size() < 2:
 		push_error("Session needs at least 2 players")
 		return
@@ -143,6 +169,13 @@ func start_round() -> void:
 	
 	player1 = spawn_player(players[0], selected_spawns[0].global_position)
 	player2 = spawn_player(players[1], selected_spawns[1].global_position, is_bot_match)
+	
+	NetworkPlayerSynchronizer.register_player(player1)
+	NetworkPlayerSynchronizer.register_player(player2)
+	
+	if MatchData.session.mode == &"local" or (MatchData.session.mode == &"online" and not NetworkClient.is_network_connected):
+		MockMatchServer.set_spawn(1, selected_spawns[0].global_position)
+		MockMatchServer.set_spawn(2, selected_spawns[1].global_position)
 	
 	if is_bot_match:
 		player2.player_name = bot_name
@@ -167,6 +200,7 @@ func start_round_countdown() -> void:
 	player2.modulate.a = 1
 	
 	round_active = true
+	GameEvents.round_gameplay_started.emit()
 	
 func end_round(winner_id: int) -> void:
 	round_active = false
@@ -179,10 +213,18 @@ func end_round(winner_id: int) -> void:
 	hud.update_score(scores[1], scores[2])
 		
 	if scores[winner_id] >= SCORE_TO_WIN:
-		end_match(winner_id)
-		
-		await get_tree().create_timer(5.0).timeout
-		_return_to_matchmaking()
+		if MatchData.session and MatchData.session.mode == &"online":
+			if not NetworkClient.is_network_connected:
+				GameEvents.match_event_received.emit({
+					"type": "match_end",
+					"winner_slot": winner_id,
+					"player1_score": scores[1],
+					"player2_score": scores[2]
+				})
+		else:
+			end_match(winner_id)
+			await get_tree().create_timer(5.0).timeout
+			_return_to_matchmaking()
 	else:
 		var winner: Player = player1
 		
@@ -193,8 +235,19 @@ func end_round(winner_id: int) -> void:
 		round_result_screen.hide_screen()
 		
 		reset_round()
-	
+
+func _on_network_match_ended(state: MatchState):
+	if MatchData.session and MatchData.session.mode == &"online":
+		if match_finished:
+			return
+		end_match(state.winner_slot)
+		await get_tree().create_timer(5.0).timeout
+		_return_to_matchmaking()
+
 func reset_round() -> void:
+	if MatchData.session and MatchData.session.mode == &"online":
+		GameEvents.match_event_received.emit({"type": "round_start"})
+		return
 	start_round()
 
 func clear_projectiles() -> void:
@@ -212,11 +265,12 @@ func clear_players() -> void:
 	bot_controller = null
 	
 	for player in players:
+		NetworkPlayerSynchronizer.unregister_player(player.player_id)
 		player.queue_free()
 	
 func start_powerup_loop() -> void:
 	while not match_finished:
-		var wait_time := randf_range(5.0, 15.0)
+		var wait_time := randf_range(1.0, 10.0)
 		
 		await get_tree().create_timer(wait_time).timeout
 		
@@ -292,3 +346,22 @@ func load_arena() -> void:
 	var arena = arena_scene.instantiate()
 	
 	arena_container.add_child(arena)
+
+func _on_network_round_started(_data: Dictionary) -> void:
+	if MatchData.session and MatchData.session.mode == &"online":
+		if round_active:
+			return
+		start_round()
+
+func _on_network_round_ended(winner_id: int) -> void:
+	if MatchData.session and MatchData.session.mode == &"online":
+		if not round_active:
+			return
+		end_round(winner_id)
+
+func _on_network_player_died(dead_player_id: int) -> void:
+	if MatchData.session and MatchData.session.mode == &"online":
+		if not round_active:
+			return
+		var winner_id: int = 2 if dead_player_id == 1 else 1
+		end_round(winner_id)

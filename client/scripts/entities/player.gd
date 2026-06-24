@@ -55,6 +55,9 @@ var shield_hits: int = 0
 var active_powerup: int = -1
 
 var current_snapshot: InputSnapshot
+var is_network_controlled: bool = false
+var last_processed_seq: int = 0
+var network_target_position: Vector2 = Vector2.ZERO
 
 const BOT_NAMES := [
 	"BOT-42",
@@ -64,6 +67,7 @@ const BOT_NAMES := [
 	"BOT-OPIA",
 	"BOT-MAN",
 ]
+const FIXED_DELTA: float = 1.0 / 60.0
 
 func _ready() -> void:
 	input_handler.set_player_id(player_id)
@@ -87,12 +91,12 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if not controls_enabled:
 		return
+		
+	if is_network_controlled and player_id != MatchData.local_player_slot:
+		return
 	
 	current_snapshot = _get_input_snapshot()
 	var snapshot := current_snapshot
-	
-	if not is_bot:
-		NetworkInputSender.send_input(snapshot)
 	
 	if snapshot.dash_pressed:
 		start_dash()
@@ -105,19 +109,55 @@ func _physics_process(delta: float) -> void:
 	if is_dashing:
 		move_and_slide()
 		return
-	
-	var target_velocity: Vector2 = snapshot.move_direction * get_speed()
-	if snapshot.move_direction != Vector2.ZERO:
-		velocity = velocity.move_toward(target_velocity, acceleration * delta)
-	else:
-		velocity = velocity.move_toward(Vector2.ZERO, deceleration * delta)
-		
-	move_and_slide()
+
+	var accepted_shot: bool = false
 	
 	if snapshot.shoot_pressed:
+		if current_ammo <= 0 and not is_reloading:
+			reload()
+		else:
+			accepted_shot = can_shoot and not is_reloading
+		
+	if accepted_shot:
 		shoot()
+		
+	simulate_movement(snapshot, delta)
+	move_and_slide()
+
+	if MatchData.session == null or MatchData.session.mode == &"local":
+		var snapshot_to_send := InputSnapshot.new()
+		
+		snapshot_to_send.move_direction = snapshot.move_direction
+		snapshot_to_send.aim_direction = snapshot.aim_direction
+		snapshot_to_send.shoot_pressed = accepted_shot
+		
+		NetworkInputSender.send_input(snapshot_to_send, player_id)
+
+	if MatchData.session and MatchData.session.mode == &"online":
+		if player_id == MatchData.local_player_slot:
+			var network_snapshot := InputSnapshot.new()
+			network_snapshot.move_direction = snapshot.move_direction
+			network_snapshot.last_move_direction = snapshot.last_move_direction
+			network_snapshot.aim_direction = snapshot.aim_direction
+			network_snapshot.shoot_pressed = accepted_shot
+			network_snapshot.dash_pressed = snapshot.dash_pressed
+			network_snapshot.reload_pressed = snapshot.reload_pressed
+			NetworkInputSender.send_input(network_snapshot, player_id)
 
 	_update_animation()
+
+func _process(delta: float) -> void:
+	if is_network_controlled and player_id != MatchData.local_player_slot:
+		var prev_pos := global_position
+		global_position = global_position.lerp(network_target_position, 1.0 - exp(-delta * 15.0))
+		
+		var movement: Vector2 = global_position - prev_pos
+		
+		if movement.length() > 0.05:
+			facing_axis = _resolve_direction(movement.normalized())
+			_update_animation()
+		else:
+			_update_animation()
 
 func get_speed() -> float:
 	return base_speed * speed_multiplier
@@ -138,26 +178,24 @@ func shoot() -> void:
 	
 	can_shoot = false
 	_start_attack_animation()
-	
-	var projectile: Area2D = projectile_scene.instantiate()
-	
+
 	current_ammo -= 1
 	update_ammo_icon()
 	ammo_changed.emit(player_id, current_ammo)
 	
-	projectile.global_position = global_position
+	if MatchData.session == null or MatchData.session.mode == &"local":
+		var projectile: Area2D = projectile_scene.instantiate()
+		projectile.global_position = global_position
 	
-	var shoot_direction: Vector2 = current_snapshot.aim_direction
+		var shoot_direction: Vector2 = current_snapshot.aim_direction
 	
-	if shoot_direction == Vector2.ZERO:
-		shoot_direction = current_snapshot.last_move_direction
+		if shoot_direction == Vector2.ZERO:
+			shoot_direction = current_snapshot.last_move_direction
+			
+		projectile.direction = shoot_direction.normalized()
+		projectile.owner_id = player_id
 		
-	projectile.direction = shoot_direction.normalized()
-	
-	
-	projectile.owner_id = player_id
-	
-	get_tree().current_scene.add_child(projectile)
+		get_tree().current_scene.add_child(projectile)
 	
 	reset_shoot_cooldown()
 	
@@ -228,6 +266,7 @@ func reload() -> void:
 	reload_bar_background.visible = false
 
 func die() -> void:
+	NetworkPlayerSynchronizer.unregister_player(player_id)
 	died.emit(player_id)
 	queue_free()
 
@@ -337,6 +376,9 @@ func _get_input_snapshot() -> InputSnapshot:
 		return external_input_snapshot
 
 	if is_bot:
+		return external_input_snapshot if use_external_input else InputSnapshot.new()
+
+	if MatchData.session and MatchData.session.mode == &"online" and player_id != MatchData.local_player_slot:
 		return InputSnapshot.new()
 		
 	input_handler.process_input()
@@ -416,3 +458,22 @@ func update_ammo_icon() -> void:
 			ammo_icon.texture = ammo_2_texture
 		3:
 			ammo_icon.texture = ammo_3_texture
+
+func reconcile(server_pos: Vector2, last_seq: int) -> void:
+	global_position = server_pos
+	
+	var inputs := PlayerInputBuffer.get_unacknowledged_inputs(last_seq)
+	for snapshot in inputs:
+		apply_local_input(snapshot)
+
+func apply_local_input(snapshot: InputSnapshot) -> void:
+	simulate_movement(snapshot, FIXED_DELTA)
+	move_and_slide()
+
+func simulate_movement(snapshot: InputSnapshot, delta: float) -> void:
+	var target_velocity = snapshot.move_direction * get_speed()
+	
+	if snapshot.move_direction != Vector2.ZERO:
+		velocity = velocity.move_toward(target_velocity, acceleration * delta)
+	else:
+		velocity = velocity.move_toward(Vector2.ZERO, deceleration * delta)

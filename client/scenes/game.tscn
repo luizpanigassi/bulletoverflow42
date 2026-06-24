@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://bjkw6jbk6w8sk"]
+[gd_scene load_steps=9 format=3 uid="uid://bjkw6jbk6w8sk"]
 
 [ext_resource type="PackedScene" uid="uid://caopbqh62ytq5" path="res://client/scenes/entities/player.tscn" id="1_uwrxv"]
 [ext_resource type="Script" uid="uid://bah4epjadpoi" path="res://client/scripts/system/game_manager.gd" id="3_lnu2h"]
@@ -7,6 +7,7 @@
 [ext_resource type="FontFile" uid="uid://3dkfqqyrgo7i" path="res://client/assets/fonts/BitcountSingle_Cursive-Regular.ttf" id="5_wvq1j"]
 [ext_resource type="Script" uid="uid://nl7rbt2m6eb3" path="res://client/scripts/ui/round_result_screen.gd" id="6_w2vtr"]
 [ext_resource type="Script" uid="uid://bf3gqn2iwe4y5" path="res://client/scripts/ui/round_countdown_screen.gd" id="6_wvq1j"]
+[ext_resource type="Script" uid="uid://dutxgd2ss1ebv" path="res://client/scripts/ui/network_error_screen.gd" id="8_iaaq1"]
 
 [node name="Game" type="Node2D"]
 
@@ -18,8 +19,6 @@ position = Vector2(640, 360)
 [node name="ArenaContainer" type="Node2D" parent="World"]
 
 [node name="Entities" type="Node2D" parent="."]
-
-[node name="Systems" type="Node" parent="."]
 
 [node name="Managers" type="Node" parent="."]
 
@@ -144,3 +143,45 @@ theme_override_fonts/font = ExtResource("5_wvq1j")
 theme_override_font_sizes/font_size = 45
 text = "3"
 horizontal_alignment = 1
+
+[node name="NetworkErrorScreen" type="CanvasLayer" parent="UI"]
+layer = 10
+script = ExtResource("8_iaaq1")
+
+[node name="Panel" type="Panel" parent="UI/NetworkErrorScreen"]
+custom_minimum_size = Vector2(310, 120)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/NetworkErrorScreen/Panel"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -77.0
+offset_top = -29.0
+offset_right = 77.0
+offset_bottom = 29.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="StatusLabel" type="Label" parent="UI/NetworkErrorScreen/Panel/VBoxContainer"]
+layout_mode = 2
+text = "CONNECTION LOST!"
+horizontal_alignment = 1
+
+[node name="ReconnectButton" type="Button" parent="UI/NetworkErrorScreen/Panel/VBoxContainer"]
+layout_mode = 2
+text = "RECONNECT?"

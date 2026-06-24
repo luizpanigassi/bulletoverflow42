@@ -4,9 +4,12 @@ signal match_event_received(data)
 
 signal match_started(data)
 signal round_started(data)
+signal round_gameplay_started
 
 signal player_spawned(data)
 signal player_state_updated(state)
+
+signal entity_wrapped(player_slot: int, new_position: Vector2)
 
 signal player_died(player_id)
 
