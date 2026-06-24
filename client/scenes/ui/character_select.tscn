@@ -69,6 +69,11 @@ text = "Previous"
 layout_mode = 2
 text = "Ready"
 
+[node name="P1UsernameInput" type="LineEdit" parent="P1Panel"]
+layout_mode = 2
+placeholder_text = "Insert name..."
+max_length = 20
+
 [node name="P2Panel" type="VBoxContainer" parent="."]
 layout_mode = 0
 offset_left = 697.0
