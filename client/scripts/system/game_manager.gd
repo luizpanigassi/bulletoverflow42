@@ -52,6 +52,7 @@ func _ready() -> void:
 	GameEvents.round_started.connect(_on_network_round_started)
 	GameEvents.round_ended.connect(_on_network_round_ended)
 	GameEvents.player_died.connect(_on_network_player_died)
+	GameEvents.match_ended.connect(_on_network_match_ended)
 
 	await hud.ready
 	hud.update_score(scores[1], scores[2])
@@ -199,7 +200,7 @@ func start_round_countdown() -> void:
 	player2.modulate.a = 1
 	
 	round_active = true
-	GameEvents.round_started.emit({})
+	GameEvents.round_gameplay_started.emit()
 	
 func end_round(winner_id: int) -> void:
 	round_active = false
@@ -212,10 +213,18 @@ func end_round(winner_id: int) -> void:
 	hud.update_score(scores[1], scores[2])
 		
 	if scores[winner_id] >= SCORE_TO_WIN:
-		end_match(winner_id)
-		
-		await get_tree().create_timer(5.0).timeout
-		_return_to_matchmaking()
+		if MatchData.session and MatchData.session.mode == &"online":
+			if not NetworkClient.is_network_connected:
+				GameEvents.match_event_received.emit({
+					"type": "match_end",
+					"winner_slot": winner_id,
+					"player1_score": scores[1],
+					"player2_score": scores[2]
+				})
+		else:
+			end_match(winner_id)
+			await get_tree().create_timer(5.0).timeout
+			_return_to_matchmaking()
 	else:
 		var winner: Player = player1
 		
@@ -226,7 +235,15 @@ func end_round(winner_id: int) -> void:
 		round_result_screen.hide_screen()
 		
 		reset_round()
-	
+
+func _on_network_match_ended(state: MatchState):
+	if MatchData.session and MatchData.session.mode == &"online":
+		if match_finished:
+			return
+		end_match(state.winner_slot)
+		await get_tree().create_timer(5.0).timeout
+		_return_to_matchmaking()
+
 func reset_round() -> void:
 	if MatchData.session and MatchData.session.mode == &"online":
 		GameEvents.match_event_received.emit({"type": "round_start"})

@@ -19,6 +19,7 @@ const TICK := 1.0 / 60.0
 func _ready() -> void:
 	GameEvents.round_started.connect(_on_round_started)
 	GameEvents.round_ended.connect(_on_round_ended)
+	GameEvents.round_gameplay_started.connect(_on_round_gameplay_started)
 	
 func _physics_process(delta: float) -> void:
 	accumulated_time += delta
@@ -126,6 +127,8 @@ func receive_powerup_collect(data: Dictionary) -> void:
 
 func _on_round_started(_data: Dictionary) -> void:
 	round_resolved = false
+
+func _on_round_gameplay_started() -> void:
 	round_active = true
 
 	if MatchData.session and MatchData.session.mode == &"online" and not NetworkClient.is_network_connected:

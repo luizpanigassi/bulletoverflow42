@@ -4,6 +4,7 @@ signal match_event_received(data)
 
 signal match_started(data)
 signal round_started(data)
+signal round_gameplay_started
 
 signal player_spawned(data)
 signal player_state_updated(state)
