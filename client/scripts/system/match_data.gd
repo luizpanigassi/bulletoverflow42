@@ -70,7 +70,7 @@ func _on_js_session_data(args) -> void:
 		NetworkClient.connect_to_server(websocket_url)
 		get_tree().change_scene_to_file("res://client/scenes/game.tscn")
 
-func set_online_session_mock(p1_character_id: StringName, p2_character_id: StringName, my_slot: int = 1) -> void:
+func set_online_session_mock(p1_character_id: StringName, p2_character_id: StringName, my_slot: int = 1, p1_username: String = "Player 1") -> void:
 	session = SessionConfig.new()
 	session.mode = &"online"
 	session.match_id = &"match_test_001"
@@ -80,7 +80,7 @@ func set_online_session_mock(p1_character_id: StringName, p2_character_id: Strin
 	session.websocket_url = ""
 	session.game_type = &"pvp"
 	session.players = [
-		_make_player_state(1, p1_character_id, true),
+		_make_player_state(1, p1_character_id, true, p1_username),
 		_make_player_state(2, p2_character_id, true),
 	]
 	local_player_slot = my_slot

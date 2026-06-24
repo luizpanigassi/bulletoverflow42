@@ -11,6 +11,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_ci853")
+player_id = null
 
 [node name="InputHandlerP1" type="Node" parent="."]
 script = ExtResource("2_hwgyf")
@@ -68,6 +69,11 @@ text = "Previous"
 [node name="P1Ready" type="Button" parent="P1Panel"]
 layout_mode = 2
 text = "Ready"
+
+[node name="P1UsernameInput" type="LineEdit" parent="P1Panel"]
+layout_mode = 2
+placeholder_text = "Insert name..."
+max_length = 20
 
 [node name="P2Panel" type="VBoxContainer" parent="."]
 layout_mode = 0

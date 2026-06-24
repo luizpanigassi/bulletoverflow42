@@ -13,6 +13,7 @@ extends Control
 @onready var start_match_button: Button = $StartButton
 @onready var input_handler_p1: Node = $InputHandlerP1
 @onready var simulate_online_button: Button = $SimulateOnlineButton
+@onready var p1_username_input: LineEdit = $P1Panel/P1UsernameInput
 
 @export var player_id: int = 1
 
@@ -120,11 +121,16 @@ func try_start_match() -> void:
 func _on_simulate_online_pressed() -> void:
 	if not p1_ready or not p2_ready:
 		return
+		
+	var username_p1 := p1_username_input.text.strip_edges()
+	if username_p1.is_empty():
+		username_p1 = "Player 1"
 	
 	MatchData.set_online_session_mock(
 		characters[p1_index].character_id,
 		characters[p2_index].character_id,
-		1
+		1,
+		username_p1,
 	)
 
 	get_tree().change_scene_to_file("res://client/scenes/game.tscn")
