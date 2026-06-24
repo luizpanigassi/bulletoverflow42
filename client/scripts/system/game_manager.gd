@@ -96,7 +96,7 @@ func spawn_player(player_state: PlayerSessionState, spawn_position: Vector2, is_
 		push_error("Unknown character_id: %s" % player_state.character_id)
 		return
 	
-	player_instance.player_name = player_state.username
+	player_instance.player_name = "Tester"
 	player_instance.player_id = player_state.slot
 	player_instance.character_data = character_data
 	player_instance.global_position = spawn_position
@@ -253,7 +253,7 @@ func clear_players() -> void:
 	
 func start_powerup_loop() -> void:
 	while not match_finished:
-		var wait_time := randf_range(5.0, 15.0)
+		var wait_time := randf_range(1.0, 10.0)
 		
 		await get_tree().create_timer(wait_time).timeout
 		

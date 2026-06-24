@@ -258,7 +258,7 @@ Formato esperado:
 
 O servidor é responsável por validar e simular os efeitos dessas entradas.
 
-O backend deve aceitar uma taxa de entrada de até 30 mensagens por segundo por jogador.
+O backend deve aceitar uma taxa de entrada de **até 60 mensagens por segundo por jogador** (o client envia 1 input por `_physics_process`, que roda a 60Hz por padrão no Godot). Em uma partida 1x1 isso representa no máximo ~120 msgs/s no total, carga desprezível para o MVP. 30/s deve ser tratado como piso mínimo de compatibilidade, não como o valor real de operação.
 
 ## Wrap autoritativo
 
@@ -524,11 +524,14 @@ Enviado pelo servidor quando um powerup aparece na arena.
 ```json
 {
   "type": "powerup_spawn",
-  "powerup_id": "pw_001",
-  "powerup_type": "RAPID_FIRE",
-  "spawn_point_id": 2
+  "powerup_id": 1,
+  "powerup_type": 0,
+  "position_x": 500,
+  "position_y": 300
 }
 ```
+
+`powerup_id` é inteiro (gerado e controlado pelo backend). `powerup_type` é o índice do enum `PowerupTypes.Type`: `0 = RAPID_FIRE`, `1 = SPEED_BOOST`, `2 = SHIELD`. O client não resolve nomes de string para powerups — qualquer envio como `"RAPID_FIRE"` será rejeitado na conversão (`int()` falha).
 
 ---
 
@@ -596,16 +599,18 @@ Enviado pelo servidor quando um jogador coleta um powerup.
 {
   "type": "powerup_collected",
   "player_slot": 1,
-  "powerup_type": "RAPID_FIRE"
+  "powerup_type": 0
 }
 ```
 
+`powerup_type` segue o mesmo enum inteiro descrito na seção de spawn (`0 = RAPID_FIRE`, `1 = SPEED_BOOST`, `2 = SHIELD`).
+
 O cliente aplica localmente os efeitos visuais e mecânicos correspondentes ao powerup recebido, e depois remove o powerup
 
-```
+```json
 {
-	"type": "powerup_removed",
-	"powerup_id": "pw_001",
+  "type": "powerup_removed",
+  "powerup_id": 1
 }
 ```
 ---
@@ -616,10 +621,12 @@ O cliente aplica localmente os efeitos visuais e mecânicos correspondentes ao p
 {
   "type": "round_end",
   "winner_slot": 1,
-  "score_p1": 3,
-  "score_p2": 2
+  "player1_score": 3,
+  "player2_score": 2
 }
 ```
+
+> **Nota de implementação atual:** o client hoje **ignora** `player1_score`/`player2_score` neste evento. Ele reconstrói o placar localmente (incrementa +1 para o vencedor a cada `round_end` recebido), confiando apenas em `winner_slot`. Os campos de placar estão documentados aqui pelo formato correto para consistência e para permitir uma futura correção (resync de placar caso um evento se perca), mas isso ainda não está implementado no client.
 
 ---
 
@@ -628,8 +635,8 @@ O cliente aplica localmente os efeitos visuais e mecânicos correspondentes ao p
 ```json
 {
   "type": "score_update",
-  "score_p1": 4,
-  "score_p2": 3
+  "player1_score": 4,
+  "player2_score": 3
 }
 ```
 
@@ -641,10 +648,12 @@ O cliente aplica localmente os efeitos visuais e mecânicos correspondentes ao p
 {
   "type": "match_end",
   "winner_slot": 1,
-  "score_p1": 5,
-  "score_p2": 3
+  "player1_score": 5,
+  "player2_score": 3
 }
 ```
+
+> **Nota de implementação atual:** o client hoje **não tem nenhum listener funcional** para este evento em modo online. O fim de partida é decidido inteiramente client-side, dentro de `game_manager.end_round()`, comparando o placar local reconstruído contra `SCORE_TO_WIN`. O evento `match_end` enviado pelo backend é recebido, convertido (`MatchState.from_dict`) e emitido via `GameEvents.match_ended`, mas nada está conectado a esse sinal no fluxo de fim de partida — ou seja, **o servidor não controla quando a partida online termina**, apesar do contrato dizer que é autoritativo. Isso é uma lacuna conhecida que precisa ser corrigida no client (ver pendências de sincronização).
 
 ---
 
