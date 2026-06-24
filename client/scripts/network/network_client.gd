@@ -49,12 +49,3 @@ func send_message(data: Dictionary) -> void:
 	if socket.get_ready_state() == WebSocketPeer.STATE_OPEN:
 		var json_string = JSON.stringify(data)
 		socket.send_text(json_string)
-
-func simulate_disconnect() -> void:
-	is_network_connected = false
-	network_disconnected.emit
-		
-func simulate_connect() -> void:
-	if not is_network_connected:
-		is_network_connected = true
-		network_connected.emit()

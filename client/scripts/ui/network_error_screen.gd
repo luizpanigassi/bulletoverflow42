@@ -13,7 +13,7 @@ func _process(_delta: float) -> void:
 	if MatchData.session == null or MatchData.session.mode != &"online":
 		return
 
-	var is_connected := NetworkClient.is_network_connected
+	var is_network_connected := NetworkClient.is_network_connected
 
 	if _was_connected and not is_connected:
 		visible = true
@@ -23,7 +23,7 @@ func _process(_delta: float) -> void:
 	elif not _was_connected and is_connected:
 		visible = false
 
-	_was_connected = is_connected
+	_was_connected = is_network_connected
 
 func _on_reconnect_pressed() -> void:
 	reconnect_button.disabled = true

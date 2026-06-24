@@ -110,7 +110,6 @@ func _physics_process(delta: float) -> void:
 		move_and_slide()
 		return
 
-	var is_offline_match = (MatchData.session == null or MatchData.session.mode == &"local")
 	var accepted_shot: bool = false
 	
 	if snapshot.shoot_pressed:
