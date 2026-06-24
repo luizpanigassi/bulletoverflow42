@@ -71,17 +71,17 @@ O cliente Godot espera receber uma sessão contendo:
 	  "user_id": "user_001",
 	  "username": "Username da pessoa",
 	  "slot": 1,
-    "character_id": "character_01",
-    "ready": true,
-    "is_bot": false
+	"character_id": "character_01",
+	"ready": true,
+	"is_bot": false
 	},
 	{
 	  "user_id": "user_002",
 	  "username": "Username da pessoa",
 	  "slot": 2,
-    "character_id": "character_02",
-    "ready": true,
-    "is_bot": false
+	"character_id": "character_02",
+	"ready": true,
+	"is_bot": false
 	}
   ]
 }

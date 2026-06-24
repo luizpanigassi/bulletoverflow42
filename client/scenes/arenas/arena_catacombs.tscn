@@ -5,9 +5,6 @@
 
 [node name="ArenaBase" instance=ExtResource("1_66dpv")]
 
-[node name="SpawnPoints" parent="." index="0"]
-visible = false
-
 [node name="SpawnPoint7" parent="SpawnPoints" index="0" instance=ExtResource("2_7j7uq")]
 position = Vector2(162, 331)
 
@@ -15,10 +12,10 @@ position = Vector2(162, 331)
 position = Vector2(290, 330)
 
 [node name="SpawnPoint" parent="SpawnPoints" index="2" instance=ExtResource("2_7j7uq")]
-position = Vector2(403, 281)
+position = Vector2(437, 248)
 
 [node name="SpawnPoint2" parent="SpawnPoints" index="3" instance=ExtResource("2_7j7uq")]
-position = Vector2(500, 331)
+position = Vector2(515, 303)
 
 [node name="SpawnPoint3" parent="SpawnPoints" index="4" instance=ExtResource("2_7j7uq")]
 position = Vector2(609, 272)
@@ -32,218 +29,299 @@ position = Vector2(836, 274)
 [node name="SpawnPoint4" parent="SpawnPoints" index="7" instance=ExtResource("2_7j7uq")]
 position = Vector2(666, 386)
 
+[node name="SpawnPoint10" parent="SpawnPoints" index="8" instance=ExtResource("2_7j7uq")]
+position = Vector2(70, 124)
+
+[node name="SpawnPoint11" parent="SpawnPoints" index="9" instance=ExtResource("2_7j7uq")]
+position = Vector2(198, 123)
+
+[node name="SpawnPoint5" parent="SpawnPoints" index="10" instance=ExtResource("2_7j7uq")]
+position = Vector2(330, 81)
+
+[node name="SpawnPoint12" parent="SpawnPoints" index="11" instance=ExtResource("2_7j7uq")]
+position = Vector2(408, 124)
+
+[node name="SpawnPoint13" parent="SpawnPoints" index="12" instance=ExtResource("2_7j7uq")]
+position = Vector2(517, 65)
+
+[node name="SpawnPoint14" parent="SpawnPoints" index="13" instance=ExtResource("2_7j7uq")]
+position = Vector2(671, 138)
+
+[node name="SpawnPoint15" parent="SpawnPoints" index="14" instance=ExtResource("2_7j7uq")]
+position = Vector2(778, 134)
+
+[node name="SpawnPoint16" parent="SpawnPoints" index="15" instance=ExtResource("2_7j7uq")]
+position = Vector2(574, 179)
+
+[node name="SpawnPoint17" parent="SpawnPoints" index="16" instance=ExtResource("2_7j7uq")]
+position = Vector2(71, 572)
+
+[node name="SpawnPoint18" parent="SpawnPoints" index="17" instance=ExtResource("2_7j7uq")]
+position = Vector2(199, 571)
+
+[node name="SpawnPoint19" parent="SpawnPoints" index="18" instance=ExtResource("2_7j7uq")]
+position = Vector2(323, 403)
+
+[node name="SpawnPoint20" parent="SpawnPoints" index="19" instance=ExtResource("2_7j7uq")]
+position = Vector2(333, 486)
+
+[node name="SpawnPoint21" parent="SpawnPoints" index="20" instance=ExtResource("2_7j7uq")]
+position = Vector2(405, 377)
+
+[node name="SpawnPoint22" parent="SpawnPoints" index="21" instance=ExtResource("2_7j7uq")]
+position = Vector2(553, 384)
+
+[node name="SpawnPoint23" parent="SpawnPoints" index="22" instance=ExtResource("2_7j7uq")]
+position = Vector2(390, 560)
+
+[node name="SpawnPoint24" parent="SpawnPoints" index="23" instance=ExtResource("2_7j7uq")]
+position = Vector2(523, 589)
+
+[node name="SpawnPoint25" parent="SpawnPoints" index="24" instance=ExtResource("2_7j7uq")]
+position = Vector2(912, 143)
+
+[node name="SpawnPoint26" parent="SpawnPoints" index="25" instance=ExtResource("2_7j7uq")]
+position = Vector2(1010, 143)
+
+[node name="SpawnPoint27" parent="SpawnPoints" index="26" instance=ExtResource("2_7j7uq")]
+position = Vector2(1101, 142)
+
+[node name="SpawnPoint28" parent="SpawnPoints" index="27" instance=ExtResource("2_7j7uq")]
+position = Vector2(884, 381)
+
+[node name="SpawnPoint29" parent="SpawnPoints" index="28" instance=ExtResource("2_7j7uq")]
+position = Vector2(973, 331)
+
+[node name="SpawnPoint30" parent="SpawnPoints" index="29" instance=ExtResource("2_7j7uq")]
+position = Vector2(1072, 350)
+
+[node name="SpawnPoint31" parent="SpawnPoints" index="30" instance=ExtResource("2_7j7uq")]
+position = Vector2(720, 514)
+
+[node name="SpawnPoint32" parent="SpawnPoints" index="31" instance=ExtResource("2_7j7uq")]
+position = Vector2(929, 483)
+
+[node name="SpawnPoint33" parent="SpawnPoints" index="32" instance=ExtResource("2_7j7uq")]
+position = Vector2(849, 588)
+
+[node name="SpawnPoint34" parent="SpawnPoints" index="33" instance=ExtResource("2_7j7uq")]
+position = Vector2(988, 573)
+
+[node name="SpawnPoint35" parent="SpawnPoints" index="34" instance=ExtResource("2_7j7uq")]
+position = Vector2(1068, 578)
+
+[node name="SpawnPoint36" parent="SpawnPoints" index="35" instance=ExtResource("2_7j7uq")]
+position = Vector2(1165, 584)
+
 [node name="PowerUpSpawns" parent="." index="1"]
 visible = false
 
 [node name="PowerUpSpawn1" type="Marker2D" parent="PowerUpSpawns" index="0" groups=["powerup_spawns"]]
-position = Vector2(66, 132)
+position = Vector2(59, 139)
 
 [node name="PowerUpSpawn2" type="Marker2D" parent="PowerUpSpawns" index="1" groups=["powerup_spawns"]]
-position = Vector2(160, 140)
+position = Vector2(153, 147)
 
 [node name="PowerUpSpawn3" type="Marker2D" parent="PowerUpSpawns" index="2" groups=["powerup_spawns"]]
-position = Vector2(254, 128)
+position = Vector2(247, 135)
 
 [node name="PowerUpSpawn4" type="Marker2D" parent="PowerUpSpawns" index="3" groups=["powerup_spawns"]]
-position = Vector2(347, 131)
+position = Vector2(340, 138)
 
 [node name="PowerUpSpawn5" type="Marker2D" parent="PowerUpSpawns" index="4" groups=["powerup_spawns"]]
-position = Vector2(426, 129)
+position = Vector2(419, 136)
 
 [node name="PowerUpSpawn6" type="Marker2D" parent="PowerUpSpawns" index="5" groups=["powerup_spawns"]]
-position = Vector2(515, 115)
+position = Vector2(508, 122)
 
 [node name="PowerUpSpawn7" type="Marker2D" parent="PowerUpSpawns" index="6" groups=["powerup_spawns"]]
-position = Vector2(615, 110)
+position = Vector2(608, 117)
 
 [node name="PowerUpSpawn8" type="Marker2D" parent="PowerUpSpawns" index="7" groups=["powerup_spawns"]]
-position = Vector2(715, 118)
+position = Vector2(708, 125)
 
 [node name="PowerUpSpawn9" type="Marker2D" parent="PowerUpSpawns" index="8" groups=["powerup_spawns"]]
-position = Vector2(793, 124)
+position = Vector2(786, 131)
 
 [node name="PowerUpSpawn10" type="Marker2D" parent="PowerUpSpawns" index="9" groups=["powerup_spawns"]]
-position = Vector2(887, 128)
+position = Vector2(880, 135)
 
 [node name="PowerUpSpawn11" type="Marker2D" parent="PowerUpSpawns" index="10" groups=["powerup_spawns"]]
-position = Vector2(980, 120)
+position = Vector2(973, 127)
 
 [node name="PowerUpSpawn12" type="Marker2D" parent="PowerUpSpawns" index="11" groups=["powerup_spawns"]]
-position = Vector2(1080, 128)
+position = Vector2(1073, 135)
 
 [node name="PowerUpSpawn13" type="Marker2D" parent="PowerUpSpawns" index="12" groups=["powerup_spawns"]]
-position = Vector2(1158, 134)
+position = Vector2(1151, 141)
 
 [node name="PowerUpSpawn14" type="Marker2D" parent="PowerUpSpawns" index="13" groups=["powerup_spawns"]]
-position = Vector2(1252, 138)
+position = Vector2(1245, 145)
 
-[node name="PowerUpSpawn15" type="Marker2D" parent="PowerUpSpawns" index="14" groups=["powerup_spawns"]]
-position = Vector2(50, 197)
+[node name="PowerUpSpawn16" type="Marker2D" parent="PowerUpSpawns" index="14" groups=["powerup_spawns"]]
+position = Vector2(235, 251)
 
-[node name="PowerUpSpawn16" type="Marker2D" parent="PowerUpSpawns" index="15" groups=["powerup_spawns"]]
-position = Vector2(144, 205)
+[node name="PowerUpSpawn17" type="Marker2D" parent="PowerUpSpawns" index="15" groups=["powerup_spawns"]]
+position = Vector2(231, 200)
 
-[node name="PowerUpSpawn17" type="Marker2D" parent="PowerUpSpawns" index="16" groups=["powerup_spawns"]]
-position = Vector2(238, 193)
+[node name="PowerUpSpawn18" type="Marker2D" parent="PowerUpSpawns" index="16" groups=["powerup_spawns"]]
+position = Vector2(93, 607)
 
-[node name="PowerUpSpawn18" type="Marker2D" parent="PowerUpSpawns" index="17" groups=["powerup_spawns"]]
-position = Vector2(331, 196)
+[node name="PowerUpSpawn19" type="Marker2D" parent="PowerUpSpawns" index="17" groups=["powerup_spawns"]]
+position = Vector2(438, 206)
 
-[node name="PowerUpSpawn19" type="Marker2D" parent="PowerUpSpawns" index="18" groups=["powerup_spawns"]]
-position = Vector2(410, 194)
+[node name="PowerUpSpawn20" type="Marker2D" parent="PowerUpSpawns" index="18" groups=["powerup_spawns"]]
+position = Vector2(543, 183)
 
-[node name="PowerUpSpawn20" type="Marker2D" parent="PowerUpSpawns" index="19" groups=["powerup_spawns"]]
-position = Vector2(505, 214)
+[node name="PowerUpSpawn21" type="Marker2D" parent="PowerUpSpawns" index="19" groups=["powerup_spawns"]]
+position = Vector2(609, 219)
 
-[node name="PowerUpSpawn21" type="Marker2D" parent="PowerUpSpawns" index="20" groups=["powerup_spawns"]]
-position = Vector2(610, 216)
+[node name="PowerUpSpawn22" type="Marker2D" parent="PowerUpSpawns" index="20" groups=["powerup_spawns"]]
+position = Vector2(708, 208)
 
-[node name="PowerUpSpawn22" type="Marker2D" parent="PowerUpSpawns" index="21" groups=["powerup_spawns"]]
-position = Vector2(715, 200)
+[node name="PowerUpSpawn23" type="Marker2D" parent="PowerUpSpawns" index="21" groups=["powerup_spawns"]]
+position = Vector2(768, 289)
 
-[node name="PowerUpSpawn23" type="Marker2D" parent="PowerUpSpawns" index="22" groups=["powerup_spawns"]]
-position = Vector2(781, 242)
+[node name="PowerUpSpawn24" type="Marker2D" parent="PowerUpSpawns" index="22" groups=["powerup_spawns"]]
+position = Vector2(806, 186)
 
-[node name="PowerUpSpawn24" type="Marker2D" parent="PowerUpSpawns" index="23" groups=["powerup_spawns"]]
-position = Vector2(859, 192)
+[node name="PowerUpSpawn25" type="Marker2D" parent="PowerUpSpawns" index="23" groups=["powerup_spawns"]]
+position = Vector2(973, 186)
 
-[node name="PowerUpSpawn25" type="Marker2D" parent="PowerUpSpawns" index="24" groups=["powerup_spawns"]]
-position = Vector2(973, 244)
+[node name="PowerUpSpawn26" type="Marker2D" parent="PowerUpSpawns" index="24" groups=["powerup_spawns"]]
+position = Vector2(1041, 221)
 
-[node name="PowerUpSpawn26" type="Marker2D" parent="PowerUpSpawns" index="25" groups=["powerup_spawns"]]
-position = Vector2(1061, 241)
+[node name="PowerUpSpawn27" type="Marker2D" parent="PowerUpSpawns" index="25" groups=["powerup_spawns"]]
+position = Vector2(1043, 570)
 
-[node name="PowerUpSpawn27" type="Marker2D" parent="PowerUpSpawns" index="26" groups=["powerup_spawns"]]
-position = Vector2(1158, 239)
+[node name="PowerUpSpawn28" type="Marker2D" parent="PowerUpSpawns" index="26" groups=["powerup_spawns"]]
+position = Vector2(1137, 603)
 
-[node name="PowerUpSpawn28" type="Marker2D" parent="PowerUpSpawns" index="27" groups=["powerup_spawns"]]
-position = Vector2(1241, 217)
+[node name="PowerUpSpawn29" type="Marker2D" parent="PowerUpSpawns" index="27" groups=["powerup_spawns"]]
+position = Vector2(189, 601)
 
-[node name="PowerUpSpawn29" type="Marker2D" parent="PowerUpSpawns" index="28" groups=["powerup_spawns"]]
-position = Vector2(47, 270)
+[node name="PowerUpSpawn30" type="Marker2D" parent="PowerUpSpawns" index="28" groups=["powerup_spawns"]]
+position = Vector2(145, 352)
 
-[node name="PowerUpSpawn30" type="Marker2D" parent="PowerUpSpawns" index="29" groups=["powerup_spawns"]]
-position = Vector2(144, 323)
+[node name="PowerUpSpawn31" type="Marker2D" parent="PowerUpSpawns" index="29" groups=["powerup_spawns"]]
+position = Vector2(242, 339)
 
-[node name="PowerUpSpawn31" type="Marker2D" parent="PowerUpSpawns" index="30" groups=["powerup_spawns"]]
-position = Vector2(238, 311)
+[node name="PowerUpSpawn32" type="Marker2D" parent="PowerUpSpawns" index="30" groups=["powerup_spawns"]]
+position = Vector2(322, 344)
 
-[node name="PowerUpSpawn32" type="Marker2D" parent="PowerUpSpawns" index="31" groups=["powerup_spawns"]]
-position = Vector2(331, 314)
+[node name="PowerUpSpawn33" type="Marker2D" parent="PowerUpSpawns" index="31" groups=["powerup_spawns"]]
+position = Vector2(397, 343)
 
-[node name="PowerUpSpawn33" type="Marker2D" parent="PowerUpSpawns" index="32" groups=["powerup_spawns"]]
-position = Vector2(410, 312)
+[node name="PowerUpSpawn34" type="Marker2D" parent="PowerUpSpawns" index="32" groups=["powerup_spawns"]]
+position = Vector2(525, 305)
 
-[node name="PowerUpSpawn34" type="Marker2D" parent="PowerUpSpawns" index="33" groups=["powerup_spawns"]]
-position = Vector2(505, 332)
+[node name="PowerUpSpawn35" type="Marker2D" parent="PowerUpSpawns" index="33" groups=["powerup_spawns"]]
+position = Vector2(603, 341)
 
-[node name="PowerUpSpawn35" type="Marker2D" parent="PowerUpSpawns" index="34" groups=["powerup_spawns"]]
-position = Vector2(610, 334)
+[node name="PowerUpSpawn36" type="Marker2D" parent="PowerUpSpawns" index="34" groups=["powerup_spawns"]]
+position = Vector2(708, 325)
 
-[node name="PowerUpSpawn36" type="Marker2D" parent="PowerUpSpawns" index="35" groups=["powerup_spawns"]]
-position = Vector2(715, 318)
+[node name="PowerUpSpawn37" type="Marker2D" parent="PowerUpSpawns" index="35" groups=["powerup_spawns"]]
+position = Vector2(774, 367)
 
-[node name="PowerUpSpawn37" type="Marker2D" parent="PowerUpSpawns" index="36" groups=["powerup_spawns"]]
-position = Vector2(781, 360)
+[node name="PowerUpSpawn38" type="Marker2D" parent="PowerUpSpawns" index="36" groups=["powerup_spawns"]]
+position = Vector2(851, 274)
 
-[node name="PowerUpSpawn38" type="Marker2D" parent="PowerUpSpawns" index="37" groups=["powerup_spawns"]]
-position = Vector2(858, 267)
+[node name="PowerUpSpawn39" type="Marker2D" parent="PowerUpSpawns" index="37" groups=["powerup_spawns"]]
+position = Vector2(955, 329)
 
-[node name="PowerUpSpawn39" type="Marker2D" parent="PowerUpSpawns" index="38" groups=["powerup_spawns"]]
-position = Vector2(962, 322)
+[node name="PowerUpSpawn40" type="Marker2D" parent="PowerUpSpawns" index="38" groups=["powerup_spawns"]]
+position = Vector2(1047, 301)
 
-[node name="PowerUpSpawn40" type="Marker2D" parent="PowerUpSpawns" index="39" groups=["powerup_spawns"]]
-position = Vector2(1054, 294)
+[node name="PowerUpSpawn41" type="Marker2D" parent="PowerUpSpawns" index="39" groups=["powerup_spawns"]]
+position = Vector2(1142, 321)
 
-[node name="PowerUpSpawn41" type="Marker2D" parent="PowerUpSpawns" index="40" groups=["powerup_spawns"]]
-position = Vector2(1149, 314)
+[node name="PowerUpSpawn42" type="Marker2D" parent="PowerUpSpawns" index="40" groups=["powerup_spawns"]]
+position = Vector2(1227, 319)
 
-[node name="PowerUpSpawn42" type="Marker2D" parent="PowerUpSpawns" index="41" groups=["powerup_spawns"]]
-position = Vector2(1234, 312)
+[node name="PowerUpSpawn43" type="Marker2D" parent="PowerUpSpawns" index="41" groups=["powerup_spawns"]]
+position = Vector2(45, 342)
 
-[node name="PowerUpSpawn43" type="Marker2D" parent="PowerUpSpawns" index="42" groups=["powerup_spawns"]]
-position = Vector2(52, 335)
+[node name="PowerUpSpawn44" type="Marker2D" parent="PowerUpSpawns" index="42" groups=["powerup_spawns"]]
+position = Vector2(97, 373)
 
-[node name="PowerUpSpawn44" type="Marker2D" parent="PowerUpSpawns" index="43" groups=["powerup_spawns"]]
-position = Vector2(131, 441)
+[node name="PowerUpSpawn45" type="Marker2D" parent="PowerUpSpawns" index="43" groups=["powerup_spawns"]]
+position = Vector2(333, 643)
 
-[node name="PowerUpSpawn45" type="Marker2D" parent="PowerUpSpawns" index="44" groups=["powerup_spawns"]]
-position = Vector2(225, 429)
+[node name="PowerUpSpawn46" type="Marker2D" parent="PowerUpSpawns" index="44" groups=["powerup_spawns"]]
+position = Vector2(311, 440)
 
-[node name="PowerUpSpawn46" type="Marker2D" parent="PowerUpSpawns" index="45" groups=["powerup_spawns"]]
-position = Vector2(318, 432)
+[node name="PowerUpSpawn47" type="Marker2D" parent="PowerUpSpawns" index="45" groups=["powerup_spawns"]]
+position = Vector2(374, 410)
 
-[node name="PowerUpSpawn47" type="Marker2D" parent="PowerUpSpawns" index="46" groups=["powerup_spawns"]]
-position = Vector2(397, 430)
+[node name="PowerUpSpawn48" type="Marker2D" parent="PowerUpSpawns" index="46" groups=["powerup_spawns"]]
+position = Vector2(472, 412)
 
-[node name="PowerUpSpawn48" type="Marker2D" parent="PowerUpSpawns" index="47" groups=["powerup_spawns"]]
-position = Vector2(479, 404)
+[node name="PowerUpSpawn49" type="Marker2D" parent="PowerUpSpawns" index="47" groups=["powerup_spawns"]]
+position = Vector2(512, 531)
 
-[node name="PowerUpSpawn49" type="Marker2D" parent="PowerUpSpawns" index="48" groups=["powerup_spawns"]]
-position = Vector2(512, 518)
+[node name="PowerUpSpawn50" type="Marker2D" parent="PowerUpSpawns" index="48" groups=["powerup_spawns"]]
+position = Vector2(720, 424)
 
-[node name="PowerUpSpawn50" type="Marker2D" parent="PowerUpSpawns" index="49" groups=["powerup_spawns"]]
-position = Vector2(727, 416)
+[node name="PowerUpSpawn51" type="Marker2D" parent="PowerUpSpawns" index="49" groups=["powerup_spawns"]]
+position = Vector2(629, 522)
 
-[node name="PowerUpSpawn51" type="Marker2D" parent="PowerUpSpawns" index="50" groups=["powerup_spawns"]]
-position = Vector2(779, 446)
+[node name="PowerUpSpawn52" type="Marker2D" parent="PowerUpSpawns" index="50" groups=["powerup_spawns"]]
+position = Vector2(869, 388)
 
-[node name="PowerUpSpawn52" type="Marker2D" parent="PowerUpSpawns" index="51" groups=["powerup_spawns"]]
-position = Vector2(845, 385)
+[node name="PowerUpSpawn53" type="Marker2D" parent="PowerUpSpawns" index="51" groups=["powerup_spawns"]]
+position = Vector2(942, 458)
 
-[node name="PowerUpSpawn53" type="Marker2D" parent="PowerUpSpawns" index="52" groups=["powerup_spawns"]]
-position = Vector2(949, 440)
+[node name="PowerUpSpawn54" type="Marker2D" parent="PowerUpSpawns" index="52" groups=["powerup_spawns"]]
+position = Vector2(1032, 372)
 
-[node name="PowerUpSpawn54" type="Marker2D" parent="PowerUpSpawns" index="53" groups=["powerup_spawns"]]
-position = Vector2(1037, 474)
+[node name="PowerUpSpawn55" type="Marker2D" parent="PowerUpSpawns" index="53" groups=["powerup_spawns"]]
+position = Vector2(521, 624)
 
-[node name="PowerUpSpawn55" type="Marker2D" parent="PowerUpSpawns" index="54" groups=["powerup_spawns"]]
-position = Vector2(1150, 409)
+[node name="PowerUpSpawn56" type="Marker2D" parent="PowerUpSpawns" index="54" groups=["powerup_spawns"]]
+position = Vector2(1155, 384)
 
-[node name="PowerUpSpawn56" type="Marker2D" parent="PowerUpSpawns" index="55" groups=["powerup_spawns"]]
-position = Vector2(1221, 430)
+[node name="PowerUpSpawn57" type="Marker2D" parent="PowerUpSpawns" index="55" groups=["powerup_spawns"]]
+position = Vector2(37, 604)
 
-[node name="PowerUpSpawn57" type="Marker2D" parent="PowerUpSpawns" index="56" groups=["powerup_spawns"]]
-position = Vector2(39, 453)
+[node name="PowerUpSpawn58" type="Marker2D" parent="PowerUpSpawns" index="56" groups=["powerup_spawns"]]
+position = Vector2(316, 503)
 
-[node name="PowerUpSpawn58" type="Marker2D" parent="PowerUpSpawns" index="57" groups=["powerup_spawns"]]
-position = Vector2(327, 517)
+[node name="PowerUpSpawn59" type="Marker2D" parent="PowerUpSpawns" index="57" groups=["powerup_spawns"]]
+position = Vector2(414, 535)
 
-[node name="PowerUpSpawn59" type="Marker2D" parent="PowerUpSpawns" index="58" groups=["powerup_spawns"]]
-position = Vector2(421, 528)
+[node name="PowerUpSpawn61" type="Marker2D" parent="PowerUpSpawns" index="58" groups=["powerup_spawns"]]
+position = Vector2(637, 606)
 
-[node name="PowerUpSpawn61" type="Marker2D" parent="PowerUpSpawns" index="59" groups=["powerup_spawns"]]
-position = Vector2(689, 580)
+[node name="PowerUpSpawn62" type="Marker2D" parent="PowerUpSpawns" index="59" groups=["powerup_spawns"]]
+position = Vector2(743, 592)
 
-[node name="PowerUpSpawn62" type="Marker2D" parent="PowerUpSpawns" index="60" groups=["powerup_spawns"]]
-position = Vector2(789, 623)
+[node name="PowerUpSpawn63" type="Marker2D" parent="PowerUpSpawns" index="60" groups=["powerup_spawns"]]
+position = Vector2(819, 528)
 
-[node name="PowerUpSpawn63" type="Marker2D" parent="PowerUpSpawns" index="61" groups=["powerup_spawns"]]
-position = Vector2(826, 521)
+[node name="PowerUpSpawn64" type="Marker2D" parent="PowerUpSpawns" index="61" groups=["powerup_spawns"]]
+position = Vector2(905, 623)
 
-[node name="PowerUpSpawn64" type="Marker2D" parent="PowerUpSpawns" index="62" groups=["powerup_spawns"]]
-position = Vector2(912, 616)
+[node name="PowerUpSpawn65" type="Marker2D" parent="PowerUpSpawns" index="62" groups=["powerup_spawns"]]
+position = Vector2(995, 616)
 
-[node name="PowerUpSpawn65" type="Marker2D" parent="PowerUpSpawns" index="63" groups=["powerup_spawns"]]
-position = Vector2(1021, 633)
+[node name="PowerUpSpawn66" type="Marker2D" parent="PowerUpSpawns" index="63" groups=["powerup_spawns"]]
+position = Vector2(1124, 546)
 
-[node name="PowerUpSpawn66" type="Marker2D" parent="PowerUpSpawns" index="64" groups=["powerup_spawns"]]
-position = Vector2(1147, 494)
+[node name="PowerUpSpawn67" type="Marker2D" parent="PowerUpSpawns" index="64" groups=["powerup_spawns"]]
+position = Vector2(1210, 550)
 
-[node name="PowerUpSpawn67" type="Marker2D" parent="PowerUpSpawns" index="65" groups=["powerup_spawns"]]
-position = Vector2(1217, 543)
+[node name="PowerUpSpawn68" type="Marker2D" parent="PowerUpSpawns" index="65" groups=["powerup_spawns"]]
+position = Vector2(58, 537)
 
-[node name="PowerUpSpawn68" type="Marker2D" parent="PowerUpSpawns" index="66" groups=["powerup_spawns"]]
-position = Vector2(65, 530)
+[node name="PowerUpSpawn69" type="Marker2D" parent="PowerUpSpawns" index="66" groups=["powerup_spawns"]]
+position = Vector2(138, 545)
 
-[node name="PowerUpSpawn69" type="Marker2D" parent="PowerUpSpawns" index="67" groups=["powerup_spawns"]]
-position = Vector2(145, 538)
+[node name="PowerUpSpawn70" type="Marker2D" parent="PowerUpSpawns" index="67" groups=["powerup_spawns"]]
+position = Vector2(207, 512)
 
-[node name="PowerUpSpawn70" type="Marker2D" parent="PowerUpSpawns" index="68" groups=["powerup_spawns"]]
-position = Vector2(214, 505)
-
-[node name="PowerUpSpawn71" type="Marker2D" parent="PowerUpSpawns" index="69" groups=["powerup_spawns"]]
-position = Vector2(265, 564)
+[node name="PowerUpSpawn71" type="Marker2D" parent="PowerUpSpawns" index="68" groups=["powerup_spawns"]]
+position = Vector2(258, 571)
 
 [node name="CatacombsPropLayer" parent="." index="14"]
 z_index = 5

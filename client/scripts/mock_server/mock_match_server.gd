@@ -31,12 +31,28 @@ func receive_input(data: Dictionary) -> void:
 	pending_inputs.append(data)
 
 func spawn_mock_powerup() -> void:
+	var spawn_points = get_tree().get_nodes_in_group("powerup_spawns")
+	if spawn_points.is_empty():
+		return
+	
+	if not NetworkPowerupSynchronizer.powerups.is_empty():
+		return
+	
+	var powerup_spawn = spawn_points.pick_random() as Marker2D
+	var powerup_types := [
+		PowerupTypes.Type.RAPID_FIRE,
+		PowerupTypes.Type.SHIELD,
+		PowerupTypes.Type.SPEED_BOOST
+	]
+
+	var selected_type = powerup_types.pick_random()
+
 	var packet := {
 		"type": "powerup_spawn",
 		"powerup_id": next_powerup_id,
-		"powerup_type": PowerupTypes.Type.SHIELD,
-		"position_x": 500,
-		"position_y": 300
+		"powerup_type": selected_type,
+		"position_x": powerup_spawn.global_position.x,
+		"position_y": powerup_spawn.global_position.y
 	}
 	
 	next_powerup_id += 1
@@ -111,6 +127,9 @@ func receive_powerup_collect(data: Dictionary) -> void:
 func _on_round_started(_data: Dictionary) -> void:
 	round_resolved = false
 	round_active = true
+
+	if MatchData.session and MatchData.session.mode == &"online" and not NetworkClient.is_network_connected:
+		start_powerup_loop()
 	
 func _on_round_ended(_winner_id: int) -> void:
 	round_active = false
@@ -180,3 +199,13 @@ func process_player_input(data: Dictionary) -> void:
 	}
 	
 	GameEvents.match_event_received.emit(player_state)
+
+func start_powerup_loop() -> void:
+	while round_active and MatchData.session and MatchData.session.mode == &"online" and not NetworkClient.is_network_connected:
+		var wait_time := randf_range(1.0, 10.0)
+
+		await get_tree().create_timer(wait_time).timeout
+
+		if not round_active:
+			break
+		spawn_mock_powerup()
