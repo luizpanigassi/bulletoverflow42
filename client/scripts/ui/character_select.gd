@@ -110,10 +110,15 @@ func update_ui() -> void:
 func try_start_match() -> void:
 	if not p1_ready or not p2_ready:
 		return
+		
+	var username_p1 := p1_username_input.text.strip_edges()
+	if username_p1.is_empty():
+		username_p1 = "Player 1"
 
 	MatchData.set_local_session(
 		characters[p1_index].character_id,
 		characters[p2_index].character_id,
+		username_p1
 	)
 
 	get_tree().change_scene_to_file("res://client/scenes/game.tscn")

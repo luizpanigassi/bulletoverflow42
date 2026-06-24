@@ -12,7 +12,7 @@ var arena_ids := [
 func clear_session() -> void:
 	session = null
 
-func set_local_session(p1_character_id: StringName, p2_character_id: StringName) -> void:
+func set_local_session(p1_character_id: StringName, p2_character_id: StringName, p1_username: String = "Player 1") -> void:
 	session = SessionConfig.new()
 	session.mode = &"local"
 	session.match_id = &""
@@ -22,7 +22,7 @@ func set_local_session(p1_character_id: StringName, p2_character_id: StringName)
 	session.websocket_url = ""
 	session.game_type = &"vs_bot"
 	session.players = [
-		_make_player_state(1, p1_character_id, true),
+		_make_player_state(1, p1_character_id, true, p1_username),
 		_make_player_state(2, p2_character_id, true),
 	]
 
