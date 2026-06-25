@@ -1,25 +1,34 @@
 extends Node
 
+@warning_ignore("unused_signal")
 signal match_event_received(data)
-
+@warning_ignore("unused_signal")
 signal match_started(data)
+@warning_ignore("unused_signal")
 signal round_started(data)
+@warning_ignore("unused_signal")
 signal round_gameplay_started
-
+@warning_ignore("unused_signal")
 signal player_spawned(data)
+@warning_ignore("unused_signal")
 signal player_state_updated(state)
-
+@warning_ignore("unused_signal")
 signal entity_wrapped(player_slot: int, new_position: Vector2)
-
+@warning_ignore("unused_signal")
 signal player_died(player_id)
-
+@warning_ignore("unused_signal")
 signal projectile_spawn(data)
+@warning_ignore("unused_signal")
 signal projectile_destroy(projectile_id)
-
+@warning_ignore("unused_signal")
 signal powerup_spawned(state)
+@warning_ignore("unused_signal")
 signal powerup_collected(data)
+@warning_ignore("unused_signal")
 signal powerup_removed(powerup_id)
-
+@warning_ignore("unused_signal")
 signal round_ended(winner_id)
+@warning_ignore("unused_signal")
 signal score_updated(state)
+@warning_ignore("unused_signal")
 signal match_ended(state)

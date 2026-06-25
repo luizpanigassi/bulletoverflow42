@@ -1,7 +1,6 @@
 extends Node
 
 @onready var entities: Node2D = $"../../Entities"
-@onready var hud: CanvasLayer = $"../../UI/Hud"
 @onready var match_end_screen = $"../../UI/MatchEndScreen"
 @onready var match_end_label = $"../../UI/MatchEndScreen/Label"
 @onready var round_result_screen = $"../../UI/RoundResultScreen"
@@ -26,7 +25,6 @@ var scores: Dictionary = {
 	2: 0
 }
 
-const NetworkTestControllerScene = preload("res://client/scripts/mock_server/mock_remote_player_controller.gd")
 const BotControllerScene = preload("res://client/scripts/system/bot_controller.gd")
 const SCORE_TO_WIN: int = 5
 const ARENAS := {
@@ -53,16 +51,16 @@ func _ready() -> void:
 	GameEvents.round_ended.connect(_on_network_round_ended)
 	GameEvents.player_died.connect(_on_network_player_died)
 	GameEvents.match_ended.connect(_on_network_match_ended)
-
-	await hud.ready
-	hud.update_score(scores[1], scores[2])
 	
 	if MatchData.session == null or MatchData.session.mode == &"local":
 		start_round()
 		start_powerup_loop.call_deferred()
 	elif MatchData.session.mode == &"online" and not NetworkClient.is_network_connected:
-		GameEvents.match_event_received.emit({"type": "match_start", "match_id": String(MatchData.session.match_id)})
-		GameEvents.match_event_received.emit({"type": "round_start"})
+		if MatchData.session.websocket_url.is_empty():
+			GameEvents.match_event_received.emit({"type": "match_start", "match_id": String(MatchData.session.match_id)})
+			GameEvents.match_event_received.emit({"type": "round_start"})
+		elif not NetworkClient.is_network_connected:
+			await NetworkClient.network_connected
 
 func get_random_spawn_positions() -> Array[Marker2D]:
 	var valid_pairs: Array = []
@@ -117,18 +115,6 @@ func spawn_bot() -> void:
 	bot_controller.target_player = player1
 	
 	add_child(bot_controller)
-
-func spawn_network_test_controller() -> void:
-	if is_instance_valid(network_test_controller):
-		network_test_controller.queue_free()
-		
-	network_test_controller = NetworkTestControllerScene.new()
-	
-	network_test_controller.target_player = player1
-	network_test_controller.controlled_player = player2
-	network_test_controller.player_slot = 2
-	
-	add_child(network_test_controller)
 
 func _on_player_died(dead_player_id: int) -> void:
 	if not round_active:
@@ -210,7 +196,7 @@ func end_round(winner_id: int) -> void:
 	
 	scores[winner_id] += 1
 	
-	hud.update_score(scores[1], scores[2])
+	
 		
 	if scores[winner_id] >= SCORE_TO_WIN:
 		if MatchData.session and MatchData.session.mode == &"online":

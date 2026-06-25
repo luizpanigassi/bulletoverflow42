@@ -1,9 +1,18 @@
-[gd_scene load_steps=2 format=3 uid="uid://b3ejcg7c68nop"]
+[gd_scene load_steps=2 format=3 uid="uid://brejcpf3y8obv"]
 
-[ext_resource type="Script" uid="uid://bnu08eiqlngbu" path="res://client/scripts/ui/hud.gd" id="1_0mwgc"]
+[sub_resource type="GDScript" id="GDScript_v2gj6"]
+script/source = "extends CanvasLayer
+
+@onready var p1_score_label: Label = $Control/VBoxContainer/P1ScoreLabel
+@onready var p2_score_label: Label = $Control/VBoxContainer2/P2ScoreLabel
+
+func update_score(player1_score: int, player2_score: int) -> void:
+	p1_score_label.text = \"P1 Score: %d\" %player1_score
+	p2_score_label.text = \"P2 Score: %d\" %player2_score
+"
 
 [node name="Hud" type="CanvasLayer"]
-script = ExtResource("1_0mwgc")
+script = SubResource("GDScript_v2gj6")
 
 [node name="Control" type="Control" parent="."]
 layout_mode = 3
