@@ -14,6 +14,7 @@ extends Control
 @onready var input_handler_p1: Node = $InputHandlerP1
 @onready var simulate_online_button: Button = $SimulateOnlineButton
 @onready var p1_username_input: LineEdit = $P1Panel/P1UsernameInput
+@onready var p2_username_input: LineEdit = $P2Panel/P2UsernameInput
 
 @export var player_id: int = 1
 
@@ -112,13 +113,18 @@ func try_start_match() -> void:
 		return
 		
 	var username_p1 := p1_username_input.text.strip_edges()
+	var username_p2 := p2_username_input.text.strip_edges()
 	if username_p1.is_empty():
 		username_p1 = "Player 1"
+		
+	if username_p2.is_empty():
+		username_p2 = "Player 2"
 
 	MatchData.set_local_session(
 		characters[p1_index].character_id,
 		characters[p2_index].character_id,
-		username_p1
+		username_p1,
+		username_p2
 	)
 
 	get_tree().change_scene_to_file("res://client/scenes/game.tscn")
@@ -128,14 +134,18 @@ func _on_simulate_online_pressed() -> void:
 		return
 		
 	var username_p1 := p1_username_input.text.strip_edges()
+	var username_p2 := p2_username_input.text.strip_edges()
 	if username_p1.is_empty():
 		username_p1 = "Player 1"
+	if username_p2.is_empty():
+		username_p2 = "Player 2"
 	
 	MatchData.set_online_session_mock(
 		characters[p1_index].character_id,
 		characters[p2_index].character_id,
 		1,
 		username_p1,
+		username_p2
 	)
 
 	get_tree().change_scene_to_file("res://client/scenes/game.tscn")
