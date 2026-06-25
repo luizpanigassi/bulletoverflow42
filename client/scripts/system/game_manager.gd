@@ -102,6 +102,7 @@ func spawn_player(player_state: PlayerSessionState, spawn_position: Vector2, is_
 	player_instance.died.connect(_on_player_died)
 	player_instance.is_bot = player_state.is_bot or is_bot_player
 	entities.add_child(player_instance)
+	player_instance.player_id_label.text = player_instance.player_name if not player_instance.player_name.is_empty() else "Player %d" % player_instance.player_id
 	
 	return player_instance
 
