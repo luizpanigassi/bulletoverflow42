@@ -11,6 +11,11 @@ func send_input(snapshot: InputSnapshot, player_slot: int) -> void:
 	payload["type"] = "player_input"
 	payload["player_slot"] = player_slot
 	
+	var player = NetworkPlayerSynchronizer.players.get(player_slot)
+	if is_instance_valid(player):
+		payload["position_x"] = player.global_position.x
+		payload["position_y"] = player.global_position.y
+	
 	if MatchData.session and MatchData.session.mode == &"online":
 		if NetworkClient.is_network_connected:
 			NetworkClient.send_message(payload)

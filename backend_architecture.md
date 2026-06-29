@@ -171,19 +171,20 @@ Cada Match possui:
 
 ---
 
-## Game Simulation
+## Game Logic
 
 Responsável por:
 
-* Movimento
-* Disparos
-* Projéteis
-* Powerups
-* Colisões
+* Repassar `player_state` de cada jogador ao oponente
+* Rastrear projéteis ativos (posição, direção, dono, tempo de vida)
+* Detectar colisão de projétil com jogador (distância entre pontos)
+* Emitir `player_died` e `round_end` quando colisão confirmada
+* Gerenciar spawn, coleta e remoção de powerups
+* Controlar o flow de rounds e encerramento da partida
 
-Toda lógica de gameplay deve existir aqui.
+O servidor é autoridade para **lógica de jogo**: mortes, powerups, rounds e placar.
 
-O cliente nunca é autoridade.
+O cliente é autoridade para **posição e movimento**: o servidor confia na posição recebida via `player_input` e a repassa ao oponente. Validações básicas de deslocamento máximo podem ser aplicadas para detectar anomalias.
 
 ---
 
@@ -225,9 +226,9 @@ Servidor envia match_start
 ↓
 Partida inicia
 ↓
-Clientes enviam player_input
+Clientes enviam player_input (com posição atual)
 ↓
-Servidor simula gameplay
+Servidor repassa estado ao oponente e valida lógica de jogo
 ↓
 Servidor envia eventos
 ↓
@@ -239,7 +240,7 @@ Ranking atualizado
 
 # Tick Rate
 
-O servidor executa uma simulação fixa.
+O servidor processa inputs e atualiza o estado do jogo em ciclos fixos.
 
 Valor recomendado:
 
@@ -251,44 +252,46 @@ Intervalo:
 
 ---
 
-# Loop de Simulação
+# Loop de Processamento
 
 A cada tick:
 
-1. Receber inputs pendentes
+1. Receber inputs pendentes dos dois clientes
 
-2. Atualizar movimento dos jogadores
+2. Repassar `player_state` de cada jogador ao oponente
 
-3. Atualizar projéteis
+3. Se `shoot: true`, registrar novo projétil (posição, direção, timestamp)
 
-4. Verificar colisões
+4. Atualizar posição dos projéteis ativos (trajetória linear: `pos += dir * speed * delta`)
 
-5. Verificar mortes
+5. Destruir projéteis com mais de 3 segundos de vida
 
-6. Verificar fim de rodada
+6. Verificar colisão de cada projétil com cada jogador (distância entre pontos < raio de colisão)
 
-7. Gerar eventos
+7. Se colisão: emitir `player_died` e `round_end`
 
-8. Enviar atualizações aos clientes
+8. Verificar fim de partida (placar atingiu 5)
 
 ---
 
 # Autoridade do Servidor
 
-O servidor é a única autoridade da partida.
+O servidor é autoridade para lógica de jogo.
 
-O cliente nunca:
+O servidor decide:
 
-* decide dano
-* decide mortes
-* decide powerups
-* decide placar
-* decide vencedor
+* colisão de projétil com jogador
+* mortes
+* powerups (spawn, coleta, remoção)
+* placar
+* vencedor de round e de partida
 
-O cliente apenas:
+O cliente decide:
 
-* envia inputs
-* exibe estados recebidos
+* própria posição e movimento
+* animações e efeitos visuais locais
+
+O cliente envia sua posição a cada input. O servidor confia nessa posição para repassar ao oponente e calcular colisões. Essa abordagem prioriza simplicidade de implementação para o MVP. Validação completa de física server-side é considerada evolução futura.
 
 ---
 

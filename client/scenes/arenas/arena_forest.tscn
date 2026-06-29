@@ -1,0 +1,5 @@
+[gd_scene load_steps=2 format=3 uid="uid://cxqxlt0h421kw"]
+
+[ext_resource type="PackedScene" uid="uid://dhn7t71k0n0r" path="res://client/scenes/arenas/arena_base.tscn" id="1_ervvh"]
+
+[node name="ArenaBase" instance=ExtResource("1_ervvh")]
