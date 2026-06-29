@@ -13,7 +13,6 @@ extends Node
 var player1: Player
 var player2: Player
 var bot_controller: Node
-var network_test_controller: Node
 var bot_name: String = ""
 var match_finished: bool = false
 var round_active: bool = false
