@@ -235,7 +235,7 @@ false
 ```
 ## Input do Jogador
 
-O cliente envia apenas entradas de controle.
+O cliente envia entradas de controle junto com sua posição atual.
 
 Formato esperado:
 
@@ -243,6 +243,9 @@ Formato esperado:
 {
   "type": "player_input",
   "player_slot": 1,
+
+  "position_x": 150.0,
+  "position_y": 300.0,
 
   "move_x": 0,
   "move_y": -1,
@@ -256,7 +259,7 @@ Formato esperado:
 }
 ```
 
-O servidor é responsável por validar e simular os efeitos dessas entradas.
+O servidor utiliza `position_x` e `position_y` para repassar o estado do jogador ao oponente e para validar colisões com projéteis. O cliente é responsável pela simulação local do próprio movimento — o servidor confia na posição recebida, podendo aplicar validações básicas como verificar deslocamento máximo por frame.
 
 O backend deve aceitar uma taxa de entrada de **até 60 mensagens por segundo por jogador** (o client envia 1 input por `_physics_process`, que roda a 60Hz por padrão no Godot). Em uma partida 1x1 isso representa no máximo ~120 msgs/s no total, carga desprezível para o MVP. 30/s deve ser tratado como piso mínimo de compatibilidade, não como o valor real de operação.
 
