@@ -34,7 +34,7 @@ func _make_player_state(slot: int, character_id: StringName, is_ready: bool, use
 	state.username = username
 	return state
 
-func set_bot_session(p1_character_id: StringName) -> void:
+func set_bot_session(p1_character_id: StringName, difficulty: String = "easy") -> void:
 	session = SessionConfig.new()
 	
 	session.mode = &"local"
@@ -43,6 +43,7 @@ func set_bot_session(p1_character_id: StringName) -> void:
 	session.arena_id = arena_ids.pick_random()
 	session.match_seed = randi()
 	session.websocket_url = ""
+	session.bot_difficulty = difficulty
 	
 	session.players = [
 		_make_player_state(1, p1_character_id, true),
