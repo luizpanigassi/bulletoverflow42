@@ -15,12 +15,12 @@ func _process(_delta: float) -> void:
 
 	var is_network_connected := NetworkClient.is_network_connected
 
-	if _was_connected and not is_connected:
+	if _was_connected and not is_network_connected:
 		visible = true
 		status_label.text = "Conexão perdida"
 		reconnect_button.disabled = false
 
-	elif not _was_connected and is_connected:
+	elif not _was_connected and is_network_connected:
 		visible = false
 
 	_was_connected = is_network_connected
@@ -28,9 +28,5 @@ func _process(_delta: float) -> void:
 func _on_reconnect_pressed() -> void:
 	reconnect_button.disabled = true
 	status_label.text = "Reconectando..."
-
-	if MatchData.session.websocket_url.is_empty():
-		await get_tree().create_timer(1.5).timeout
-		NetworkClient.simulate_connect()
-	else:
-		NetworkClient.connect_to_server(MatchData.session.websocket_url)
+	
+	NetworkClient.connect_to_server(MatchData.session.websocket_url)
