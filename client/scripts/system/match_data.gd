@@ -12,7 +12,7 @@ var arena_ids := [
 func clear_session() -> void:
 	session = null
 
-func set_local_session(p1_character_id: StringName, p2_character_id: StringName, p1_username: String = "Player 1", p2_username: String = "Player 2") -> void:
+func set_local_session(p1_character_id: StringName, p2_character_id: StringName, p1_username: String = "Player 1", p2_username: String = "Player 2", bot_difficulty: String = "easy") -> void:
 	session = SessionConfig.new()
 	session.mode = &"local"
 	session.match_id = &""
@@ -21,6 +21,7 @@ func set_local_session(p1_character_id: StringName, p2_character_id: StringName,
 	session.host_id = &""
 	session.websocket_url = ""
 	session.game_type = &"vs_bot"
+	session.bot_difficulty = bot_difficulty
 	session.players = [
 		_make_player_state(1, p1_character_id, true, p1_username),
 		_make_player_state(2, p2_character_id, true, p2_username),
@@ -34,7 +35,7 @@ func _make_player_state(slot: int, character_id: StringName, is_ready: bool, use
 	state.username = username
 	return state
 
-func set_bot_session(p1_character_id: StringName) -> void:
+func set_bot_session(p1_character_id: StringName, difficulty: String = "easy") -> void:
 	session = SessionConfig.new()
 	
 	session.mode = &"local"
@@ -43,6 +44,7 @@ func set_bot_session(p1_character_id: StringName) -> void:
 	session.arena_id = arena_ids.pick_random()
 	session.match_seed = randi()
 	session.websocket_url = ""
+	session.bot_difficulty = difficulty
 	
 	session.players = [
 		_make_player_state(1, p1_character_id, true),

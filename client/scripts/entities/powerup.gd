@@ -12,6 +12,7 @@ var powerup_type: PowerupTypes.Type
 var float_time: float = 0.0
 
 func _ready():
+	add_to_group("powerups")
 	configure_visual()
 	
 func _process(delta: float) -> void:

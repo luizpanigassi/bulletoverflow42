@@ -114,6 +114,9 @@ func spawn_bot() -> void:
 	bot_controller.controlled_player = player2
 	bot_controller.target_player = player1
 	
+	if MatchData.session:
+		bot_controller.difficulty = MatchData.session.bot_difficulty
+	
 	add_child(bot_controller)
 
 func _on_player_died(dead_player_id: int) -> void:

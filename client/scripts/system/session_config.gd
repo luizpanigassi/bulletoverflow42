@@ -9,6 +9,7 @@ class_name SessionConfig
 @export var websocket_url: String = ""
 @export var players: Array[PlayerSessionState] = []
 @export var game_type: StringName = &"pvp_local"
+@export var bot_difficulty: String = "easy"
 
 func to_dict() -> Dictionary:
 	var players_data: Array[Dictionary] = []
@@ -24,6 +25,7 @@ func to_dict() -> Dictionary:
 		"websocket_url": websocket_url,
 		"players": players_data,
 		"game_type": String(game_type),
+		"bot_difficulty": bot_difficulty,
 	}
 
 static func from_dict(data: Dictionary) -> SessionConfig:
@@ -35,6 +37,7 @@ static func from_dict(data: Dictionary) -> SessionConfig:
 	session.host_id = StringName(data.get("host_id", ""))
 	session.websocket_url = String(data.get("websocket_url", ""))
 	session.game_type = StringName(data.get("game_type", "pvp"))
+	session.bot_difficulty = String(data.get("bot_difficulty", "easy"))
 	
 	var players_data: Array[Dictionary] = data.get("players", [])
 	for player_data in players_data:
