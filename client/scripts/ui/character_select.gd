@@ -15,6 +15,7 @@ extends Control
 @onready var simulate_online_button: Button = $SimulateOnlineButton
 @onready var p1_username_input: LineEdit = $P1Panel/P1UsernameInput
 @onready var p2_username_input: LineEdit = $P2Panel/P2UsernameInput
+@onready var bot_difficulty_option: OptionButton = $BotDifficultyOption
 
 @export var player_id: int = 1
 
@@ -119,12 +120,16 @@ func try_start_match() -> void:
 		
 	if username_p2.is_empty():
 		username_p2 = "Player 2"
+		
+	var difficulties := ["easy", "medium", "hard"]
+	var selected_difficulty: String = difficulties[bot_difficulty_option.selected]
 
 	MatchData.set_local_session(
 		characters[p1_index].character_id,
 		characters[p2_index].character_id,
 		username_p1,
-		username_p2
+		username_p2,
+		selected_difficulty
 	)
 
 	get_tree().change_scene_to_file("res://client/scenes/game.tscn")
