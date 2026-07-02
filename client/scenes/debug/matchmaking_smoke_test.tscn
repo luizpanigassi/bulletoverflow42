@@ -1,0 +1,103 @@
+[gd_scene load_steps=2 format=3]
+
+[sub_resource type="GDScript" id="GDScript_matchmaking_smoke"]
+script/source = "extends Node
+
+# Protótipo de matchmaking: mostra o fluxo completo em localhost sem
+# depender de nenhuma tela ainda. O client conecta na fila
+# (/matchmaking/queue), espera um oponente, recebe \"match_found\" com o
+# match_id/slot/websocket_url de verdade (gerados pelo servidor), reconecta
+# na match e já dá pra trocar mensagem de texto.
+#
+# Uso: rodar duas instâncias, ex.:
+#   godot --path . client/scenes/debug/matchmaking_smoke_test.tscn
+#   godot --path . client/scenes/debug/matchmaking_smoke_test.tscn
+# Com o server rodando (npm run dev). Digite no terminal de cada uma pra
+# mandar mensagem depois de parear; Enter vazio manda \"ping\".
+
+@export var server_host := \"127.0.0.1\"
+@export var server_port := 3000
+
+var slot := 0
+var in_queue := true
+var _stdin_thread: Thread
+
+@onready var status_label: Label = $StatusLabel
+
+func _ready() -> void:
+	var user_id := \"guest-%d\" % randi()
+	status_label.text = \"entrando na fila de matchmaking...\"
+
+	NetworkClient.network_connected.connect(_on_connected)
+	NetworkClient.event_received.connect(_on_event_received)
+
+	var queue_url := \"ws://%s:%d/matchmaking/queue?userId=%s&characterId=adventurer\" % [server_host, server_port, user_id]
+	NetworkClient.connect_to_server(queue_url)
+
+	_stdin_thread = Thread.new()
+	_stdin_thread.start(_read_stdin_loop)
+
+func _on_connected() -> void:
+	if in_queue:
+		status_label.text = \"na fila, esperando oponente...\"
+	else:
+		status_label.text = \"slot %d: conectado na match! Digite no terminal pra mandar.\" % slot
+
+func _on_event_received(data: Dictionary) -> void:
+	if in_queue and data.get(\"type\") == \"match_found\":
+		in_queue = false
+		slot = int(data[\"slot\"])
+		var match_id := String(data.get(\"match_id\", \"\"))
+		var ws_url := String(data.get(\"websocket_url\", \"\"))
+		print(\"[MatchmakingTest] match encontrada! slot=%d match_id=%s\" % [slot, match_id])
+		status_label.text = \"match encontrada! slot %d. Conectando na match...\" % slot
+		NetworkClient.connect_to_server(ws_url)
+	elif not in_queue:
+		print(\"[MatchmakingTest slot %d] recebido: %s\" % [slot, data])
+		status_label.text = \"slot %d: recebeu -> %s\" % [slot, data]
+
+# Roda numa thread separada porque read_string_from_stdin() bloqueia — se
+# fosse chamada direto no loop principal, travaria o _process()/rendering.
+func _read_stdin_loop() -> void:
+	# stdin fechado (EOF) faz read_string_from_stdin() voltar vazio na hora,
+	# sem bloquear — sem essa checagem de tempo o loop giraria pra sempre
+	# mandando \"ping\". Um Enter vazio de verdade num terminal interativo
+	# leva bem mais que 2ms pra chegar, então não é confundido com EOF.
+	var instant_empty_streak := 0
+	while true:
+		var t0 := Time.get_ticks_usec()
+		var line := OS.read_string_from_stdin(1024).strip_edges()
+		var elapsed_ms := (Time.get_ticks_usec() - t0) / 1000.0
+
+		if line.is_empty():
+			if elapsed_ms < 2.0:
+				instant_empty_streak += 1
+				if instant_empty_streak >= 3:
+					break
+				continue
+			instant_empty_streak = 0
+			call_deferred(\"_send_string_message\", \"ping\")
+		else:
+			instant_empty_streak = 0
+			call_deferred(\"_send_string_message\", line)
+
+func _send_string_message(text: String) -> void:
+	if in_queue:
+		return
+	print(\"[MatchmakingTest slot %d] enviando: %s\" % [slot, text])
+	NetworkClient.send_message({
+		\"type\": \"chat_test\",
+		\"from_slot\": slot,
+		\"message\": text,
+	})
+"
+
+[node name="MatchmakingSmokeTest" type="Node"]
+script = SubResource("GDScript_matchmaking_smoke")
+
+[node name="StatusLabel" type="Label" parent="."]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 900.0
+offset_bottom = 60.0
+text = "entrando na fila..."

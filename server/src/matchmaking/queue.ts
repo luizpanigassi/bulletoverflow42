@@ -1,14 +1,12 @@
 import { randomUUID } from "node:crypto";
+import type { WebSocket } from "ws";
 
-/**
- * Fila de matchmaking simples (FIFO).
- * TODO (Etapa 4): ao ter 2 jogadores na fila, formar uma Match via MatchManager,
- * gerar match_id e remover ambos da fila.
- */
+/** Fila de matchmaking simples (FIFO). Ver matchmaking.routes.ts pra formação do par. */
 export interface QueuedPlayer {
   userId: string;
   characterId: string;
   queuedAt: number;
+  socket: WebSocket;
 }
 
 export class MatchmakingQueue {
