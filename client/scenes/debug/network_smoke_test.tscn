@@ -10,14 +10,17 @@ script/source = "extends Node
 # Uso: rodar duas instâncias apontando pra slots diferentes, ex.:
 #   godot --path . client/scenes/debug/network_smoke_test.tscn -- --slot=1
 #   godot --path . client/scenes/debug/network_smoke_test.tscn -- --slot=2
-# Com o server rodando (npm run dev). Aperte Enter em cada janela pra mandar
-# um ping; a outra janela deve receber o evento relayado.
+# Com o server rodando (npm run dev). O envio é pelo TERMINAL (não pela
+# janela do Godot): digite um texto em qualquer um dos dois terminais e
+# aperte Enter pra mandar; Enter vazio manda um \"ping\". Isso evita ter que
+# alternar foco entre as janelas gráficas pra testar.
 
 @export var server_host := \"127.0.0.1\"
 @export var server_port := 3000
 @export var match_id := \"smoke_test\"
 
 var slot := 1
+var _stdin_thread: Thread
 
 @onready var status_label: Label = $StatusLabel
 
@@ -32,6 +35,9 @@ func _ready() -> void:
 	var url := \"ws://%s:%d/matches/%s?slot=%d\" % [server_host, server_port, match_id, slot]
 	NetworkClient.connect_to_server(url)
 
+	_stdin_thread = Thread.new()
+	_stdin_thread.start(_read_stdin_loop)
+
 func _read_slot_arg() -> int:
 	for arg in OS.get_cmdline_user_args():
 		if arg.begins_with(\"--slot=\"):
@@ -39,9 +45,7 @@ func _read_slot_arg() -> int:
 	return 1
 
 func _on_connected() -> void:
-	status_label.text = \"slot %d: conectado! Enter pra mandar ping.\" % slot
-	await get_tree().create_timer(0.5).timeout
-	_send_ping()
+	status_label.text = \"slot %d: conectado! Digite no terminal e aperte Enter pra mandar.\" % slot
 
 func _on_disconnected() -> void:
 	status_label.text = \"slot %d: desconectado\" % slot
@@ -50,16 +54,38 @@ func _on_event_received(data: Dictionary) -> void:
 	print(\"[SmokeTest slot %d] recebido: %s\" % [slot, data])
 	status_label.text = \"slot %d: recebeu -> %s\" % [slot, data]
 
-func _send_ping() -> void:
-	print(\"[SmokeTest slot %d] enviando ping\" % slot)
-	NetworkClient.send_message({
-		\"type\": \"ping\",
-		\"from_slot\": slot,
-	})
+# Roda numa thread separada porque read_string_from_stdin() bloqueia — se
+# fosse chamada direto no loop principal, travaria o _process()/rendering.
+func _read_stdin_loop() -> void:
+	# stdin fechado (EOF) faz read_string_from_stdin() voltar vazio na hora,
+	# sem bloquear — sem essa checagem de tempo o loop giraria pra sempre
+	# mandando \"ping\". Um Enter vazio de verdade num terminal interativo
+	# leva bem mais que 2ms pra chegar, então não é confundido com EOF.
+	var instant_empty_streak := 0
+	while true:
+		var t0 := Time.get_ticks_usec()
+		var line := OS.read_string_from_stdin(1024).strip_edges()
+		var elapsed_ms := (Time.get_ticks_usec() - t0) / 1000.0
 
-func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed(\"ui_accept\"):
-		_send_ping()
+		if line.is_empty():
+			if elapsed_ms < 2.0:
+				instant_empty_streak += 1
+				if instant_empty_streak >= 3:
+					break
+				continue
+			instant_empty_streak = 0
+			call_deferred(\"_send_string_message\", \"ping\")
+		else:
+			instant_empty_streak = 0
+			call_deferred(\"_send_string_message\", line)
+
+func _send_string_message(text: String) -> void:
+	print(\"[SmokeTest slot %d] enviando: %s\" % [slot, text])
+	NetworkClient.send_message({
+		\"type\": \"chat_test\",
+		\"from_slot\": slot,
+		\"message\": text,
+	})
 "
 
 [node name="NetworkSmokeTest" type="Node"]
