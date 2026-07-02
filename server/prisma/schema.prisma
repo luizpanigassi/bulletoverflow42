@@ -1,0 +1,76 @@
+// Bullet Overflow - Schema do banco
+// Cobre: usuários (auth email/senha + OAuth 42), amigos, histórico de partidas e ranking.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  email        String   @unique
+  passwordHash String? // null quando o usuário só usa login via 42 (OAuth)
+  avatarUrl    String?
+  fortyTwoId   Int?     @unique // id do usuário na API da 42, quando logado via OAuth
+  rankingPoints Int     @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  friendshipsSent     Friendship[] @relation("FriendshipRequester")
+  friendshipsReceived Friendship[] @relation("FriendshipAddressee")
+
+  matchesAsPlayer1 Match[] @relation("MatchPlayer1")
+  matchesAsPlayer2 Match[] @relation("MatchPlayer2")
+  matchesWon       Match[] @relation("MatchWinner")
+
+  @@map("users")
+}
+
+enum FriendshipStatus {
+  PENDING
+  ACCEPTED
+  BLOCKED
+}
+
+model Friendship {
+  id          String           @id @default(uuid())
+  requesterId String
+  addresseeId String
+  status      FriendshipStatus @default(PENDING)
+  createdAt   DateTime         @default(now())
+
+  requester User @relation("FriendshipRequester", fields: [requesterId], references: [id])
+  addressee User @relation("FriendshipAddressee", fields: [addresseeId], references: [id])
+
+  @@unique([requesterId, addresseeId])
+  @@map("friendships")
+}
+
+enum ArenaId {
+  arena_01
+  arena_02
+  arena_03
+}
+
+model Match {
+  id           String    @id @default(uuid())
+  arenaId      ArenaId
+  player1Id    String
+  player2Id    String
+  winnerId     String?
+  player1Score Int       @default(0)
+  player2Score Int       @default(0)
+  startedAt    DateTime  @default(now())
+  endedAt      DateTime?
+
+  player1 User  @relation("MatchPlayer1", fields: [player1Id], references: [id])
+  player2 User  @relation("MatchPlayer2", fields: [player2Id], references: [id])
+  winner  User? @relation("MatchWinner", fields: [winnerId], references: [id])
+
+  @@map("matches")
+}

@@ -1,0 +1,73 @@
+[gd_scene load_steps=2 format=3]
+
+[sub_resource type="GDScript" id="GDScript_smoke"]
+script/source = "extends Node
+
+# Cena de smoke test manual: valida a conexão WebSocket real entre o client
+# Godot e o server local, sem passar por matchmaking (ver server/src/main.ts,
+# que fixa a match \"smoke_test\" no boot).
+#
+# Uso: rodar duas instâncias apontando pra slots diferentes, ex.:
+#   godot --path . client/scenes/debug/network_smoke_test.tscn -- --slot=1
+#   godot --path . client/scenes/debug/network_smoke_test.tscn -- --slot=2
+# Com o server rodando (npm run dev). Aperte Enter em cada janela pra mandar
+# um ping; a outra janela deve receber o evento relayado.
+
+@export var server_host := \"127.0.0.1\"
+@export var server_port := 3000
+@export var match_id := \"smoke_test\"
+
+var slot := 1
+
+@onready var status_label: Label = $StatusLabel
+
+func _ready() -> void:
+	slot = _read_slot_arg()
+	status_label.text = \"slot %d: conectando...\" % slot
+
+	NetworkClient.network_connected.connect(_on_connected)
+	NetworkClient.network_disconnected.connect(_on_disconnected)
+	NetworkClient.event_received.connect(_on_event_received)
+
+	var url := \"ws://%s:%d/matches/%s?slot=%d\" % [server_host, server_port, match_id, slot]
+	NetworkClient.connect_to_server(url)
+
+func _read_slot_arg() -> int:
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with(\"--slot=\"):
+			return int(arg.substr(\"--slot=\".length()))
+	return 1
+
+func _on_connected() -> void:
+	status_label.text = \"slot %d: conectado! Enter pra mandar ping.\" % slot
+	await get_tree().create_timer(0.5).timeout
+	_send_ping()
+
+func _on_disconnected() -> void:
+	status_label.text = \"slot %d: desconectado\" % slot
+
+func _on_event_received(data: Dictionary) -> void:
+	print(\"[SmokeTest slot %d] recebido: %s\" % [slot, data])
+	status_label.text = \"slot %d: recebeu -> %s\" % [slot, data]
+
+func _send_ping() -> void:
+	print(\"[SmokeTest slot %d] enviando ping\" % slot)
+	NetworkClient.send_message({
+		\"type\": \"ping\",
+		\"from_slot\": slot,
+	})
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed(\"ui_accept\"):
+		_send_ping()
+"
+
+[node name="NetworkSmokeTest" type="Node"]
+script = SubResource("GDScript_smoke")
+
+[node name="StatusLabel" type="Label" parent="."]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 900.0
+offset_bottom = 60.0
+text = "conectando..."

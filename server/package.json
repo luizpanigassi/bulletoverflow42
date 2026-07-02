@@ -1,0 +1,28 @@
+{
+  "name": "bullet-overflow-server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Backend do Bullet Overflow - ft_transcendence (auth, matchmaking, relay de WebSocket, powerups, ranking).",
+  "scripts": {
+    "dev": "tsx watch src/main.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/main.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@fastify/websocket": "^11.0.1",
+    "@prisma/client": "^5.20.0",
+    "dotenv": "^16.4.5",
+    "fastify": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.5.0",
+    "@types/ws": "^8.5.12",
+    "prisma": "^5.20.0",
+    "tsx": "^4.19.0",
+    "typescript": "5.9.3"
+  }
+}
