@@ -92,6 +92,14 @@ function handlePlayerHit(app: FastifyInstance, match: Match, data: Record<string
 
   match.broadcast({ type: "player_died", player_slot: targetSlot });
 
+  // O powerup não sobrevive entre rounds: o client sempre limpa o ativo (se
+  // houver) em end_round(), mas só avisa o servidor via powerup_collect_request
+  // quando é de fato coletado. Sem isso, um powerup que nasceu e ninguém
+  // pegou antes do round acabar trava activePowerupId pra sempre, e o loop
+  // de spawn nunca mais gera outro (ver startPowerupLoop em powerup-authority.ts).
+  match.activePowerupId = null;
+  match.activePowerupType = null;
+
   const { matchFinished } = match.registerRoundEnd(shooterSlot);
   match.broadcast({ type: "round_end", winner_slot: shooterSlot });
 
