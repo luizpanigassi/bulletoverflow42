@@ -26,6 +26,15 @@ export async function registerWebsocket(app: FastifyInstance) {
 
     app.log.info(`Cliente conectado: match=${matchId} slot=${slot}`);
 
+    // Só o primeiro round_start vem do servidor (dispara o spawn dos players
+    // via game_manager.gd). Os próximos rounds cada client dispara sozinho
+    // localmente ao terminar o round anterior (reset_round() em game_manager.gd).
+    if (match.players.size === 2 && !match.matchStarted) {
+      match.matchStarted = true;
+      match.broadcast({ type: "match_start", match_id: match.matchId });
+      match.broadcast({ type: "round_start" });
+    }
+
     socket.on("message", (raw: Buffer) => {
       let data: Record<string, unknown>;
       try {

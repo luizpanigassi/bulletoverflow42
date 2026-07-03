@@ -63,6 +63,7 @@ func _on_js_session_data(args) -> void:
 	var dict = JSON.parse_string(String(args[0]))
 	if dict is Dictionary:
 		session = SessionConfig.from_dict(dict)
+		local_player_slot = int(dict.get("local_player_slot", 1))
 		var websocket_url := session.websocket_url
 		if websocket_url.is_empty():
 			websocket_url = OS.get_environment("BULLET_OVERFLOW_WS_URL")

@@ -28,6 +28,8 @@ export class Match {
   activePowerupType: number | null = null;
   private nextPowerupId = 1;
 
+  matchStarted = false;
+
   constructor(matchId: string, arenaId: string) {
     this.matchId = matchId;
     this.arenaId = arenaId;

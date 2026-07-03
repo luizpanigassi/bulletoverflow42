@@ -49,5 +49,6 @@ Thumbs.db
 *.app
 
 # Web exports
+/build/
 *.wasm
 *.html

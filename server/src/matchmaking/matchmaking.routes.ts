@@ -6,7 +6,9 @@ import { startPowerupLoop } from "../game/powerup-authority.js";
 import { env } from "../env.js";
 
 // Prototipo local: uma unica arena fixa. Selecao de arena fica pra depois.
-const ARENA_ID = "arena_ruins";
+// "arena_01" é a chave lógica que o client mapeia pra arena_ruins.tscn
+// (ver GameManager.ARENAS em game_manager.gd) — não é o nome do arquivo.
+const ARENA_ID = "arena_01";
 
 /**
  * Fila de matchmaking via WebSocket: o client conecta e fica pendurado aqui
