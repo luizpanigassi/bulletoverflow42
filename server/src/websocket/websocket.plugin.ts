@@ -1,10 +1,12 @@
 import type { FastifyInstance } from "fastify";
 import websocketPlugin from "@fastify/websocket";
-import { matchManager } from "../matches/match-manager.js";
+import { matchManager, type Match } from "../matches/match-manager.js";
 
 /**
- * Registro do WebSocket. Não deve conter lógica de gameplay (ver backend_architecture.md) —
- * apenas: aceitar conexão, identificar a qual Match/slot ela pertence, e repassar mensagens.
+ * Registro do WebSocket: aceita a conexão, identifica a Match/slot, e repassa
+ * mensagens. player_hit é o único tipo tratado por conteúdo hoje — o servidor
+ * aceita sem validação (sem anti-cheat, decisão consciente do time) e é quem
+ * emite player_died/round_end/match_end, não o client.
  */
 export async function registerWebsocket(app: FastifyInstance) {
   await app.register(websocketPlugin);
@@ -32,10 +34,15 @@ export async function registerWebsocket(app: FastifyInstance) {
         return;
       }
 
-      // TODO (Etapa 5+): tratar player_input, player_hit, player_wrapped,
-      // powerup_collect_request de acordo com o modelo de autoridade do contrato
-      // (hoje é um relay genérico, só pra validar a conexão ponta a ponta).
       app.log.debug({ data }, "mensagem recebida");
+
+      if (data.type === "player_hit") {
+        handlePlayerHit(app, match, data);
+        return;
+      }
+
+      // TODO (Etapa 6+): tratar powerup_collect_request (resolução de corrida)
+      // e validação de deslocamento máximo em player_input.
       match.relayToOpponent(playerSlot, data);
     });
 
@@ -43,4 +50,26 @@ export async function registerWebsocket(app: FastifyInstance) {
       app.log.info(`Cliente desconectado: match=${matchId} slot=${slot}`);
     });
   });
+}
+
+function handlePlayerHit(app: FastifyInstance, match: Match, data: Record<string, unknown>) {
+  const targetSlot = Number(data.target_slot) as 1 | 2;
+  const shooterSlot = Number(data.shooter_slot) as 1 | 2;
+
+  app.log.info(`player_hit: match=${match.matchId} shooter=${shooterSlot} target=${targetSlot}`);
+
+  match.broadcast({ type: "player_died", player_slot: targetSlot });
+
+  const { matchFinished } = match.registerRoundEnd(shooterSlot);
+  match.broadcast({ type: "round_end", winner_slot: shooterSlot });
+
+  if (matchFinished) {
+    app.log.info(`match_end: match=${match.matchId} winner=${shooterSlot}`);
+    match.broadcast({
+      type: "match_end",
+      player1_score: match.scores[1],
+      player2_score: match.scores[2],
+      winner_slot: shooterSlot,
+    });
+  }
 }
