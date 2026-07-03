@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { randomUUID } from "node:crypto";
 import { matchmakingQueue, MatchmakingQueue, type QueuedPlayer } from "./queue.js";
 import { matchManager, type Match } from "../matches/match-manager.js";
+import { startPowerupLoop } from "../game/powerup-authority.js";
 import { env } from "../env.js";
 
 // Prototipo local: uma unica arena fixa. Selecao de arena fica pra depois.
@@ -34,6 +35,7 @@ export async function registerMatchmaking(app: FastifyInstance) {
 
     const [p1, p2] = pair;
     const match = matchManager.create(MatchmakingQueue.generateMatchId(), ARENA_ID);
+    startPowerupLoop(match);
 
     notifyMatchFound(app, p1, 1, match);
     notifyMatchFound(app, p2, 2, match);

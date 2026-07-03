@@ -25,6 +25,7 @@ export class Match {
 
   // powerup ativo no momento (no máximo 1 por vez, igual ao client hoje)
   activePowerupId: number | null = null;
+  activePowerupType: number | null = null;
   private nextPowerupId = 1;
 
   constructor(matchId: string, arenaId: string) {
@@ -54,14 +55,12 @@ export class Match {
     }
   }
 
-  /** TODO (Etapa 8): registrar round_end recebido do client e checar SCORE_TO_WIN (5). */
   registerRoundEnd(winnerSlot: 1 | 2): { matchFinished: boolean } {
     this.scores[winnerSlot] += 1;
     const matchFinished = this.scores[winnerSlot] >= 5;
     return { matchFinished };
   }
 
-  /** TODO (Etapa 6): gerar próximo powerup_id único dentro da partida. */
   generatePowerupId(): number {
     return this.nextPowerupId++;
   }

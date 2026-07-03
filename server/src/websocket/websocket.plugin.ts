@@ -41,8 +41,12 @@ export async function registerWebsocket(app: FastifyInstance) {
         return;
       }
 
-      // TODO (Etapa 6+): tratar powerup_collect_request (resolução de corrida)
-      // e validação de deslocamento máximo em player_input.
+      if (data.type === "powerup_collect_request") {
+        handlePowerupCollectRequest(app, match, data);
+        return;
+      }
+
+      // TODO (Etapa 7+): validação de deslocamento máximo em player_input.
       match.relayToOpponent(playerSlot, data);
     });
 
@@ -72,4 +76,24 @@ function handlePlayerHit(app: FastifyInstance, match: Match, data: Record<string
       winner_slot: shooterSlot,
     });
   }
+}
+
+function handlePowerupCollectRequest(app: FastifyInstance, match: Match, data: Record<string, unknown>) {
+  const powerupId = Number(data.powerup_id);
+  const playerSlot = Number(data.player_slot) as 1 | 2;
+
+  // Corrida: só o primeiro pedido pra esse powerup_id ainda ativo vence.
+  // Um pedido atrasado (powerup já coletado ou nunca existiu) é ignorado.
+  if (match.activePowerupId !== powerupId) {
+    return;
+  }
+
+  const powerupType = match.activePowerupType;
+  match.activePowerupId = null;
+  match.activePowerupType = null;
+
+  app.log.info(`powerup coletado: match=${match.matchId} slot=${playerSlot} powerup_id=${powerupId}`);
+
+  match.broadcast({ type: "powerup_collected", player_slot: playerSlot, powerup_type: powerupType });
+  match.broadcast({ type: "powerup_removed", powerup_id: powerupId });
 }
