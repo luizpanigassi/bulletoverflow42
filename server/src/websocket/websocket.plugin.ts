@@ -55,7 +55,12 @@ export async function registerWebsocket(app: FastifyInstance) {
         return;
       }
 
-      // TODO (Etapa 7+): validação de deslocamento máximo em player_input.
+      if (data.type === "player_input") {
+        // TODO (Etapa 7+): validação de deslocamento máximo (anti-teleporte).
+        handlePlayerInput(match, playerSlot, data);
+        return;
+      }
+
       match.relayToOpponent(playerSlot, data);
     });
 
@@ -65,7 +70,21 @@ export async function registerWebsocket(app: FastifyInstance) {
   });
 }
 
+// Janela de debounce pra ignorar player_hit duplicado: como agora os dois
+// clients têm sua própria cópia local do projétil (um pra si, um relayado
+// pro oponente via projectile_spawn), os dois podem detectar a mesma
+// colisão de forma independente e mandar player_hit quase ao mesmo tempo.
+// Um round legítimo seguinte só acontece segundos depois (round_result +
+// countdown no client), então 1s é uma folga segura sem bloquear hits reais.
+const HIT_DEBOUNCE_MS = 1000;
+
 function handlePlayerHit(app: FastifyInstance, match: Match, data: Record<string, unknown>) {
+  const now = Date.now();
+  if (now - match.lastHitAt < HIT_DEBOUNCE_MS) {
+    return;
+  }
+  match.lastHitAt = now;
+
   const targetSlot = Number(data.target_slot) as 1 | 2;
   const shooterSlot = Number(data.shooter_slot) as 1 | 2;
 
@@ -85,6 +104,29 @@ function handlePlayerHit(app: FastifyInstance, match: Match, data: Record<string
       winner_slot: shooterSlot,
     });
   }
+}
+
+// Autoridade de posição é do client, sem resimulação (ver Match doc-comment)
+// — então só repassa position_x/position_y como "player_state" pro OPONENTE.
+// Não ecoa de volta pra quem mandou: NetworkPlayerSynchronizer.reconcile()
+// reaplica (replay) os inputs em buffer sempre que recebe player_state do
+// próprio slot, o que faz sentido só quando o servidor resimula e pode
+// divergir da predição local — como aqui ele nunca diverge (só devolveria a
+// posição que o próprio client acabou de mandar), ecoar de volta faz o
+// replay reaplicar movimento que já tinha sido aplicado, dobrando-o a cada
+// frame (o personagem local "voa" pela tela).
+function handlePlayerInput(match: Match, slot: 1 | 2, data: Record<string, unknown>) {
+  match.relayToOpponent(slot, {
+    type: "player_state",
+    player_slot: slot,
+    position_x: data.position_x,
+    position_y: data.position_y,
+    velocity_x: 0,
+    velocity_y: 0,
+    aim_x: data.aim_x,
+    aim_y: data.aim_y,
+    last_processed_seq: data.seq ?? 0,
+  });
 }
 
 function handlePowerupCollectRequest(app: FastifyInstance, match: Match, data: Record<string, unknown>) {

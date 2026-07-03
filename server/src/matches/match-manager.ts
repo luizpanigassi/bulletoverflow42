@@ -3,13 +3,15 @@ import type { WebSocket } from "ws";
 /**
  * Representa uma partida 1x1 em andamento.
  *
- * Modelo de autoridade (ver backend_contract.md):
- * - Posição, movimento, tiro, colisão/hit e placar de round: autoridade do CLIENT.
- *   O servidor apenas repassa (relay) esses eventos entre os dois sockets da partida.
- * - Powerup: servidor decide TIMING e TIPO; client escolhe a POSIÇÃO local;
- *   servidor arbitra corrida de coleta (primeiro powerup_collect_request vence).
+ * Modelo de autoridade:
+ * - Posição, movimento, tiro (projétil) e colisão/hit: autoridade do CLIENT.
+ *   O servidor apenas repassa (relay) esses eventos entre os dois sockets da
+ *   partida, exceto player_hit, que ele interpreta pra emitir player_died/
+ *   round_end/match_end (ver websocket.plugin.ts).
+ * - Powerup: servidor decide TIMING, TIPO e POSIÇÃO (ver powerup-authority.ts);
+ *   arbitra corrida de coleta (primeiro powerup_collect_request vence).
  * - Fim de partida (placar chegou a 5): autoridade do servidor, calculado a partir
- *   dos eventos round_end recebidos de cada client.
+ *   dos round_end derivados de cada player_hit recebido.
  */
 export interface MatchPlayer {
   slot: 1 | 2;
@@ -29,6 +31,7 @@ export class Match {
   private nextPowerupId = 1;
 
   matchStarted = false;
+  lastHitAt = 0;
 
   constructor(matchId: string, arenaId: string) {
     this.matchId = matchId;

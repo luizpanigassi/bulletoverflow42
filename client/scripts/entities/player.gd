@@ -70,7 +70,14 @@ const BOT_NAMES := [
 const FIXED_DELTA: float = 1.0 / 60.0
 
 func _ready() -> void:
-	input_handler.set_player_id(player_id)
+	# Cada máquina só controla o próprio personagem, então usa sempre o
+	# esquema "p1_*" (único mapeado no InputMap) pro jogador local,
+	# independente do slot de rede — "p2_*" nunca foi definido no
+	# project.godot.
+	if MatchData.local_player_slot == player_id:
+		input_handler.set_player_id(1)
+	else:
+		input_handler.set_player_id(player_id)
 	current_ammo = max_ammo
 	update_ammo_icon()
 	
@@ -183,20 +190,35 @@ func shoot() -> void:
 	update_ammo_icon()
 	ammo_changed.emit(player_id, current_ammo)
 	
-	if MatchData.session == null or MatchData.session.mode == &"local":
+	if MatchData.session == null or MatchData.session.mode == &"local" or MatchData.session.mode == &"online":
 		var projectile: Area2D = projectile_scene.instantiate()
 		projectile.global_position = global_position
-	
+
 		var shoot_direction: Vector2 = current_snapshot.aim_direction
-	
+
 		if shoot_direction == Vector2.ZERO:
 			shoot_direction = current_snapshot.last_move_direction
-			
-		projectile.direction = shoot_direction.normalized()
+
+		shoot_direction = shoot_direction.normalized()
+		projectile.direction = shoot_direction
 		projectile.owner_id = player_id
-		
+
 		get_tree().current_scene.add_child(projectile)
-	
+
+		# Cria o projétil localmente (autoridade do client) e só avisa o
+		# oponente pra ele também ver/colidir com o mesmo tiro na tela dele.
+		if MatchData.session and MatchData.session.mode == &"online" and player_id == MatchData.local_player_slot and NetworkClient.is_network_connected:
+			NetworkClient.send_message({
+				"type": "projectile_spawn",
+				"projectile_id": "proj_%d_%d" % [player_id, Time.get_ticks_msec()],
+				"owner_slot": player_id,
+				"position_x": global_position.x,
+				"position_y": global_position.y,
+				"direction_x": shoot_direction.x,
+				"direction_y": shoot_direction.y,
+				"speed": projectile.speed,
+			})
+
 	reset_shoot_cooldown()
 	
 func reset_shoot_cooldown() -> void:
