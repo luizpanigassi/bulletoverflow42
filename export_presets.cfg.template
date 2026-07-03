@@ -1,0 +1,95 @@
+[preset.0]
+
+name="Web"
+platform="Web"
+runnable=true
+advanced_options=false
+dedicated_server=false
+custom_features=""
+export_filter="all_resources"
+include_filter=""
+exclude_filter=""
+export_path="build/web/index.html"
+patches=PackedStringArray()
+encryption_include_filters=""
+encryption_exclude_filters=""
+encrypt_pck=false
+encrypt_directory=false
+script_export_mode=2
+
+[preset.0.options]
+
+custom_template/debug=""
+custom_template/release=""
+variant/extensions_support=false
+vram_texture_compression/for_desktop=true
+vram_texture_compression/for_mobile=false
+html/export_icon=true
+html/custom_html_shell=""
+html/head_include="<script>
+// Prototipo de matchmaking pro browser: cada aba gera um userId aleatorio,
+// entra na fila (/matchmaking/queue) e, ao ser pareada, monta a sessao e
+// chama window.initGameSession (o proprio Godot registra esse callback em
+// character_select.gd:_ready(), que roda assim que a engine sobe).
+(function () {
+	function randomGuestId() {
+		return 'guest-' + Math.floor(Math.random() * 1e9);
+	}
+
+	function waitForBridgeThenInit(sessionJson) {
+		if (typeof window.initGameSession === 'function') {
+			console.log('[bootstrap] chamando initGameSession');
+			window.initGameSession(sessionJson);
+			return;
+		}
+		setTimeout(function () { waitForBridgeThenInit(sessionJson); }, 100);
+	}
+
+	function startMatchmaking() {
+		var userId = randomGuestId();
+		var queueUrl = 'ws://' + location.hostname + ':3000/matchmaking/queue?userId=' + userId + '&characterId=adventurer';
+		var queueSocket = new WebSocket(queueUrl);
+
+		queueSocket.onerror = function () {
+			console.log('[bootstrap] erro conectando na fila de matchmaking');
+		};
+
+		queueSocket.onmessage = function (event) {
+			var data = JSON.parse(event.data);
+			if (data.type !== 'match_found') return;
+
+			var session = {
+				mode: 'online',
+				match_id: data.match_id,
+				arena_id: data.arena_id,
+				seed: 0,
+				host_id: '',
+				websocket_url: data.websocket_url,
+				game_type: 'pvp',
+				bot_difficulty: 'easy',
+				local_player_slot: data.slot,
+				players: [
+					{ user_id: 'p1', slot: 1, character_id: 'adventurer', ready: true, username: 'Player 1', is_bot: false },
+					{ user_id: 'p2', slot: 2, character_id: 'adventurer', ready: true, username: 'Player 2', is_bot: false }
+				]
+			};
+
+			waitForBridgeThenInit(JSON.stringify(session));
+		};
+	}
+
+	startMatchmaking();
+}());
+</script>
+"
+html/canvas_resize_policy=2
+html/focus_canvas_on_start=true
+html/experimental_virtual_keyboard=false
+progressive_web_app/enabled=false
+progressive_web_app/offline_page=""
+progressive_web_app/display=1
+progressive_web_app/orientation=0
+progressive_web_app/icon_144x144=""
+progressive_web_app/icon_180x180=""
+progressive_web_app/icon_512x512=""
+progressive_web_app/background_color=Color(0, 0, 0, 1)
