@@ -110,7 +110,7 @@ smoke-test-1:
 smoke-test-2:
 	$(GODOT) --path . $(SMOKE_SCENE) -- --slot=2
 
-play: server-bg
+play: server-bg setup-web-build
 	$(BROWSER) --new-window --user-data-dir=/tmp/bulletoverflow42-chrome-p1 $(GAME_URL) &
 	sleep 1
 	$(BROWSER) --new-window --user-data-dir=/tmp/bulletoverflow42-chrome-p2 $(GAME_URL) &

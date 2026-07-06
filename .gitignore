@@ -34,7 +34,6 @@ Thumbs.db
 *.temp
 
 # Godot export files
-*.pck
 *.apk
 *.aab
 *.ipa
@@ -47,8 +46,3 @@ Thumbs.db
 
 # Mac binaries
 *.app
-
-# Web exports
-/build/
-*.wasm
-*.html
