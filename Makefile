@@ -8,18 +8,19 @@ BROWSER    := google-chrome
 SERVER_URL := http://127.0.0.1:3000
 GAME_URL   := $(SERVER_URL)/play/index.html
 SERVER_LOG := /tmp/bulletoverflow42-server.log
+BUILD_WEB_INDEX := build/web/index.html
 
-.PHONY: help setup setup-godot setup-templates setup-chrome setup-export-preset install server server-bg stop smoke-test-1 smoke-test-2 play
+.PHONY: help setup setup-godot setup-templates setup-chrome setup-export-preset setup-web-build install server server-bg stop smoke-test-1 smoke-test-2 play
 
 help:
-	@echo "make setup          - instala o que faltar nessa maquina (Godot, export templates, Chrome, deps do server, export_presets.cfg)"
+	@echo "make setup          - instala o que faltar nessa maquina (Godot, export templates, Chrome, deps do server, export_presets.cfg, build web)"
 	@echo "make server         - instala dependencias (se preciso) e sobe o backend (npm run dev)"
 	@echo "make stop           - derruba o backend que estiver rodando em background"
 	@echo "make smoke-test-1   - abre o client Godot conectado como slot 1"
 	@echo "make smoke-test-2   - abre o client Godot conectado como slot 2"
 	@echo "make play           - garante o server rodando (sobe em background se preciso) e abre duas janelas do navegador, uma pra cada jogador"
 
-setup: setup-godot setup-templates setup-chrome setup-export-preset install
+setup: setup-godot setup-templates setup-chrome setup-export-preset setup-web-build install
 	@echo "Setup completo."
 
 setup-godot:
@@ -70,6 +71,16 @@ setup-export-preset:
 		echo "export_presets.cfg não existe (é gitignored) — criando a partir do template..."; \
 		cp export_presets.cfg.template export_presets.cfg; \
 		echo "export_presets.cfg criado"; \
+	fi
+
+# Depende de godot/templates/preset já existirem — precisa rodar depois deles.
+setup-web-build: setup-godot setup-templates setup-export-preset
+	@if [ -f "$(BUILD_WEB_INDEX)" ]; then \
+		echo "Build web já existe em $(BUILD_WEB_INDEX)"; \
+	else \
+		echo "Build web não existe, exportando..."; \
+		mkdir -p build/web; \
+		$(GODOT) --headless --export-release "Web" $(BUILD_WEB_INDEX); \
 	fi
 
 $(SERVER_DIR)/node_modules: $(SERVER_DIR)/package.json $(SERVER_DIR)/package-lock.json
