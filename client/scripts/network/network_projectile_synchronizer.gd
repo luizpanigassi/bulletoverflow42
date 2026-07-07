@@ -21,6 +21,13 @@ func _on_projectile_spawn(state: ProjectileState) -> void:
 	
 	get_tree().current_scene.add_child(projectile)
 	
+	if MatchData.session and MatchData.session.mode == &"online" and state.owner_slot != MatchData.local_player_slot:
+		var shooter: Player = NetworkPlayerSynchronizer.players.get(state.owner_slot)
+		if is_instance_valid(shooter):
+			shooter.facing_axis = shooter._resolve_direction(state.direction)
+			shooter._start_attack_animation()
+			shooter.register_remote_shot()
+	
 	projectiles[state.projectile_id] = projectile
 	
 func _on_projectile_destroy(projectile_id: String) -> void:

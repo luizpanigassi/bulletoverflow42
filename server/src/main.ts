@@ -20,6 +20,16 @@ async function main() {
   await registerWebsocket(app);
   await registerMatchmaking(app);
 
+  // Godot 4.4 exige Cross-Origin Isolation (COOP/COEP) no export Web mesmo
+  // sem threads habilitadas — sem esses headers o SharedArrayBuffer fica
+  // bloqueado e o engine recusa rodar (ver build/web/index.html).
+  app.addHook("onSend", async (request, reply) => {
+    if (request.url.startsWith("/play/")) {
+      reply.header("Cross-Origin-Opener-Policy", "same-origin");
+      reply.header("Cross-Origin-Embedder-Policy", "require-corp");
+    }
+  });
+
   // Protótipo: serve o build web (client/scenes/debug + matchmaking bootstrap
   // via export_presets.cfg) na mesma porta do backend, só pra testar duas
   // abas em localhost sem depender das páginas reais, que vêm depois.

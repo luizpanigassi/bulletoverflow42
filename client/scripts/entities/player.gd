@@ -159,12 +159,12 @@ func _process(delta: float) -> void:
 		global_position = global_position.lerp(network_target_position, 1.0 - exp(-delta * 15.0))
 		
 		var movement: Vector2 = global_position - prev_pos
+		velocity = movement / delta if delta > 0.0 else Vector2.ZERO
 		
 		if movement.length() > 0.05:
 			facing_axis = _resolve_direction(movement.normalized())
-			_update_animation()
-		else:
-			_update_animation()
+		
+		_update_animation()
 
 func get_speed() -> float:
 	return base_speed * speed_multiplier
@@ -299,7 +299,7 @@ func take_hit() -> bool:
 	if shield_hits > 0:
 		shield_hits -= 1
 		clear_powerup_icon(PowerupTypes.Type.SHIELD)
-		return true
+		return false
 	
 	die()
 	return true
@@ -364,6 +364,17 @@ func _start_attack_animation() -> void:
 	is_attacking = true
 	var attack_animation: StringName = _animation_name("attack")
 	animated_sprite.play(attack_animation)
+
+func register_remote_shot() -> void:
+	if current_ammo <= 0:
+		return
+	
+	current_ammo -= 1
+	update_ammo_icon()
+	ammo_changed.emit(player_id, current_ammo)
+	
+	if current_ammo <= 0:
+		reload()
 
 func _apply_dash_pose() -> void:
 	var run_animation: StringName = _animation_name("run")
