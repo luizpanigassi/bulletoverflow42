@@ -25,20 +25,23 @@ func _process(_delta: float) -> void:
 	socket.poll()
 	var state = socket.get_ready_state()
 
-	if state == WebSocketPeer.STATE_OPEN:
-		if not is_network_connected:
-			is_network_connected = true
-			network_connected.emit()
-			print("Conectado com sucesso!")
+	if state == WebSocketPeer.STATE_OPEN and not is_network_connected:
+		is_network_connected = true
+		network_connected.emit()
+		print("Conectado com sucesso!")
 
-		while socket.get_available_packet_count() > 0:
-			var packet = socket.get_packet()
-			var text = packet.get_string_from_utf8()
-			var json = JSON.parse_string(text)
-			if json is Dictionary:
-				event_received.emit(json)
-		
-	elif state == WebSocketPeer.STATE_CLOSING or state == WebSocketPeer.STATE_CLOSED:
+	# Drena os pacotes fora do "if state == OPEN": se o server manda uma
+	# última mensagem e já fecha em seguida, o estado pode virar CLOSING no
+	# mesmo poll — e a mensagem ainda bufferizada não pode ficar presa atrás
+	# de um "elif" que só olha o estado de conexão.
+	while socket.get_available_packet_count() > 0:
+		var packet = socket.get_packet()
+		var text = packet.get_string_from_utf8()
+		var json = JSON.parse_string(text)
+		if json is Dictionary:
+			event_received.emit(json)
+
+	if state == WebSocketPeer.STATE_CLOSING or state == WebSocketPeer.STATE_CLOSED:
 		if is_network_connected:
 			is_network_connected = false
 			network_disconnected.emit()

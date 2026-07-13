@@ -39,6 +39,10 @@ func _on_body_entered(body: Node2D) -> void:
 		return
 	
 	if MatchData.session and MatchData.session.mode == &"online":
+		if not body.take_hit():
+			queue_free()
+			return
+			
 		var hit_report := {
 			"type": "player_hit",
 			"target_slot": body.player_id,
@@ -46,19 +50,17 @@ func _on_body_entered(body: Node2D) -> void:
 		}
 		if NetworkClient.is_network_connected:
 			NetworkClient.send_message(hit_report)
-		else:
-			if body.take_hit():
-				MockMatchServer.receive_hit(hit_report)
+		MockMatchServer.receive_hit(hit_report)
 		queue_free()
 		return
 		
 	if body.has_method("take_hit"):
-		body.take_hit()
 		var hit_report := {
 			"target_slot": body.player_id,
 			"shooter_slot": owner_id
 		}
-		MockMatchServer.receive_hit(hit_report)
+		if body.take_hit():
+			MockMatchServer.receive_hit(hit_report)
 		
 	queue_free()
 

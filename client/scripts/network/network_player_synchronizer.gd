@@ -7,6 +7,7 @@ func _ready() -> void:
 	GameEvents.player_spawned.connect(_on_player_spawned)
 	GameEvents.powerup_collected.connect(_on_powerup_collected)
 	GameEvents.entity_wrapped.connect(_on_entity_wrapped)
+	GameEvents.player_wrap_synced.connect(_on_player_wrapped_synced)
 
 func register_player(player: Player) -> void:
 	if MatchData.session == null or MatchData.session.mode == &"local":
@@ -40,6 +41,9 @@ func _on_player_state_updated(data: Dictionary) -> void:
 	
 	player.last_processed_seq = server_seq
 	player.network_target_position = server_pos
+	
+	if data.get("dash", false):
+		player.play_remote_dash()
 
 func _on_player_spawned(data: Dictionary) -> void:
 	var slot: int = int(data["player_slot"])
@@ -80,3 +84,14 @@ func _on_entity_wrapped(player_slot: int, new_position: Vector2) -> void:
 		NetworkClient.send_message(payload)
 	else:
 		MockMatchServer.receive_wrap(payload)
+
+func _on_player_wrapped_synced(slot: int, new_position: Vector2) -> void:
+	if slot == MatchData.local_player_slot:
+		return
+		
+	var player: Player = players.get(slot)
+	if not is_instance_valid(player):
+		return
+		
+	player.global_position = new_position
+	player.network_target_position = new_position

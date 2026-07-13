@@ -70,7 +70,14 @@ const BOT_NAMES := [
 const FIXED_DELTA: float = 1.0 / 60.0
 
 func _ready() -> void:
-	input_handler.set_player_id(player_id)
+	# Cada máquina só controla o próprio personagem, então usa sempre o
+	# esquema "p1_*" (único mapeado no InputMap) pro jogador local,
+	# independente do slot de rede — "p2_*" nunca foi definido no
+	# project.godot.
+	if MatchData.local_player_slot == player_id:
+		input_handler.set_player_id(1)
+	else:
+		input_handler.set_player_id(player_id)
 	current_ammo = max_ammo
 	update_ammo_icon()
 	
@@ -108,6 +115,11 @@ func _physics_process(delta: float) -> void:
 
 	if is_dashing:
 		move_and_slide()
+		
+		if MatchData.session and MatchData.session.mode == &"online" and player_id == MatchData.local_player_slot:
+			var dash_snapshot := InputSnapshot.new()
+			dash_snapshot.dash_pressed = snapshot.dash_pressed
+			NetworkInputSender.send_input(dash_snapshot, player_id)
 		return
 
 	var accepted_shot: bool = false
@@ -152,12 +164,12 @@ func _process(delta: float) -> void:
 		global_position = global_position.lerp(network_target_position, 1.0 - exp(-delta * 15.0))
 		
 		var movement: Vector2 = global_position - prev_pos
+		velocity = movement / delta if delta > 0.0 else Vector2.ZERO
 		
 		if movement.length() > 0.05:
 			facing_axis = _resolve_direction(movement.normalized())
-			_update_animation()
-		else:
-			_update_animation()
+		
+		_update_animation()
 
 func get_speed() -> float:
 	return base_speed * speed_multiplier
@@ -183,20 +195,35 @@ func shoot() -> void:
 	update_ammo_icon()
 	ammo_changed.emit(player_id, current_ammo)
 	
-	if MatchData.session == null or MatchData.session.mode == &"local":
+	if MatchData.session == null or MatchData.session.mode == &"local" or MatchData.session.mode == &"online":
 		var projectile: Area2D = projectile_scene.instantiate()
 		projectile.global_position = global_position
-	
+
 		var shoot_direction: Vector2 = current_snapshot.aim_direction
-	
+
 		if shoot_direction == Vector2.ZERO:
 			shoot_direction = current_snapshot.last_move_direction
-			
-		projectile.direction = shoot_direction.normalized()
+
+		shoot_direction = shoot_direction.normalized()
+		projectile.direction = shoot_direction
 		projectile.owner_id = player_id
-		
+
 		get_tree().current_scene.add_child(projectile)
-	
+
+		# Cria o projétil localmente (autoridade do client) e só avisa o
+		# oponente pra ele também ver/colidir com o mesmo tiro na tela dele.
+		if MatchData.session and MatchData.session.mode == &"online" and player_id == MatchData.local_player_slot and NetworkClient.is_network_connected:
+			NetworkClient.send_message({
+				"type": "projectile_spawn",
+				"projectile_id": "proj_%d_%d" % [player_id, Time.get_ticks_msec()],
+				"owner_slot": player_id,
+				"position_x": global_position.x,
+				"position_y": global_position.y,
+				"direction_x": shoot_direction.x,
+				"direction_y": shoot_direction.y,
+				"speed": projectile.speed,
+			})
+
 	reset_shoot_cooldown()
 	
 func reset_shoot_cooldown() -> void:
@@ -236,6 +263,23 @@ func end_dash() -> void:
 func reset_dash_cooldown() -> void:
 	await get_tree().create_timer(dash_cooldown).timeout
 	can_dash = true
+	
+func play_remote_dash() -> void:
+	if is_dashing:
+		return
+		
+	is_dashing = true
+	is_invulnerable = true
+	animated_sprite.modulate.a = 0.3
+	_apply_dash_pose()
+	
+	await get_tree().create_timer(dash_duration).timeout
+	
+	is_dashing = false
+	is_invulnerable = false
+	animated_sprite.modulate.a = 1.0
+	
+	_update_animation()
 	
 func reload() -> void:
 	if is_reloading:
@@ -277,7 +321,7 @@ func take_hit() -> bool:
 	if shield_hits > 0:
 		shield_hits -= 1
 		clear_powerup_icon(PowerupTypes.Type.SHIELD)
-		return true
+		return false
 	
 	die()
 	return true
@@ -342,6 +386,17 @@ func _start_attack_animation() -> void:
 	is_attacking = true
 	var attack_animation: StringName = _animation_name("attack")
 	animated_sprite.play(attack_animation)
+
+func register_remote_shot() -> void:
+	if current_ammo <= 0:
+		return
+	
+	current_ammo -= 1
+	update_ammo_icon()
+	ammo_changed.emit(player_id, current_ammo)
+	
+	if current_ammo <= 0:
+		reload()
 
 func _apply_dash_pose() -> void:
 	var run_animation: StringName = _animation_name("run")

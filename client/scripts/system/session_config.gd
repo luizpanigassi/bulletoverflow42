@@ -38,9 +38,13 @@ static func from_dict(data: Dictionary) -> SessionConfig:
 	session.websocket_url = String(data.get("websocket_url", ""))
 	session.game_type = StringName(data.get("game_type", "pvp"))
 	session.bot_difficulty = String(data.get("bot_difficulty", "easy"))
-	
-	var players_data: Array[Dictionary] = data.get("players", [])
+
+	# Array[Dictionary] tipado não aceita diretamente o Array genérico que
+	# JSON.parse_string() produz (cada player ainda é Dictionary, mas o Array
+	# que os contém não é estaticamente tipado) — isso falha silenciosamente
+	# em builds web/exportados, então itera sobre um Array genérico aqui.
+	var players_data: Array = data.get("players", [])
 	for player_data in players_data:
 		session.players.append(PlayerSessionState.from_dict(player_data))
-	
+
 	return session

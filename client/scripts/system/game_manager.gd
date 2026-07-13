@@ -19,6 +19,7 @@ var round_active: bool = false
 var spawn_points: Array[Marker2D] = []
 var powerup_spawn_points: Array[Marker2D] = []
 var active_powerup: Powerup = null
+var round_number: int = 0
 var scores: Dictionary = {
 	1: 0,
 	2: 0
@@ -71,7 +72,10 @@ func get_random_spawn_positions() -> Array[Marker2D]:
 			
 			if a.global_position.distance_to(b.global_position) >= MIN_SPAWN_DISTANCE:
 				valid_pairs.append([a, b])
-				
+	
+	var rng := RandomNumberGenerator.new()
+	rng.seed = MatchData.session.match_seed + round_number
+	
 	if valid_pairs.is_empty():
 		push_error("No valid spawn point pairs found")
 		var shuffled: Array[Marker2D] = spawn_points.duplicate()
@@ -79,7 +83,7 @@ func get_random_spawn_positions() -> Array[Marker2D]:
 		
 		return [shuffled[0], shuffled[1]]
 	
-	var pair: Array = valid_pairs.pick_random()
+	var pair: Array = valid_pairs[rng.randi() % valid_pairs.size()]
 	
 	return [pair[0] as Marker2D, pair[1] as Marker2D]
 
@@ -98,6 +102,7 @@ func spawn_player(player_state: PlayerSessionState, spawn_position: Vector2, is_
 	player_instance.player_id = player_state.slot
 	player_instance.character_data = character_data
 	player_instance.global_position = spawn_position
+	player_instance.network_target_position = spawn_position
 	player_instance.died.connect(_on_player_died)
 	player_instance.is_bot = player_state.is_bot or is_bot_player
 	entities.add_child(player_instance)
@@ -140,7 +145,8 @@ func start_round() -> void:
 	if MatchData.session == null:
 		push_error("No session available")
 		return
-
+	
+	round_number += 1
 	clear_projectiles()
 	clear_players()
 	
@@ -194,13 +200,14 @@ func start_round_countdown() -> void:
 func end_round(winner_id: int) -> void:
 	round_active = false
 	
+	player1.controls_enabled = false
+	player2.controls_enabled = false
+	
 	if is_instance_valid(active_powerup):
 		active_powerup.queue_free()
 	
 	scores[winner_id] += 1
 	
-	
-		
 	if scores[winner_id] >= SCORE_TO_WIN:
 		if MatchData.session and MatchData.session.mode == &"online":
 			if not NetworkClient.is_network_connected:

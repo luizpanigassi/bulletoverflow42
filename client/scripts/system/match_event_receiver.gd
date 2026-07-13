@@ -46,6 +46,9 @@ func receive_event(data: Dictionary) -> void:
 			
 		"score_update":
 			_handle_score_update(data)
+			
+		"player_wrapped":
+			_handle_player_wrapped(data)
 
 func _handle_player_state(data: Dictionary) -> void:
 	GameEvents.player_state_updated.emit(data)
@@ -102,3 +105,9 @@ func _handle_score_update(data: Dictionary) -> void:
 	var state := MatchState.from_dict(data)
 	
 	GameEvents.score_updated.emit(state)
+
+func _handle_player_wrapped(data: Dictionary) -> void:
+	var slot: int = int(data["player_slot"])
+	var pos := Vector2(float(data["new_pos_x"]), float(data["new_pos_y"]))
+	
+	GameEvents.player_wrap_synced.emit(slot, pos)
