@@ -49,6 +49,12 @@ func receive_event(data: Dictionary) -> void:
 			
 		"player_wrapped":
 			_handle_player_wrapped(data)
+			
+		"request_state_sync":
+			GameEvents.state_sync_requested.emit()
+		
+		"state_sync":
+			GameEvents.state_sync_received.emit(data)
 
 func _handle_player_state(data: Dictionary) -> void:
 	GameEvents.player_state_updated.emit(data)

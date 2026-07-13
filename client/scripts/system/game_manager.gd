@@ -51,6 +51,8 @@ func _ready() -> void:
 	GameEvents.round_ended.connect(_on_network_round_ended)
 	GameEvents.player_died.connect(_on_network_player_died)
 	GameEvents.match_ended.connect(_on_network_match_ended)
+	GameEvents.state_sync_requested.connect(_on_state_sync_requested)
+	GameEvents.state_sync_received.connect(_on_state_sync_received)
 	
 	if MatchData.session == null or MatchData.session.mode == &"local":
 		start_round()
@@ -361,3 +363,48 @@ func _on_network_player_died(dead_player_id: int) -> void:
 			return
 		var winner_id: int = 2 if dead_player_id == 1 else 1
 		end_round(winner_id)
+
+func _on_state_sync_requested() -> void:
+	if MatchData.session == null or MatchData.session.mode != &"online":
+		return
+	if not NetworkClient.is_network_connected:
+		return
+		
+	var payload := {
+		"type": "state_sync",
+		"player1_score": scores[1],
+		"player2_score": scores[2],
+		"round_active": round_active,
+	}
+	
+	if is_instance_valid(player1):
+		payload["player1_pos_x"] = player1.global_position.x
+		payload["player1_pos_y"] = player1.global_position.y
+	if is_instance_valid(player2):
+		payload["player2_pos_x"] = player1.global_position.x
+		payload["player2_pos_y"] = player1.global_position.y
+		
+	NetworkClient.send_message(payload)
+
+func _on_state_sync_received(data: Dictionary) -> void:
+	if MatchData.session == null or MatchData.session.mode != &"online":
+		return
+		
+	scores[1] = int(data.get("player1_score", scores[1]))
+	scores[2] = int(data.get("player1_score", scores[2]))
+	
+	var remote_round_active: bool = bool(data.get("round_active", round_active))
+	
+	if remote_round_active and not round_active:
+		start_round()
+		return
+		
+	if MatchData.local_player_slot != 1 and is_instance_valid(player1) and data.has("player1_pos_x"):
+		var pos1 := Vector2(float(data["player1_pos_x"]), float(data["player1_pos_y"]))
+		player1.global_position = pos1
+		player1.network_target_position = pos1
+		
+	if MatchData.local_player_slot != 2 and is_instance_valid(player1) and data.has("player2_pos_x"):
+		var pos2 := Vector2(float(data["player2_pos_x"]), float(data["player2_pos_y"]))
+		player2.global_position = pos2
+		player2.network_target_position = pos2
