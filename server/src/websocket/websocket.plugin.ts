@@ -133,6 +133,7 @@ function handlePlayerInput(match: Match, slot: 1 | 2, data: Record<string, unkno
     velocity_y: 0,
     aim_x: data.aim_x,
     aim_y: data.aim_y,
+    dash: Boolean(data.dash),
     last_processed_seq: data.seq ?? 0,
   });
 }

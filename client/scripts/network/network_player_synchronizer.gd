@@ -41,6 +41,9 @@ func _on_player_state_updated(data: Dictionary) -> void:
 	
 	player.last_processed_seq = server_seq
 	player.network_target_position = server_pos
+	
+	if data.get("dash", false):
+		player.play_remote_dash()
 
 func _on_player_spawned(data: Dictionary) -> void:
 	var slot: int = int(data["player_slot"])
