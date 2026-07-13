@@ -2,8 +2,21 @@
 .godot/
 /android/
 
+# Segredos locais (nunca commitar; .env.example fica versionado)
+.env
+.env.*
+!.env.example
+
 # Export presets credentials
 export_presets.cfg
+
+# Node
+node_modules/
+/server/dist/
+
+# Artefatos locais do Makefile (logs, perfis de Chrome de teste, exports soltos)
+*.make-tmp/
+/play/
 
 # Mono / C#
 .mono/
