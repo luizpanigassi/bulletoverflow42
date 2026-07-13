@@ -182,3 +182,7 @@ horizontal_alignment = 1
 [node name="ReconnectButton" type="Button" parent="UI/NetworkErrorScreen/Panel/VBoxContainer"]
 layout_mode = 2
 text = "RECONNECT?"
+
+[node name="MusicPlayer" type="AudioStreamPlayer2D" parent="."]
+
+[node name="StingPlayer" type="AudioStreamPlayer2D" parent="."]

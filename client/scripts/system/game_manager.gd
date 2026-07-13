@@ -6,7 +6,8 @@ extends Node
 @onready var round_result_screen = $"../../UI/RoundResultScreen"
 @onready var arena_container = $"../../World/ArenaContainer"
 @onready var round_countdown_screen = $"../../UI/RoundCountdownScreen"
-@onready var music_player = $"../../AudioStreamPlayer2D"
+@onready var music_player = $"../../MusicPlayer"
+@onready var stinger_player = $"../../StingPlayer"
 
 @export var player_scene: PackedScene
 @export var powerup_scene: PackedScene
@@ -39,6 +40,13 @@ const ARENA_MUSIC := {
 	"arena_02": preload("res://client/assets/music/arena_badlands.ogg"),
 	"arena_03": preload("res://client/assets/music/arena_catacombs.ogg"),
 }
+
+const VICTORY_JINGLE := preload("res://client/assets/music/victory.ogg")
+const DEFEAT_JINGLE := preload("res://client/assets/music/defeat.ogg")
+
+const MUSIC_FADE_DURATION := 1.0
+const MUSIC_FADE_OUT_VOLUME := -40.0
+
 const MIN_SPAWN_DISTANCE := 600.0
 
 signal match_ended(winner_id: int)
@@ -228,8 +236,7 @@ func end_round(winner_id: int) -> void:
 				})
 		else:
 			end_match(winner_id)
-			await get_tree().create_timer(5.0).timeout
-			_return_to_matchmaking()
+			_wait_for_jingle_then_return()
 	else:
 		var winner: Player = player1
 		
@@ -246,8 +253,7 @@ func _on_network_match_ended(state: MatchState):
 		if match_finished:
 			return
 		end_match(state.winner_slot)
-		await get_tree().create_timer(5.0).timeout
-		_return_to_matchmaking()
+		_wait_for_jingle_then_return()
 
 func reset_round() -> void:
 	if MatchData.session and MatchData.session.mode == &"online":
@@ -331,6 +337,8 @@ func show_winner(winner_id: int) -> void:
 		winner_name = player2.player_name
 		
 	match_end_label.text = "%s WINS!" % winner_name
+	
+	play_end_jingle(winner_id)
 
 func _return_to_matchmaking() -> void:
 	print("Returning to matchmaking...")
@@ -424,3 +432,41 @@ func _on_state_sync_received(data: Dictionary) -> void:
 		var pos2 := Vector2(float(data["player2_pos_x"]), float(data["player2_pos_y"]))
 		player2.global_position = pos2
 		player2.network_target_position = pos2
+
+func play_end_jingle(winner_id):
+	fade_out_music()
+
+	var local_wins: bool = winner_id == MatchData.local_player_slot
+	
+	stinger_player.stream = VICTORY_JINGLE if local_wins else DEFEAT_JINGLE
+	stinger_player.play()
+	
+func _wait_for_jingle_then_return() -> void:
+	var already_returned := false
+	
+	var do_return := func():
+		if already_returned:
+			return
+		already_returned = true
+		_return_to_matchmaking()
+		
+	stinger_player.finished.connect(do_return, CONNECT_ONE_SHOT)
+	
+	var fallback_duration := 8.0
+	
+	if stinger_player.stream:
+		fallback_duration = stinger_player.stream.get_length() + 1.0
+		
+	await get_tree().create_timer(fallback_duration).timeout
+	do_return.call
+
+func fade_out_music() -> void:
+	if not music_player.playing:
+		return
+		
+	var tween := create_tween()
+	tween.tween_property(music_player, "volume_db", MUSIC_FADE_OUT_VOLUME, MUSIC_FADE_DURATION)
+	tween.finished.connect(func (): 
+		music_player.stop()
+		music_player.volume_db = 0.0
+		)
