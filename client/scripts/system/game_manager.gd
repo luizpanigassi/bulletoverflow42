@@ -6,6 +6,7 @@ extends Node
 @onready var round_result_screen = $"../../UI/RoundResultScreen"
 @onready var arena_container = $"../../World/ArenaContainer"
 @onready var round_countdown_screen = $"../../UI/RoundCountdownScreen"
+@onready var music_player = $"../../AudioStreamPlayer2D"
 
 @export var player_scene: PackedScene
 @export var powerup_scene: PackedScene
@@ -31,6 +32,12 @@ const ARENAS := {
 	"arena_01": preload("res://client/scenes/arenas/arena_ruins.tscn"),
 	"arena_02": preload("res://client/scenes/arenas/arena_badlands.tscn"),
 	"arena_03": preload("res://client/scenes/arenas/arena_catacombs.tscn")
+}
+
+const ARENA_MUSIC := {
+	"arena_01": preload("res://client/assets/music/arena_ruins.ogg"),
+	"arena_02": preload("res://client/assets/music/arena_badlands.ogg"),
+	"arena_03": preload("res://client/assets/music/arena_catacombs.ogg"),
 }
 const MIN_SPAWN_DISTANCE := 600.0
 
@@ -344,6 +351,15 @@ func load_arena() -> void:
 	var arena = arena_scene.instantiate()
 	
 	arena_container.add_child(arena)
+	
+	play_arena_music(arena_id)
+
+func play_arena_music(arena_id) -> void:
+	if not ARENA_MUSIC.has(arena_id):
+		return
+		
+	music_player.stream = ARENA_MUSIC[arena_id]
+	music_player.play()
 
 func _on_network_round_started(_data: Dictionary) -> void:
 	if MatchData.session and MatchData.session.mode == &"online":
