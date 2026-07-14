@@ -40,7 +40,8 @@ export async function registerMatchmaking(app: FastifyInstance) {
     if (!pair) return;
 
     const [p1, p2] = pair;
-    const match = matchManager.create(MatchmakingQueue.generateMatchId(), pickRandomArenaId());
+    const match = matchManager.create(MatchmakingQueue.generateMatchId(), pickRandomArenaId(), Math.floor(Math.random() * 2147483647));
+    app.log.info(`Match formada: match=${match.matchId} arena=${match.arenaId} seed=${match.seed}`);
     startPowerupLoop(match);
 
     notifyMatchFound(app, p1, 1, match);
@@ -56,6 +57,7 @@ function notifyMatchFound(app: FastifyInstance, player: QueuedPlayer, slot: 1 | 
       match_id: match.matchId,
       slot,
       arena_id: match.arenaId,
+      seed: match.seed,
       websocket_url: `ws://127.0.0.1:${env.port}/matches/${match.matchId}?slot=${slot}`,
     }),
   );

@@ -22,6 +22,8 @@ export interface MatchPlayer {
 export class Match {
   readonly matchId: string;
   readonly arenaId: string;
+  // seed aleatória usada pelo client pra gerar a arena (posição de obstáculos, powerups, etc)
+  readonly seed: number;
   readonly players: Map<1 | 2, MatchPlayer> = new Map();
   readonly scores: Record<1 | 2, number> = { 1: 0, 2: 0 };
 
@@ -33,9 +35,10 @@ export class Match {
   matchStarted = false;
   lastHitAt = 0;
 
-  constructor(matchId: string, arenaId: string) {
+  constructor(matchId: string, arenaId: string, seed: number = 0) {
     this.matchId = matchId;
     this.arenaId = arenaId;
+    this.seed = seed;
   }
 
   addPlayer(player: MatchPlayer): void {
@@ -74,8 +77,8 @@ export class Match {
 export class MatchManager {
   private matches = new Map<string, Match>();
 
-  create(matchId: string, arenaId: string): Match {
-    const match = new Match(matchId, arenaId);
+  create(matchId: string, arenaId: string, seed: number = 0): Match {
+    const match = new Match(matchId, arenaId, seed);
     this.matches.set(matchId, match);
     return match;
   }
