@@ -22,6 +22,7 @@ var spawn_points: Array[Marker2D] = []
 var powerup_spawn_points: Array[Marker2D] = []
 var active_powerup: Powerup = null
 var round_number: int = 0
+var waiting_for_opponent_reconnect: bool = false
 var scores: Dictionary = {
 	1: 0,
 	2: 0
@@ -68,6 +69,9 @@ func _ready() -> void:
 	GameEvents.match_ended.connect(_on_network_match_ended)
 	GameEvents.state_sync_requested.connect(_on_state_sync_requested)
 	GameEvents.state_sync_received.connect(_on_state_sync_received)
+	GameEvents.forfeit_victory_claimed.connect(_on_forfeit_victory_claimed)
+	GameEvents.opponent_disconnected.connect(_on_opponent_disconnected)
+	GameEvents.player_state_updated.connect(_on_player_state_updated_reconnect_check)
 	
 	if MatchData.session == null or MatchData.session.mode == &"local":
 		start_round()
@@ -442,12 +446,12 @@ func play_end_jingle(winner_id):
 	stinger_player.play()
 	
 func _wait_for_jingle_then_return() -> void:
-	var already_returned := false
+	var already_returned := [false]
 	
 	var do_return := func():
-		if already_returned:
+		if already_returned[0]:
 			return
-		already_returned = true
+		already_returned[0] = true
 		_return_to_matchmaking()
 		
 	stinger_player.finished.connect(do_return, CONNECT_ONE_SHOT)
@@ -458,7 +462,7 @@ func _wait_for_jingle_then_return() -> void:
 		fallback_duration = stinger_player.stream.get_length() + 1.0
 		
 	await get_tree().create_timer(fallback_duration).timeout
-	do_return.call
+	do_return.call()
 
 func fade_out_music() -> void:
 	if not music_player.playing:
@@ -470,3 +474,34 @@ func fade_out_music() -> void:
 		music_player.stop()
 		music_player.volume_db = 0.0
 		)
+
+func _on_forfeit_victory_claimed() -> void:
+	if MatchData.session == null or MatchData.session.mode != &"online":
+		return
+		
+	GameEvents.match_event_received.emit({
+		"type": "match_end",
+		"winner_slot": MatchData.local_player_slot,
+		"player1_score": scores[1],
+		"player2_score": scores[2],
+	})
+
+func _on_opponent_disconnected() -> void:
+	if MatchData.session == null or MatchData.session.mode != &"online":
+		return
+		
+	waiting_for_opponent_reconnect = true
+	
+	var local_player: Player = player1 if MatchData.local_player_slot == 1 else player2
+	if is_instance_valid(local_player):
+		local_player.controls_enabled = false
+		
+func _on_player_state_updated_reconnect_check(_data: Dictionary) -> void:
+	if not waiting_for_opponent_reconnect:
+		return
+		
+	waiting_for_opponent_reconnect = false
+	
+	var local_player: Player = player1 if MatchData.local_player_slot == 1 else player2
+	if is_instance_valid(local_player):
+		local_player.controls_enabled = true

@@ -55,6 +55,9 @@ func receive_event(data: Dictionary) -> void:
 		
 		"state_sync":
 			GameEvents.state_sync_received.emit(data)
+			
+		"opponent_disconnected":
+			GameEvents.opponent_disconnected.emit()
 
 func _handle_player_state(data: Dictionary) -> void:
 	GameEvents.player_state_updated.emit(data)

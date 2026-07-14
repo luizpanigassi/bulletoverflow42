@@ -66,6 +66,7 @@ export async function registerWebsocket(app: FastifyInstance) {
 
     socket.on("close", () => {
       app.log.info(`Cliente desconectado: match=${matchId} slot=${slot}`);
+      match.relayToOpponent(playerSlot, { type: "opponent_disconnected" });
     });
   });
 }
