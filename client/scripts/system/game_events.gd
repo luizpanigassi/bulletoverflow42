@@ -21,6 +21,10 @@ signal state_sync_requested
 @warning_ignore("unused_signal")
 signal state_sync_received(data: Dictionary)
 @warning_ignore("unused_signal")
+signal opponent_disconnected
+@warning_ignore("unused_signal")
+signal forfeit_victory_claimed
+@warning_ignore("unused_signal")
 signal player_died(player_id)
 @warning_ignore("unused_signal")
 signal projectile_spawn(data)
