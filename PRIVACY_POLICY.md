@@ -83,4 +83,4 @@ Esta política pode ser atualizada conforme o projeto evolui. Mudanças relevant
 
 ## 12. Contato
 
-Dúvidas sobre esta Política de Privacidade podem ser enviadas para [E-MAIL DE CONTATO A PREENCHER].
+Dúvidas sobre esta Política de Privacidade podem ser enviadas para luinasci@student.42sp.org.br, jcologne@student.42sp.org.br, tguilher@student.42sp.org.br ou lilmende@student.42sp.org.br.
