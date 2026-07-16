@@ -1,16 +1,6 @@
 /**
- * Autoridade de powerup:
- * - Servidor decide QUANDO (intervalo aleatório 1-10s, igual ao client hoje),
- *   QUAL TIPO (sorteio uniforme entre os 3) e a POSIÇÃO — PowerupState.from_dict()
- *   no client lê position_x/position_y sem fallback (ver
- *   client/scripts/states/powerup_state.gd), então sem isso o powerup nunca
- *   chega a ser criado. As listas abaixo espelham os Marker2D do grupo
- *   "powerup_spawns" de cada arena em client/scenes/arenas/*.tscn — a
- *   posição sorteada tem que vir da arena da própria match (match.arenaId),
- *   já que o matchmaking sorteia entre as 3 arenas.
- * - Servidor arbitra corrida de coleta: primeiro powerup_collect_request
- *   recebido para um powerup_id vence; os demais são ignorados (ver
- *   handlePowerupCollectRequest em websocket.plugin.ts).
+ * Autoridade de powerup: servidor decide timing, tipo e posição, e arbitra
+ * corrida de coleta (ver handlePowerupCollectRequest em websocket.plugin.ts).
  */
 
 import type { Match } from "../matches/match-manager.js";
@@ -242,11 +232,7 @@ export function nextSpawnDelayMs(): number {
   return min + Math.random() * (max - min);
 }
 
-/**
- * Começa o ciclo de spawn de powerup pra uma match. Enquanto os dois
- * jogadores estiverem conectados, tenta spawnar (se não tiver nenhum
- * powerup ativo) a cada intervalo aleatório, indefinidamente.
- */
+/** Inicia o ciclo de spawn (re-spawna a cada intervalo enquanto a match durar). */
 export function startPowerupLoop(match: Match): void {
   scheduleNextSpawn(match);
 }
