@@ -6,6 +6,8 @@ extends Node
 @onready var round_result_screen = $"../../UI/RoundResultScreen"
 @onready var arena_container = $"../../World/ArenaContainer"
 @onready var round_countdown_screen = $"../../UI/RoundCountdownScreen"
+@onready var music_player = $"../../MusicPlayer"
+@onready var stinger_player = $"../../StingPlayer"
 
 @export var player_scene: PackedScene
 @export var powerup_scene: PackedScene
@@ -20,6 +22,7 @@ var spawn_points: Array[Marker2D] = []
 var powerup_spawn_points: Array[Marker2D] = []
 var active_powerup: Powerup = null
 var round_number: int = 0
+var waiting_for_opponent_reconnect: bool = false
 var scores: Dictionary = {
 	1: 0,
 	2: 0
@@ -32,6 +35,19 @@ const ARENAS := {
 	"arena_02": preload("res://client/scenes/arenas/arena_badlands.tscn"),
 	"arena_03": preload("res://client/scenes/arenas/arena_catacombs.tscn")
 }
+
+const ARENA_MUSIC := {
+	"arena_01": preload("res://client/assets/music/arena_ruins.ogg"),
+	"arena_02": preload("res://client/assets/music/arena_badlands.ogg"),
+	"arena_03": preload("res://client/assets/music/arena_catacombs.ogg"),
+}
+
+const VICTORY_JINGLE := preload("res://client/assets/music/victory.ogg")
+const DEFEAT_JINGLE := preload("res://client/assets/music/defeat.ogg")
+
+const MUSIC_FADE_DURATION := 1.0
+const MUSIC_FADE_OUT_VOLUME := -40.0
+
 const MIN_SPAWN_DISTANCE := 600.0
 
 signal match_ended(winner_id: int)
@@ -51,6 +67,11 @@ func _ready() -> void:
 	GameEvents.round_ended.connect(_on_network_round_ended)
 	GameEvents.player_died.connect(_on_network_player_died)
 	GameEvents.match_ended.connect(_on_network_match_ended)
+	GameEvents.state_sync_requested.connect(_on_state_sync_requested)
+	GameEvents.state_sync_received.connect(_on_state_sync_received)
+	GameEvents.forfeit_victory_claimed.connect(_on_forfeit_victory_claimed)
+	GameEvents.opponent_disconnected.connect(_on_opponent_disconnected)
+	GameEvents.player_state_updated.connect(_on_player_state_updated_reconnect_check)
 	
 	if MatchData.session == null or MatchData.session.mode == &"local":
 		start_round()
@@ -219,8 +240,7 @@ func end_round(winner_id: int) -> void:
 				})
 		else:
 			end_match(winner_id)
-			await get_tree().create_timer(5.0).timeout
-			_return_to_matchmaking()
+			_wait_for_jingle_then_return()
 	else:
 		var winner: Player = player1
 		
@@ -237,8 +257,7 @@ func _on_network_match_ended(state: MatchState):
 		if match_finished:
 			return
 		end_match(state.winner_slot)
-		await get_tree().create_timer(5.0).timeout
-		_return_to_matchmaking()
+		_wait_for_jingle_then_return()
 
 func reset_round() -> void:
 	if MatchData.session and MatchData.session.mode == &"online":
@@ -322,6 +341,8 @@ func show_winner(winner_id: int) -> void:
 		winner_name = player2.player_name
 		
 	match_end_label.text = "%s WINS!" % winner_name
+	
+	play_end_jingle(winner_id)
 
 func _return_to_matchmaking() -> void:
 	print("Returning to matchmaking...")
@@ -342,6 +363,15 @@ func load_arena() -> void:
 	var arena = arena_scene.instantiate()
 	
 	arena_container.add_child(arena)
+	
+	play_arena_music(arena_id)
+
+func play_arena_music(arena_id) -> void:
+	if not ARENA_MUSIC.has(arena_id):
+		return
+		
+	music_player.stream = ARENA_MUSIC[arena_id]
+	music_player.play()
 
 func _on_network_round_started(_data: Dictionary) -> void:
 	if MatchData.session and MatchData.session.mode == &"online":
@@ -361,3 +391,117 @@ func _on_network_player_died(dead_player_id: int) -> void:
 			return
 		var winner_id: int = 2 if dead_player_id == 1 else 1
 		end_round(winner_id)
+
+func _on_state_sync_requested() -> void:
+	if MatchData.session == null or MatchData.session.mode != &"online":
+		return
+	if not NetworkClient.is_network_connected:
+		return
+		
+	var payload := {
+		"type": "state_sync",
+		"player1_score": scores[1],
+		"player2_score": scores[2],
+		"round_active": round_active,
+	}
+	
+	if is_instance_valid(player1):
+		payload["player1_pos_x"] = player1.global_position.x
+		payload["player1_pos_y"] = player1.global_position.y
+	if is_instance_valid(player2):
+		payload["player2_pos_x"] = player1.global_position.x
+		payload["player2_pos_y"] = player1.global_position.y
+		
+	NetworkClient.send_message(payload)
+
+func _on_state_sync_received(data: Dictionary) -> void:
+	if MatchData.session == null or MatchData.session.mode != &"online":
+		return
+		
+	scores[1] = int(data.get("player1_score", scores[1]))
+	scores[2] = int(data.get("player1_score", scores[2]))
+	
+	var remote_round_active: bool = bool(data.get("round_active", round_active))
+	
+	if remote_round_active and not round_active:
+		start_round()
+		return
+		
+	if MatchData.local_player_slot != 1 and is_instance_valid(player1) and data.has("player1_pos_x"):
+		var pos1 := Vector2(float(data["player1_pos_x"]), float(data["player1_pos_y"]))
+		player1.global_position = pos1
+		player1.network_target_position = pos1
+		
+	if MatchData.local_player_slot != 2 and is_instance_valid(player1) and data.has("player2_pos_x"):
+		var pos2 := Vector2(float(data["player2_pos_x"]), float(data["player2_pos_y"]))
+		player2.global_position = pos2
+		player2.network_target_position = pos2
+
+func play_end_jingle(winner_id):
+	fade_out_music()
+
+	var local_wins: bool = winner_id == MatchData.local_player_slot
+	
+	stinger_player.stream = VICTORY_JINGLE if local_wins else DEFEAT_JINGLE
+	stinger_player.play()
+	
+func _wait_for_jingle_then_return() -> void:
+	var already_returned := [false]
+	
+	var do_return := func():
+		if already_returned[0]:
+			return
+		already_returned[0] = true
+		_return_to_matchmaking()
+		
+	stinger_player.finished.connect(do_return, CONNECT_ONE_SHOT)
+	
+	var fallback_duration := 8.0
+	
+	if stinger_player.stream:
+		fallback_duration = stinger_player.stream.get_length() + 1.0
+		
+	await get_tree().create_timer(fallback_duration).timeout
+	do_return.call()
+
+func fade_out_music() -> void:
+	if not music_player.playing:
+		return
+		
+	var tween := create_tween()
+	tween.tween_property(music_player, "volume_db", MUSIC_FADE_OUT_VOLUME, MUSIC_FADE_DURATION)
+	tween.finished.connect(func (): 
+		music_player.stop()
+		music_player.volume_db = 0.0
+		)
+
+func _on_forfeit_victory_claimed() -> void:
+	if MatchData.session == null or MatchData.session.mode != &"online":
+		return
+		
+	GameEvents.match_event_received.emit({
+		"type": "match_end",
+		"winner_slot": MatchData.local_player_slot,
+		"player1_score": scores[1],
+		"player2_score": scores[2],
+	})
+
+func _on_opponent_disconnected() -> void:
+	if MatchData.session == null or MatchData.session.mode != &"online":
+		return
+		
+	waiting_for_opponent_reconnect = true
+	
+	var local_player: Player = player1 if MatchData.local_player_slot == 1 else player2
+	if is_instance_valid(local_player):
+		local_player.controls_enabled = false
+		
+func _on_player_state_updated_reconnect_check(_data: Dictionary) -> void:
+	if not waiting_for_opponent_reconnect:
+		return
+		
+	waiting_for_opponent_reconnect = false
+	
+	var local_player: Player = player1 if MatchData.local_player_slot == 1 else player2
+	if is_instance_valid(local_player):
+		local_player.controls_enabled = true

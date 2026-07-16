@@ -30,3 +30,5 @@ func _on_reconnect_pressed() -> void:
 	status_label.text = "Reconectando..."
 	
 	NetworkClient.connect_to_server(MatchData.session.websocket_url)
+	await NetworkClient.network_connected
+	NetworkClient.send_message({"type": "request_state_sync"})

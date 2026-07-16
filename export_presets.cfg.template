@@ -62,7 +62,7 @@ html/head_include="<script>
 				mode: 'online',
 				match_id: data.match_id,
 				arena_id: data.arena_id,
-				seed: 0,
+				seed: data.seed,
 				host_id: '',
 				websocket_url: data.websocket_url,
 				game_type: 'pvp',

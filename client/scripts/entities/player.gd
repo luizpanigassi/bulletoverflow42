@@ -115,6 +115,11 @@ func _physics_process(delta: float) -> void:
 
 	if is_dashing:
 		move_and_slide()
+		
+		if MatchData.session and MatchData.session.mode == &"online" and player_id == MatchData.local_player_slot:
+			var dash_snapshot := InputSnapshot.new()
+			dash_snapshot.dash_pressed = snapshot.dash_pressed
+			NetworkInputSender.send_input(dash_snapshot, player_id)
 		return
 
 	var accepted_shot: bool = false
@@ -258,6 +263,23 @@ func end_dash() -> void:
 func reset_dash_cooldown() -> void:
 	await get_tree().create_timer(dash_cooldown).timeout
 	can_dash = true
+	
+func play_remote_dash() -> void:
+	if is_dashing:
+		return
+		
+	is_dashing = true
+	is_invulnerable = true
+	animated_sprite.modulate.a = 0.3
+	_apply_dash_pose()
+	
+	await get_tree().create_timer(dash_duration).timeout
+	
+	is_dashing = false
+	is_invulnerable = false
+	animated_sprite.modulate.a = 1.0
+	
+	_update_animation()
 	
 func reload() -> void:
 	if is_reloading:
