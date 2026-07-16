@@ -1,18 +1,6 @@
 import type { WebSocket } from "ws";
 
-/**
- * Representa uma partida 1x1 em andamento.
- *
- * Modelo de autoridade:
- * - Posição, movimento, tiro (projétil) e colisão/hit: autoridade do CLIENT.
- *   O servidor apenas repassa (relay) esses eventos entre os dois sockets da
- *   partida, exceto player_hit, que ele interpreta pra emitir player_died/
- *   round_end/match_end (ver websocket.plugin.ts).
- * - Powerup: servidor decide TIMING, TIPO e POSIÇÃO (ver powerup-authority.ts);
- *   arbitra corrida de coleta (primeiro powerup_collect_request vence).
- * - Fim de partida (placar chegou a 5): autoridade do servidor, calculado a partir
- *   dos round_end derivados de cada player_hit recebido.
- */
+/** Estado de uma partida 1x1 em andamento (ver server.md pro modelo de autoridade). */
 export interface MatchPlayer {
   slot: 1 | 2;
   userId: string;
@@ -22,18 +10,19 @@ export interface MatchPlayer {
 export class Match {
   readonly matchId: string;
   readonly arenaId: string;
-  // seed aleatória usada pelo client pra gerar a arena (posição de obstáculos, powerups, etc)
-  readonly seed: number;
+  readonly seed: number; // seed que o client usa pra gerar a arena
   readonly players: Map<1 | 2, MatchPlayer> = new Map();
   readonly scores: Record<1 | 2, number> = { 1: 0, 2: 0 };
 
-  // powerup ativo no momento (no máximo 1 por vez, igual ao client hoje)
-  activePowerupId: number | null = null;
+  activePowerupId: number | null = null; // no máximo 1 ativo por vez
   activePowerupType: number | null = null;
   private nextPowerupId = 1;
 
   matchStarted = false;
   lastHitAt = 0;
+
+  // Última posição aceita de cada jogador, pra anti-teleporte (websocket.plugin.ts).
+  lastKnownPosition: Partial<Record<1 | 2, { x: number; y: number; at: number }>> = {};
 
   constructor(matchId: string, arenaId: string, seed: number = 0) {
     this.matchId = matchId;
