@@ -35,7 +35,7 @@ async function main() {
   });
 
   // Match fixa pra smoke test (network_smoke_test.tscn), sem matchmaking.
-  matchManager.create("smoke_test", "arena_ruins");
+  matchManager.create("smoke_test", "arena_01");
 
   await app.listen({ port: env.port, host: env.host });
 
