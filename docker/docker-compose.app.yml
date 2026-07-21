@@ -1,0 +1,46 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: transcendence-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: transcendence
+      POSTGRES_USER: transcendence
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - transcendence_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U transcendence -d transcendence"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  backend:
+    build:
+      context: ../server
+      dockerfile: ../docker/server/Dockerfile
+    container_name: transcendence-backend
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://transcendence:${POSTGRES_PASSWORD}@postgres:5432/transcendence?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    expose:
+      - "3000"
+    networks:
+      - transcendence_net
+    command: sh -c "npm run prisma:generate && npm run prisma:migrate && npm run start"
+
+volumes:
+  postgres_data:
+
+networks:
+  transcendence_net:
+    external: true
