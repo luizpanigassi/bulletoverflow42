@@ -161,11 +161,11 @@ confiar no que o client afirma).
 
 | Aspecto | Autoridade | Como |
 |---|---|---|
-| Posição / movimento | **Client** | Servidor aceita `position_x`/`position_y` direto de cada `player_input` e repassa como `player_state` **só pro oponente** (nunca ecoa de volta pra quem mandou — ver nota abaixo). Sem resimulação, sem validação de distância ainda (TODO). |
+| Posição / movimento | **Client** | Servidor aceita `position_x`/`position_y` de cada `player_input` e repassa como `player_state` **só pro oponente** (nunca ecoa de volta — ver nota abaixo). Sem resimulação; valida deslocamento máximo desde a última posição aceita (anti-teleporte grosseiro, ver nota abaixo). |
 | Disparo / projétil | **Client** | Client cria o projétil localmente e manda `projectile_spawn`; servidor só repassa pro oponente. |
 | Colisão / hit | **Client detecta, servidor decide o resultado** | Client manda `player_hit` quando seu projétil colide; servidor aceita sem validar (sem anti-cheat, decisão do time) e é quem emite `player_died` + `round_end` (+ `match_end` se for o 5º ponto) pros dois. |
 | Placar de round | **Servidor** | Contado a partir de cada `player_hit` aceito (`Match.registerRoundEnd`), não confiado ao client. |
-| Powerup — timing/tipo/posição | **Servidor** | Sorteia intervalo (1-10s), tipo (uniforme entre os 3) e posição (entre os spawn points conhecidos de `arena_ruins`) — ver `game/powerup-authority.ts`. |
+| Powerup — timing/tipo/posição | **Servidor** | Sorteia intervalo (1-10s), tipo (uniforme entre os 3) e posição (entre os spawn points da arena sorteada pro match — `arena_01`/`02`/`03`) — ver `game/powerup-authority.ts`. |
 | Powerup — coleta | **Servidor** | Arbitra corrida: primeiro `powerup_collect_request` pro `powerup_id` ainda ativo vence; demais são ignorados. |
 | Início do 1º round | **Servidor** | Emite `match_start` + `round_start` assim que os dois sockets da match conectam. Rounds seguintes são disparados localmente por cada client (`reset_round()`), sem novo `round_start` do servidor. |
 | Fim de partida (placar = 5) | **Servidor** | Calculado a partir do placar interno da `Match`, emitido junto do `round_end` que fecha o 5º ponto. |
@@ -182,6 +182,16 @@ slot. Como aqui o servidor nunca diverge (ele só devolveria a posição que o
 próprio client acabou de mandar), ecoar de volta faria o replay reaplicar
 movimento que já tinha sido processado — dobrando-o a cada frame. Por isso
 `player_input` é só repassado (`relayToOpponent`), nunca broadcast.
+
+### Anti-teleporte
+
+`Match.lastKnownPosition` guarda a última posição aceita de cada slot. A
+cada `player_input`, o servidor calcula a distância desde essa posição e
+rejeita (não repassa, não atualiza a baseline) se ultrapassar 850×2 px/s
+(2x o dash, o movimento mais rápido do jogo) escalado pelo tempo real
+decorrido desde o último update aceito. Escalar pelo tempo faz saltos
+legítimos (respawn após a pausa entre rounds) passarem sem precisar de
+lógica extra pra resetar o estado a cada round.
 
 ## HTTP
 
@@ -304,18 +314,20 @@ não bloqueia hits reais.
   (ver seção "Autenticação e Autorização" acima pro design pretendido). Hoje
   `userId` do matchmaking é só o que o client mandar (ou um guest gerado),
   sem validação nenhuma.
-- **Anti-teleporte** — servidor aceita `position_x`/`position_y` de
-  `player_input` sem validar deslocamento máximo por tick.
 - **Anti-cheat de `player_hit`** — aceito sem checar alcance/cooldown/linha de
   visão (decisão consciente do time, documentada na tabela de autoridade).
 - **Persistência de partida** — `prisma/schema.prisma` já tem o modelo
   `Match` (arena, placar, vencedor), mas nada grava lá ainda ao terminar uma
   partida real.
-- **Múltiplas arenas** — só `arena_01`/`arena_ruins` está com spawn points
-  mapeados no servidor (matchmaking e powerups); `arena_02`/`arena_03`
-  existem no client mas o servidor não tem as coordenadas delas.
 - **Fila de matchmaking sem cancelamento explícito** — só sai da fila ao
   desconectar o socket.
+- **Reconexão sem suporte no servidor** — o client já tem toda a lógica pra
+  reconectar (tela de "oponente desconectado", contagem de 60s, botão de W.O.,
+  `request_state_sync`/`state_sync` pra sincronizar placar e posição), mas o
+  servidor nunca manda `request_state_sync` (o client fica sem receber esse
+  catch-up ao reconectar) e o "reivindicar vitória por W.O." só emite um
+  evento local no client — nunca chega a virar mensagem de rede, então o
+  servidor nunca fica sabendo que a partida acabou por W.O.
 
 ## Como rodar / testar
 

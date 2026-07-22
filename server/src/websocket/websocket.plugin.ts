@@ -2,12 +2,7 @@ import type { FastifyInstance } from "fastify";
 import websocketPlugin from "@fastify/websocket";
 import { matchManager, type Match } from "../matches/match-manager.js";
 
-/**
- * Registro do WebSocket: aceita a conexão, identifica a Match/slot, e repassa
- * mensagens. player_hit é o único tipo tratado por conteúdo hoje — o servidor
- * aceita sem validação (sem anti-cheat, decisão consciente do time) e é quem
- * emite player_died/round_end/match_end, não o client.
- */
+/** Aceita a conexão, identifica a Match/slot, e roteia mensagens de gameplay. */
 export async function registerWebsocket(app: FastifyInstance) {
   await app.register(websocketPlugin);
 
@@ -26,9 +21,7 @@ export async function registerWebsocket(app: FastifyInstance) {
 
     app.log.info(`Cliente conectado: match=${matchId} slot=${slot}`);
 
-    // Só o primeiro round_start vem do servidor (dispara o spawn dos players
-    // via game_manager.gd). Os próximos rounds cada client dispara sozinho
-    // localmente ao terminar o round anterior (reset_round() em game_manager.gd).
+    // Só o 1º round_start vem do servidor; os seguintes o client dispara sozinho.
     if (match.players.size === 2 && !match.matchStarted) {
       match.matchStarted = true;
       match.broadcast({ type: "match_start", match_id: match.matchId });
@@ -56,7 +49,6 @@ export async function registerWebsocket(app: FastifyInstance) {
       }
 
       if (data.type === "player_input") {
-        // TODO (Etapa 7+): validação de deslocamento máximo (anti-teleporte).
         handlePlayerInput(match, playerSlot, data);
         return;
       }
@@ -71,12 +63,8 @@ export async function registerWebsocket(app: FastifyInstance) {
   });
 }
 
-// Janela de debounce pra ignorar player_hit duplicado: como agora os dois
-// clients têm sua própria cópia local do projétil (um pra si, um relayado
-// pro oponente via projectile_spawn), os dois podem detectar a mesma
-// colisão de forma independente e mandar player_hit quase ao mesmo tempo.
-// Um round legítimo seguinte só acontece segundos depois (round_result +
-// countdown no client), então 1s é uma folga segura sem bloquear hits reais.
+// Debounce pra ignorar player_hit duplicado (os dois clients têm cópia
+// própria do projétil e podem reportar a mesma colisão quase ao mesmo tempo).
 const HIT_DEBOUNCE_MS = 1000;
 
 function handlePlayerHit(app: FastifyInstance, match: Match, data: Record<string, unknown>) {
@@ -93,11 +81,7 @@ function handlePlayerHit(app: FastifyInstance, match: Match, data: Record<string
 
   match.broadcast({ type: "player_died", player_slot: targetSlot });
 
-  // O powerup não sobrevive entre rounds: o client sempre limpa o ativo (se
-  // houver) em end_round(), mas só avisa o servidor via powerup_collect_request
-  // quando é de fato coletado. Sem isso, um powerup que nasceu e ninguém
-  // pegou antes do round acabar trava activePowerupId pra sempre, e o loop
-  // de spawn nunca mais gera outro (ver startPowerupLoop em powerup-authority.ts).
+  // Libera o powerup ativo mesmo se ninguém coletou, senão o loop trava.
   match.activePowerupId = null;
   match.activePowerupType = null;
 
@@ -115,21 +99,47 @@ function handlePlayerHit(app: FastifyInstance, match: Match, data: Record<string
   }
 }
 
-// Autoridade de posição é do client, sem resimulação (ver Match doc-comment)
-// — então só repassa position_x/position_y como "player_state" pro OPONENTE.
-// Não ecoa de volta pra quem mandou: NetworkPlayerSynchronizer.reconcile()
-// reaplica (replay) os inputs em buffer sempre que recebe player_state do
-// próprio slot, o que faz sentido só quando o servidor resimula e pode
-// divergir da predição local — como aqui ele nunca diverge (só devolveria a
-// posição que o próprio client acabou de mandar), ecoar de volta faz o
-// replay reaplicar movimento que já tinha sido aplicado, dobrando-o a cada
-// frame (o personagem local "voa" pela tela).
+// Dash (850px/s) é o movimento mais rápido do jogo; 2x de folga por ser
+// checagem grosseira (anti-teleporte), não anti-cheat fino.
+const MAX_PLAUSIBLE_SPEED_PX_PER_SEC = 850 * 2;
+const MIN_ELAPSED_SEC = 1 / 60;
+
+function isDisplacementPlausible(match: Match, slot: 1 | 2, x: number, y: number): boolean {
+  const now = Date.now();
+  const last = match.lastKnownPosition[slot];
+
+  if (!last) {
+    match.lastKnownPosition[slot] = { x, y, at: now };
+    return true;
+  }
+
+  const elapsedSec = Math.max((now - last.at) / 1000, MIN_ELAPSED_SEC);
+  const distance = Math.hypot(x - last.x, y - last.y);
+  const maxDistance = MAX_PLAUSIBLE_SPEED_PX_PER_SEC * elapsedSec;
+
+  if (distance > maxDistance) {
+    return false; // não atualiza a baseline com uma posição rejeitada
+  }
+
+  match.lastKnownPosition[slot] = { x, y, at: now };
+  return true;
+}
+
 function handlePlayerInput(match: Match, slot: 1 | 2, data: Record<string, unknown>) {
+  const positionX = Number(data.position_x);
+  const positionY = Number(data.position_y);
+
+  if (!isDisplacementPlausible(match, slot, positionX, positionY)) {
+    return;
+  }
+
+  // Só relay pro oponente, nunca broadcast: ecoar de volta faria o
+  // reconcile() do client reaplicar o movimento e dobrá-lo.
   match.relayToOpponent(slot, {
     type: "player_state",
     player_slot: slot,
-    position_x: data.position_x,
-    position_y: data.position_y,
+    position_x: positionX,
+    position_y: positionY,
     velocity_x: 0,
     velocity_y: 0,
     aim_x: data.aim_x,

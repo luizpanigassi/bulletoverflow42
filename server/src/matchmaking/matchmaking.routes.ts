@@ -14,12 +14,7 @@ function pickRandomArenaId(): string {
   return ARENA_IDS[Math.floor(Math.random() * ARENA_IDS.length)]!;
 }
 
-/**
- * Fila de matchmaking via WebSocket: o client conecta e fica pendurado aqui
- * ate ter um oponente. Quando o par se forma, cada um recebe "match_found"
- * com o match_id/slot/websocket_url da partida real e a conexao da fila e
- * fechada — o client deve reconectar em websocket_url pra jogar.
- */
+/** Fila via WebSocket: forma o par e manda "match_found" com o websocket_url da partida. */
 export async function registerMatchmaking(app: FastifyInstance) {
   app.get("/matchmaking/queue", { websocket: true }, (socket, request) => {
     const { userId, characterId } = request.query as { userId?: string; characterId?: string };
@@ -61,9 +56,5 @@ function notifyMatchFound(app: FastifyInstance, player: QueuedPlayer, slot: 1 | 
       websocket_url: `ws://127.0.0.1:${env.port}/matches/${match.matchId}?slot=${slot}`,
     }),
   );
-  // Não fecha o socket da fila aqui: fechar logo em seguida do send() faz o
-  // client correr risco de processar o frame de close antes de ler a
-  // mensagem no mesmo poll. O client encerra essa conexão sozinho ao
-  // reconectar em websocket_url (NetworkClient.connect_to_server fecha o
-  // socket anterior antes de abrir o novo).
+  // Não fecha o socket aqui: o client encerra sozinho ao reconectar em websocket_url.
 }
