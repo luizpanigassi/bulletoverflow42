@@ -87,42 +87,32 @@ export function GodotCanvas({ matchId, slot, serverUrl, arenaId, seed }: GodotCa
 
   return (
     <div 
-      className="godot-wrapper" 
-      style={{
-        width: "100%",
-        aspectRatio: "16/9",
-        backgroundColor: "#000",
-        borderRadius: "12px",
-        overflow: "hidden",
-        border: "2px solid #9333ea",
-        position: "relative"
-      }}
+      className="godot-wrapper w-full aspect-video bg-black rounded-xl overflow-hidden border-2 border-purple-600 relative shadow-2xl"
+      style={{ isolation: 'isolate' }} // Cria um contexto isolado de renderização
     >
       {/* Tela de Carregamento flutuante por cima do canvas */}
       {loading && (
-        <div 
-          style={{
-            position: "absolute",
-            inset: 0,
-            display: "flex",
-            flexDirection: "column",
-            gap: "1rem",
-            alignItems: "center",
-            justifyContent: "center",
-            backgroundColor: "#242424",
-            color: "#fff",
-            zIndex: 10
-          }}
-        >
-          <span style={{ fontWeight: "bold", letterSpacing: "0.1em" }}>
+        <div className="absolute inset-0 flex flex-col gap-4 items-center justify-center bg-zinc-900 text-white z-20">
+          <span className="font-black text-xs tracking-widest animate-pulse uppercase">
             CONECTANDO À ARENA E SINCRONIZANDO MAPA...
           </span>
-          <progress id="react-status-progress" style={{ width: "50%", height: "8px" }}></progress>
+          <progress id="react-status-progress" className="w-1/2 h-2 accent-purple-500 bg-zinc-800 rounded-full" />
         </div>
       )}
 
-      {/* O Canvas fica montado desde o início para a Godot encontrá-lo sem atrasos */}
-      <canvas id="canvas" style={{ width: "100%", height: "100%", display: "block" }} />
+      {/* O CANVAS REESTILIZADO: Força posições relativas e tamanho fixo */}
+      <canvas 
+        id="canvas" 
+        className="w-full h-full block object-contain"
+        style={{ 
+          position: 'relative', 
+          top: 0, 
+          left: 0, 
+          margin: 0, 
+          padding: 0,
+          display: 'block'
+        }} 
+      />
     </div>
   );
 }
