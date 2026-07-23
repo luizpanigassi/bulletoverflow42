@@ -1,67 +1,83 @@
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 export function Menu() {
   const navigate = useNavigate();
-  
-  // Inicializa o nome do jogador buscando do localStorage, ou gera um nome de convidado aleatório
-  const [username, setUsername] = useState(() => {
-    const saved = localStorage.getItem("bullet_username");
-    return saved || `Guest_${Math.floor(1000 + Math.random() * 9000)}`;
-  });
-
-  // Salva o nome automaticamente no localStorage sempre que o jogador digitar algo novo
-  useEffect(() => {
-    localStorage.setItem("bullet_username", username);
-  }, [username]);
+  const username = localStorage.getItem("bullet_username") || "Soldado";
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-57px)] px-4 select-none">
-      {/* Container do Cartão do Menu */}
-      <div className="w-full max-w-md bg-zinc-900/50 border border-zinc-800 p-8 rounded-2xl shadow-2xl backdrop-blur-sm text-center flex flex-col gap-8">
+    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-57px)] px-4 py-8 select-none">
+      <div className="w-full max-w-2xl flex flex-col gap-8">
         
-        {/* Título Principal com Brilho Neon */}
-        <div>
-          <h1 className="text-4xl md:text-5xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-fuchsia-500 to-indigo-500 drop-shadow-[0_4px_12px_rgba(168,85,247,0.3)] animate-pulse">
-            BULLET OVERFLOW
-          </h1>
-          <p className="text-zinc-500 text-xs tracking-widest mt-2 uppercase">
-            Frontend Client — Alpha v0.1
-          </p>
+        {/* Painel do Soldado Logado */}
+        <div className="flex justify-between items-center bg-zinc-900/40 border border-zinc-800/80 px-6 py-4 rounded-xl">
+          <div className="flex items-center gap-3">
+            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-xs font-bold tracking-wider text-zinc-400 uppercase">Estação de Combate</span>
+          </div>
+          <span className="text-sm font-black tracking-wide text-purple-400 uppercase">
+            Soldado: {username}
+          </span>
         </div>
 
-        {/* Campo de Entrada do Nome do Jogador */}
-        <div className="flex flex-col gap-2 text-left bg-zinc-950/60 p-4 rounded-xl border border-zinc-800/80">
-          <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
-            Identificação do Soldado
-          </label>
-          <input
-            type="text"
-            maxLength={15}
-            value={username}
-            onChange={(e) => setUsername(e.target.value.replace(/\s/g, ""))} // Remove espaços em branco
-            className="w-full bg-zinc-900 border border-purple-500/30 focus:border-purple-500 rounded-lg px-3 py-2 text-white font-bold tracking-wide focus:outline-none transition-all shadow-inner"
-            placeholder="Digite seu nickname..."
-          />
+        {/* Seção Central de Modos de Jogo */}
+        <div className="flex flex-col gap-4 text-center">
+          <div>
+            <h1 className="text-3xl font-black tracking-widest text-white uppercase">
+              Selecione o Modo de Missão
+            </h1>
+            <p className="text-zinc-500 text-xs tracking-wider uppercase mt-1">
+              Prepare seus reflexos antes de entrar na arena
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+            
+            {/* CARD 1: MULTIPLAYER ONLINE (PVP) */}
+            <button
+              onClick={() => navigate("/jogar")}
+              className="group flex flex-col text-left p-6 bg-zinc-900/50 hover:bg-purple-950/20 border border-zinc-800 hover:border-purple-500/50 rounded-2xl transition-all duration-300 shadow-xl cursor-pointer hover:-translate-y-0.5"
+            >
+              <div className="w-12 h-12 bg-purple-600/10 border border-purple-500/30 rounded-xl flex items-center justify-center text-xl group-hover:bg-purple-600 group-hover:text-white transition-all">
+                ⚔️
+              </div>
+              <h2 className="text-lg font-black tracking-wide text-white mt-4 group-hover:text-purple-400 transition-colors uppercase">
+                Combate Online
+              </h2>
+              <p className="text-zinc-400 text-xs mt-1 leading-relaxed">
+                Entre na fila de matchmaking FIFO para enfrentar outros jogadores da escola em tempo real.
+              </p>
+              <span className="text-[10px] font-bold text-purple-500 uppercase tracking-widest mt-4 block">
+                Fila de Espera PvP →
+              </span>
+            </button>
+
+            {/* CARD 2: TREINAMENTO CONTRA IA */}
+            <button
+              onClick={() => navigate("/treino-ia")}
+              className="group flex flex-col text-left p-6 bg-zinc-900/50 hover:bg-fuchsia-950/20 border border-zinc-800 hover:border-fuchsia-500/50 rounded-2xl transition-all duration-300 shadow-xl cursor-pointer hover:-translate-y-0.5"
+            >
+              <div className="w-12 h-12 bg-fuchsia-600/10 border border-fuchsia-500/30 rounded-xl flex items-center justify-center text-xl group-hover:bg-fuchsia-600 group-hover:text-white transition-all">
+                🤖
+              </div>
+              <h2 className="text-lg font-black tracking-wide text-white mt-4 group-hover:text-fuchsia-400 transition-colors uppercase">
+                Simulação contra IA
+              </h2>
+              <p className="text-zinc-400 text-xs mt-1 leading-relaxed">
+                Jogue uma partida local offline contra um bot com dificuldade ajustada para testar suas mecânicas.
+              </p>
+              <span className="text-[10px] font-bold text-fuchsia-500 uppercase tracking-widest mt-4 block">
+                Iniciar Treino Local →
+              </span>
+            </button>
+
+          </div>
         </div>
 
-        {/* Botões de Ação */}
-        <div className="flex flex-col gap-3">
-          {/* Botão de Jogar / Ir para Matchmaking */}
-          <button
-            onClick={() => navigate("/jogar")}
-            className="w-full py-4 text-lg font-black tracking-widest text-white uppercase bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 active:scale-[0.98] rounded-xl shadow-[0_4px_20px_rgba(147,51,234,0.3)] hover:shadow-[0_4px_25px_rgba(147,51,234,0.5)] transition-all cursor-pointer"
-          >
-            Entrar em Combate
-          </button>
-
-          {/* Botão para ver a Leaderboard */}
-          <button
-            onClick={() => navigate("/leaderboard")}
-            className="w-full py-3 text-sm font-bold tracking-wider text-zinc-300 uppercase bg-zinc-800/40 hover:bg-zinc-800 border border-zinc-700/50 hover:border-zinc-600 rounded-xl active:scale-[0.98] transition-all cursor-pointer"
-          >
-            Ver Classificação (Top 50)
-          </button>
+        {/* Espaço reservado para Futuras Funcionalidades*/}
+        <div className="border border-dashed border-zinc-800 p-4 rounded-xl text-center bg-zinc-950/20">
+          <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">
+            🔒 Novos módulos (Torneios e Custom Rooms) serão liberados em breve
+          </span>
         </div>
 
       </div>

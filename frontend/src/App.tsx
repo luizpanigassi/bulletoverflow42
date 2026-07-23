@@ -4,6 +4,7 @@ import { LeaderboardPage } from "./pages/LeaderboardPage";
 import { MatchmakingPage } from "./pages/MatchmakingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { ProfilePage } from "./pages/ProfilePage";
+import { AiTrainingPage } from "./pages/AiTrainingPage";
 
 // Componente de proteção simples para garantir que o jogador só acesse as telas se estiver "logado"
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -46,6 +47,7 @@ export default function App() {
           <Route path="/" element={<ProtectedRoute><Menu /></ProtectedRoute>} />
           <Route path="/jogar" element={<ProtectedRoute><MatchmakingPage /></ProtectedRoute>} />
           <Route path="/perfil" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route path="/treino-ia" element={<ProtectedRoute><AiTrainingPage /></ProtectedRoute>} />
         </Routes>
       </main>
     </BrowserRouter>
