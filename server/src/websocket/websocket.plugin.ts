@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import websocketPlugin from "@fastify/websocket";
 import { matchManager, type Match } from "../matches/match-manager.js";
+import { persistMatchResult } from "../matches/persist-match-result.js";
 
 /** Aceita a conexão, identifica a Match/slot, e roteia mensagens de gameplay. */
 export async function registerWebsocket(app: FastifyInstance) {
@@ -95,6 +96,11 @@ function handlePlayerHit(app: FastifyInstance, match: Match, data: Record<string
       player1_score: match.scores[1],
       player2_score: match.scores[2],
       winner_slot: shooterSlot,
+    });
+
+    // Não bloqueia o broadcast acima; erro de banco não deve travar o gameplay.
+    persistMatchResult(match, shooterSlot).catch((err) => {
+      app.log.error({ err }, `Falha ao persistir resultado da match=${match.matchId}`);
     });
   }
 }
