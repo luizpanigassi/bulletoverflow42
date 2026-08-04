@@ -36,7 +36,17 @@ services:
       - "3000"
     networks:
       - transcendence_net
-    command: sh -c "npm run prisma:generate && npm run prisma:migrate && npm run start"
+
+  frontend:
+    build:
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: transcendence-frontend
+    restart: unless-stopped
+    expose:
+      - "4173"
+    networks:
+      - transcendence_net
 
 volumes:
   postgres_data:

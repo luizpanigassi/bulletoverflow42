@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_HTTP_BASE } from "../config/api";
 
 // Definindo o formato exato que vem do banco de dados (schema do Prisma do colega)
 interface User {
@@ -17,7 +18,7 @@ export function LeaderboardPage() {
 
   useEffect(() => {
     // Faz a chamada HTTP na rota real do Fastify
-    fetch("http://127.0.0")
+    fetch(`${API_HTTP_BASE}/leaderboard`)
       .then((res) => {
         if (!res.ok) throw new Error("Erro na requisição");
         return res.json();

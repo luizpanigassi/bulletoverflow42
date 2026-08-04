@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { GodotCanvas } from "../components/GodotCanvas";
+import { API_WS_BASE } from "../config/api";
 
 interface MatchData {
   matchId: string;
@@ -25,7 +26,7 @@ export function MatchmakingPage() {
     if (!inQueue) return;
 
     // Conecta na rota WebSocket de matchmaking descrita no arquivo do backend
-    const socketUrl = `ws://127.0.0.1:3000/matchmaking/queue?userId=${username}`;
+    const socketUrl = `${API_WS_BASE}/matchmaking/queue?userId=${encodeURIComponent(username)}`;
     const ws = new WebSocket(socketUrl);
 
     ws.onopen = () => {
@@ -39,12 +40,14 @@ export function MatchmakingPage() {
         // Quando o servidor encontrar um par, ele envia "match_found"
         if (data.type === "match_found") {
           console.log("[React] Partida Encontrada!", data);
+
+          const gameplaySocketUrl = `${API_WS_BASE}/matches/${data.match_id}?slot=${data.slot}`;
           
           // Armazena todos os dados oficiais vindo do Fastify
           setMatchData({
             matchId: data.match_id,
             slot: data.slot,
-            serverUrl: data.websocket_url, // URL ws:// dedicada do gameplay
+            serverUrl: gameplaySocketUrl, // URL ws:// dedicada do gameplay via proxy atual
             arenaId: data.arena_id,        // Arena sorteada pelo backend
             seed: data.seed,              // Semente idêntica do mapa
           });
