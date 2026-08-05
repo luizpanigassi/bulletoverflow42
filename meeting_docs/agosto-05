@@ -1,0 +1,259 @@
+# Reunião do Transcendence
+**Data:** 05/08/2026
+
+## Objetivo
+
+Verificar o andamento do projeto, identificar bloqueios de integração e alinhar os próximos passos para manter a meta de conclusão até o final de agosto.
+
+---
+
+# Status Geral
+
+O projeto está entrando na fase de integração.
+
+A maior parte das funcionalidades principais já existe, mas os testes completos ainda estão bloqueados por problemas de infraestrutura (Docker + Prisma + Banco de Dados).
+
+A prioridade agora deixa de ser desenvolver novas funcionalidades e passa a ser:
+
+- integrar tudo;
+- eliminar bloqueios;
+- testar;
+- corrigir bugs.
+
+---
+
+# Atualizações por integrante
+
+## Thiago (Docker / Infraestrutura)
+
+### Concluído
+
+- Atualizações do Docker enviadas.
+- Tentativa de integração com o banco de dados utilizando Prisma.
+
+### Problemas encontrados
+
+- Containers não sobem corretamente.
+- Erros relacionados ao Prisma.
+- Possível conflito causado pela configuração de:
+    - DDNS
+    - Let's Encrypt
+    - Certificados
+
+### Próximos passos
+
+- Revisar a branch `draft-front-in-docker` da Lilian.
+- Identificar quais alterações funcionam.
+- Criar uma nova branch limpa contendo apenas:
+    - Docker
+    - Nginx
+    - Prisma
+- Remover temporariamente:
+    - DDNS
+    - Let's Encrypt
+- Priorizar um ambiente funcional para desenvolvimento.
+
+---
+
+## João (Backend)
+
+### Situação
+
+Backend permanece funcional.
+
+O banco está pronto para integração.
+
+### Pendências
+
+- Investigar por que o Leaderboard não aparece em produção.
+- Auxiliar na integração caso o problema seja relacionado ao backend.
+
+### Funcionalidades futuras
+
+O sistema de torneios permanece como melhoria futura.
+
+Não faz parte da prioridade atual.
+
+---
+
+## Lilian (Frontend)
+
+### Progresso
+
+Foi criada uma branch experimental:
+
+`draft-front-in-docker`
+
+Nela:
+
+- Front roda via Nginx.
+- Makefile simplificado.
+- Proxy configurado.
+- Ambiente de desenvolvimento funcional.
+
+Essa branch servirá como referência para resolver os problemas atuais da infraestrutura.
+
+### Pendências
+
+- Corrigir modo **Versus Bot**
+    - personagens desaparecem
+    - personagens ficam parados
+- Integrar botão de login da 42 com o backend.
+- Informar imediatamente quando encontrar bloqueios dependentes de outros módulos.
+
+---
+
+## Luiz (Coordenação)
+
+### Definições
+
+Foi reforçado que:
+
+- alterações em módulos de outras pessoas devem ser comunicadas antes;
+- dependências precisam ser avisadas imediatamente no grupo;
+- ninguém deve ficar dias bloqueado tentando resolver algo sozinho.
+
+Também foi definido que:
+
+- o foco passa a ser integração;
+- novas funcionalidades ficam em segundo plano até que o projeto esteja estável.
+
+Além disso:
+
+- foi oferecido acesso ao repositório do Exame 6 para ajudar a Lilian na preparação da prova.
+
+---
+
+# Problemas atuais
+
+## Infraestrutura
+
+- Docker ainda não sobe corretamente.
+- Prisma apresenta erros durante a inicialização.
+- Containers reiniciam continuamente.
+
+---
+
+## Integração
+
+Existem dependências cruzadas entre:
+
+- Frontend
+- Backend
+- Docker
+
+Essas dependências precisam ser comunicadas imediatamente para evitar retrabalho.
+
+---
+
+## Frontend
+
+Pendências conhecidas:
+
+- Login 42
+- Leaderboard
+- Versus Bot
+
+---
+
+# Fluxo de trabalho definido
+
+Quando surgir um bloqueio:
+
+1. Identificar de qual módulo depende.
+2. Avisar imediatamente no grupo.
+3. Marcar o responsável.
+4. Resolver em conjunto.
+
+Evitar:
+
+- alterações silenciosas;
+- dias de investigação individual;
+- branches incompatíveis.
+
+---
+
+# Cronograma
+
+Prazo considerado para planejamento:
+
+**13/09 (Thiago)**
+
+Meta interna da equipe:
+
+**Última semana de agosto**
+
+Objetivo:
+
+- Projeto completo
+- Integração finalizada
+- Testes realizados
+- Correções concluídas
+
+Isso deixa margem para:
+
+- bugs finais;
+- apresentação;
+- defesa do projeto.
+
+---
+
+# Riscos
+
+## Alto
+
+- Docker ainda bloqueando integração completa.
+
+## Médio
+
+- Bugs restantes do Frontend.
+- Integração Login 42.
+
+## Baixo
+
+- Sistema de torneios.
+- Melhorias extras.
+
+---
+
+# Próximos passos
+
+## Thiago
+
+- [ ] Revisar branch `draft-front-in-docker`
+- [ ] Criar branch limpa de Docker
+- [ ] Corrigir Prisma
+- [ ] Validar ambiente de desenvolvimento
+
+---
+
+## João
+
+- [ ] Verificar Leaderboard
+- [ ] Auxiliar integrações Backend ↔ Front
+
+---
+
+## Lilian
+
+- [ ] Corrigir Versus Bot
+- [ ] Integrar Login 42
+- [ ] Comunicar dependências imediatamente
+
+---
+
+## Luiz
+
+- [ ] Disponibilizar repositório do Exame 6
+- [ ] Acompanhar PRs
+- [ ] Validar integrações
+- [ ] Organizar testes finais em ambiente completo
+
+---
+
+# Decisões tomadas
+
+- Prioridade absoluta passa a ser integração.
+- Docker simplificado antes de otimizações.
+- Comunicação obrigatória sempre que surgir um bloqueio.
+- Objetivo é entregar um projeto estável antes do prazo final, evitando trabalhar sob pressão na reta final.
