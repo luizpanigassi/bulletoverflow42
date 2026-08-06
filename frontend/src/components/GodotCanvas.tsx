@@ -14,7 +14,7 @@ export function GodotCanvas({ matchId, slot, serverUrl, arenaId, seed }: GodotCa
   useEffect(() => {
     // 1. Injeta o script injetável da Godot
     const script = document.createElement("script");
-    script.src = "/godot/index.js"; 
+    script.src = "/godot/index.js";
     script.async = true;
 
     script.onload = () => {
@@ -23,7 +23,7 @@ export function GodotCanvas({ matchId, slot, serverUrl, arenaId, seed }: GodotCa
         args: [],
         canvasResizePolicy: 2,
         ensureCrossOriginIsolationHeaders: true,
-        executable: "/godot/index", 
+        executable: "/godot/index",
         focusCanvas: true
       };
 
@@ -69,6 +69,19 @@ export function GodotCanvas({ matchId, slot, serverUrl, arenaId, seed }: GodotCa
           }
         }
       }).then(() => {
+        // --- TRAVA DO ÍCONE GAMER ---
+        // 1. Procura se a Godot injetou o ícone dela com o ID padrão '-gd-engine-icon'
+        const godotIcon = document.getElementById("-gd-engine-icon") as HTMLLinkElement;
+        if (godotIcon) {
+          // Força o caminho para apontar para o seu favicon personalizado do portal
+          godotIcon.href = "/favicon.png";
+        }
+
+        // 2. Garante que o ícone principal da página também seja blindado
+        const mainIcon = document.querySelector("link[rel*='icon']") as HTMLLinkElement;
+        if (mainIcon) {
+          mainIcon.href = "/favicon.png";
+        }
         setLoading(false);
         inicializarSessaoGodot();
       }).catch((err: any) => {
@@ -81,12 +94,12 @@ export function GodotCanvas({ matchId, slot, serverUrl, arenaId, seed }: GodotCa
     return () => {
       document.body.removeChild(script);
       // @ts-ignore
-      delete window.initGameSession; 
+      delete window.initGameSession;
     };
   }, [matchId, slot, serverUrl, arenaId, seed]);
 
   return (
-    <div 
+    <div
       className="godot-wrapper w-full aspect-video bg-black rounded-xl overflow-hidden border-2 border-purple-600 relative shadow-2xl"
       style={{ isolation: 'isolate' }} // Cria um contexto isolado de renderização
     >
@@ -101,17 +114,17 @@ export function GodotCanvas({ matchId, slot, serverUrl, arenaId, seed }: GodotCa
       )}
 
       {/* O CANVAS REESTILIZADO: Força posições relativas e tamanho fixo */}
-      <canvas 
-        id="canvas" 
+      <canvas
+        id="canvas"
         className="w-full h-full block object-contain"
-        style={{ 
-          position: 'relative', 
-          top: 0, 
-          left: 0, 
-          margin: 0, 
+        style={{
+          position: 'relative',
+          top: 0,
+          left: 0,
+          margin: 0,
           padding: 0,
           display: 'block'
-        }} 
+        }}
       />
     </div>
   );
