@@ -1,6 +1,6 @@
 services:
   nginx:
-    image: nginx:1.27-alpine
+    image: nginx:1.27-bookworm
     container_name: transcendence-nginx
     restart: unless-stopped
     ports:
@@ -15,4 +15,5 @@ services:
 
 networks:
   transcendence_net:
+    name: transcendence_net
     external: true

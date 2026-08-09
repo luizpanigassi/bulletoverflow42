@@ -59,3 +59,12 @@ Thumbs.db
 
 # Mac binaries
 *.app
+
+# Certificados locais do Docker/Nginx
+docker/nginx/certs/*.crt
+docker/nginx/certs/*.key
+docker/nginx/certs/*.pem
+docker/nginx/certs/*.p12
+docker/nginx/certs/*.pfx
+docker/nginx/certs/*.csr
+docker/nginx/certs/*.srl
