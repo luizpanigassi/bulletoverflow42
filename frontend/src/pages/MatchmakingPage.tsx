@@ -9,6 +9,8 @@ interface MatchData {
   serverUrl: string;
   arenaId: string;
   seed: number;
+  player1UserName: string;
+  player2UserName: string;
 }
 
 export function MatchmakingPage() {
@@ -50,6 +52,8 @@ export function MatchmakingPage() {
             serverUrl: gameplaySocketUrl, // URL ws:// dedicada do gameplay via proxy atual
             arenaId: data.arena_id,        // Arena sorteada pelo backend
             seed: data.seed,              // Semente idêntica do mapa
+            player1UserName: data.player1_username || "Player 1", // Nome do jogador 1
+            player2UserName: data.player2_username || "Player 2", // Nome do jogador 2
           });
           
           setInQueue(false); // Sai do estado de busca da fila
@@ -118,6 +122,8 @@ export function MatchmakingPage() {
             serverUrl={matchData.serverUrl}
             arenaId={matchData.arenaId}
             seed={matchData.seed}
+            player1UserName={matchData.player1UserName}
+            player2UserName={matchData.player2UserName}
             onMatchEnded={() => navigate("/")} // Callback para quando a partida terminar, volta ao menu
           />
 
