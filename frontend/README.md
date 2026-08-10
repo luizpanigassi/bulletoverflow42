@@ -87,7 +87,7 @@ Para solucionar o comportamento nativo de tela cheia agressivo da exportação W
 
 ## 💻 Como Rodar o Frontend Localmente (Linux)
 
-1. Certifique-se de que a pasta `public/godot/` contém os arquivos de build gerados pelo Godot Web (`index.js`, `index.wasm`, `index.pck`).
+1. Certifique-se de que o backend está rodando e servindo `build/web/` em `/play/` — o frontend carrega a Godot direto de lá, não tem mais cópia própria.
 2. Instale as dependências puras do projeto:
    ```bash
    npm install

@@ -64,6 +64,10 @@ func _on_js_session_data(args) -> void:
 	if dict is Dictionary:
 		session = SessionConfig.from_dict(dict)
 		local_player_slot = int(dict.get("local_player_slot", 1))
+		
+		if session.mode == &"local":
+			get_tree().change_scene_to_file("res://client/scenes/game.tscn")
+			return
 		var websocket_url := session.websocket_url
 		if websocket_url.is_empty():
 			websocket_url = OS.get_environment("BULLET_OVERFLOW_WS_URL")

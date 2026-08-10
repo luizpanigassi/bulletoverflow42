@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { PLAY_BASE } from "../config/api";
 
 interface GodotCanvasProps {
   matchId: string;
@@ -6,15 +7,46 @@ interface GodotCanvasProps {
   serverUrl: string;
   arenaId: string;
   seed: number; // Modificado: semente agora vem obrigatoriamente do servidor
+  mode?: "online" | "local";
+  gameType?: "pvp" | "vs_bot";
+  botDifficulty?: "easy" | "medium" | "hard";
+  onMatchEnded?: () => void;
 }
 
-export function GodotCanvas({ matchId, slot, serverUrl, arenaId, seed }: GodotCanvasProps) {
+export function GodotCanvas({ matchId, slot, serverUrl, arenaId, seed, mode = "online", gameType = "pvp", botDifficulty = "easy", onMatchEnded }: GodotCanvasProps) {
   const [loading, setLoading] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
+  // guarda o callback onMatchEnded em um ref para evitar problemas de closure
+  const onMatchEndedRef = useRef(onMatchEnded);
+  onMatchEndedRef.current = onMatchEnded;
+
+  // acompanha o estado real de fullscreen (cobre inclusive quando o usuário sai com ESC)
   useEffect(() => {
+    const handleChange = () => setIsFullscreen(document.fullscreenElement === wrapperRef.current);
+    document.addEventListener("fullscreenchange", handleChange);
+    return () => document.removeEventListener("fullscreenchange", handleChange);
+  }, []);
+
+  const toggleFullscreen = useCallback(() => {
+    if (!document.fullscreenElement) {
+      wrapperRef.current?.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  }, []);
+  
+  useEffect(() => {
+
+    // @ts-ignore
+    window.onMatchEnded = () => {
+      onMatchEndedRef.current?.();
+    };
+
     // 1. Injeta o script injetável da Godot
     const script = document.createElement("script");
-    script.src = "/godot/index.js";
+    script.src = `${PLAY_BASE}/play/index.js`;
     script.async = true;
 
     script.onload = () => {
@@ -23,7 +55,7 @@ export function GodotCanvas({ matchId, slot, serverUrl, arenaId, seed }: GodotCa
         args: [],
         canvasResizePolicy: 2,
         ensureCrossOriginIsolationHeaders: true,
-        executable: "/godot/index",
+        executable: `${PLAY_BASE}/play/index`,
         focusCanvas: true
       };
 
@@ -33,14 +65,14 @@ export function GodotCanvas({ matchId, slot, serverUrl, arenaId, seed }: GodotCa
       // Função interna para disparar os dados para a Godot
       const inicializarSessaoGodot = () => {
         const session = {
-          mode: "online",
+          mode: mode,
           match_id: matchId,
           arena_id: arenaId || "arena_01",
           seed: seed, // Utiliza a semente idêntica enviada pelo backend
           host_id: "",
           websocket_url: serverUrl,
-          game_type: "pvp",
-          bot_difficulty: "easy",
+          game_type: gameType,
+          bot_difficulty: botDifficulty,
           local_player_slot: slot,
           players: [
             { user_id: slot === 1 ? "local" : "oponente", slot: 1, character_id: "adventurer", ready: true, username: "Player 1", is_bot: false },
@@ -92,17 +124,30 @@ export function GodotCanvas({ matchId, slot, serverUrl, arenaId, seed }: GodotCa
     document.body.appendChild(script);
 
     return () => {
+      // @ts-ignore
+      window.forceQuiteGame && window.forceQuitGame(); // Força a Godot a encerrar a partida
       document.body.removeChild(script);
       // @ts-ignore
       delete window.initGameSession;
+      // @ts-ignore
+      delete window.onMatchEnded;
     };
-  }, [matchId, slot, serverUrl, arenaId, seed]);
+  }, [matchId, slot, serverUrl, arenaId, seed, mode, gameType, botDifficulty]);
 
   return (
     <div
+      ref={wrapperRef}
       className="godot-wrapper w-full aspect-video bg-black rounded-xl overflow-hidden border-2 border-purple-600 relative shadow-2xl"
       style={{ isolation: 'isolate' }} // Cria um contexto isolado de renderização
     >
+      {/* Botão de Fullscreen */}
+      <button
+        onClick={toggleFullscreen}
+        className="absolute top-3 right-3 z-30 px-3 py-1.5 text-xs font-bold uppercase tracking-wider bg-black/60 hover:bg-black/80 text-white border border-purple-500/50 rounded-lg transition-all cursor-pointer backdrop-blur-sm"
+        title={isFullscreen ? "Sair da tela cheia (Esc)" : "Tela cheia"}
+      >
+        {isFullscreen ? "⤢ Sair" : "⛶ Tela Cheia"}
+      </button>
       {/* Tela de Carregamento flutuante por cima do canvas */}
       {loading && (
         <div className="absolute inset-0 flex flex-col gap-4 items-center justify-center bg-zinc-900 text-white z-20">

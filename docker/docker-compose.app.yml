@@ -19,8 +19,8 @@ services:
 
   backend:
     build:
-      context: ../server
-      dockerfile: ../docker/server/Dockerfile
+      context: ..
+      dockerfile: ./docker/server/Dockerfile
     container_name: transcendence-backend
     restart: unless-stopped
     env_file:

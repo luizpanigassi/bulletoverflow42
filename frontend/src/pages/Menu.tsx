@@ -1,8 +1,12 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+type Difficulty = "easy" | "medium" | "hard";
 
 export function Menu() {
   const navigate = useNavigate();
   const username = localStorage.getItem("bullet_username") || "Soldado";
+  const [botDifficulty, setBotDifficulty] = useState<Difficulty>("easy");
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-57px)] px-4 py-8 select-none">
@@ -52,10 +56,7 @@ export function Menu() {
             </button>
 
             {/* CARD 2: TREINAMENTO CONTRA IA */}
-            <button
-              onClick={() => navigate("/treino-ia")}
-              className="group flex flex-col text-left p-6 bg-zinc-900/50 hover:bg-fuchsia-950/20 border border-zinc-800 hover:border-fuchsia-500/50 rounded-2xl transition-all duration-300 shadow-xl cursor-pointer hover:-translate-y-0.5"
-            >
+            <div className="group flex flex-col text-left p-6 bg-zinc-900/50 hover:bg-fuchsia-950/20 border border-zinc-800 hover:border-fuchsia-500/50 rounded-2xl transition-all duration-300 shadow-xl">
               <div className="w-12 h-12 bg-fuchsia-600/10 border border-fuchsia-500/30 rounded-xl flex items-center justify-center text-xl group-hover:bg-fuchsia-600 group-hover:text-white transition-all">
                 🤖
               </div>
@@ -65,11 +66,24 @@ export function Menu() {
               <p className="text-zinc-400 text-xs mt-1 leading-relaxed">
                 Jogue uma partida local offline contra um bot com dificuldade ajustada para testar suas mecânicas.
               </p>
-              <span className="text-[10px] font-bold text-fuchsia-500 uppercase tracking-widest mt-4 block">
+               {/* Provisório: só funcional, sem estilo definitivo ainda */}
+                <select
+                 value={botDifficulty}
+                 onChange={(e) => setBotDifficulty(e.target.value as Difficulty)}
+                 onClick={(e) => e.stopPropagation()}
+                 className="mt-3 bg-zinc-950 border border-zinc-700 rounded-lg px-2 py-1 text-xs text-white w-fit"
+                 >
+                  <option value="easy">Fácil</option>
+                  <option value="medium">Médio</option>
+                  <option value="hard">Difícil</option>
+                 </select>
+                 <button
+                  onClick={() => navigate("/treino-ia", { state: { difficulty: botDifficulty } })}
+                  className="text-[10px] font-bold text-fuchsia-500 uppercase tracking-widest mt-4 block cursor-pointer"
+                  >
                 Iniciar Treino Local →
-              </span>
-            </button>
-
+                </button>
+            </div>
           </div>
         </div>
 

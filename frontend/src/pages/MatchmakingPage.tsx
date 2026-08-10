@@ -76,7 +76,7 @@ export function MatchmakingPage() {
   if (matchData) {
     return (
       <div className="flex flex-col items-center justify-start min-h-[calc(100vh-57px)] px-4 py-8 select-none">
-        <div className="w-full max-w-5xl flex flex-col gap-4">
+        <div className="w-full max-w-[1280px] flex flex-col gap-4">
           
           {/* Painel do Topo com os Dados do Jogo Sincronizados */}
           <div className="flex flex-wrap justify-between items-center bg-zinc-900/80 border border-zinc-800 px-6 py-4 rounded-xl text-sm font-semibold tracking-wide">
@@ -100,6 +100,8 @@ export function MatchmakingPage() {
             {/* Botão de desistência rápida */}
             <button
               onClick={() => {
+                // @ts-ignore
+                window.forceQuitGame && window.forceQuitGame(); // Força a Godot a encerrar a partida
                 setMatchData(null);
                 setInQueue(true); // Volta para a busca
               }}
@@ -116,6 +118,7 @@ export function MatchmakingPage() {
             serverUrl={matchData.serverUrl}
             arenaId={matchData.arenaId}
             seed={matchData.seed}
+            onMatchEnded={() => navigate("/")} // Callback para quando a partida terminar, volta ao menu
           />
 
         </div>
