@@ -121,6 +121,8 @@ COMPOSE_APP      := $(DOCKER_DIR)/docker-compose.app.yml
 COMPOSE_PROXY    := $(DOCKER_DIR)/docker-compose.proxy.yml
 DOCKER_NETWORK   := transcendence_net
 
+DOCKER_COMPOSE   := $(shell docker compose version >/dev/null 2>&1 && echo "docker compose" || echo "docker-compose")
+
 .PHONY: docker-network docker-app-up docker-proxy-up docker-up docker-app-down docker-proxy-down docker-down docker-restart docker-logs docker-ps docker-build
 
 docker-network:
@@ -132,19 +134,19 @@ docker-network:
 	fi
 
 docker-app-up: docker-network
-	docker compose -f $(COMPOSE_APP) --env-file $(DOCKER_ENV) up -d --build
+	$(DOCKER_COMPOSE) -f $(COMPOSE_APP) --env-file $(DOCKER_ENV) up -d --build
 
 docker-proxy-up: docker-network
-	docker compose -f $(COMPOSE_PROXY) --env-file $(DOCKER_ENV) up -d
+	$(DOCKER_COMPOSE) -f $(COMPOSE_PROXY) --env-file $(DOCKER_ENV) up -d
 
 docker-up: docker-network docker-app-up docker-proxy-up
 	@echo "stacks de app e proxy no ar."
 
 docker-app-down:
-	docker compose -f $(COMPOSE_APP) --env-file $(DOCKER_ENV) down
+	$(DOCKER_COMPOSE) -f $(COMPOSE_APP) --env-file $(DOCKER_ENV) down
 
 docker-proxy-down:
-	docker compose -f $(COMPOSE_PROXY) --env-file $(DOCKER_ENV) down
+	$(DOCKER_COMPOSE) -f $(COMPOSE_PROXY) --env-file $(DOCKER_ENV) down
 
 docker-down: docker-proxy-down docker-app-down
 	@echo "stacks de app e proxy derrubadas."
@@ -153,11 +155,11 @@ docker-restart: docker-down docker-up
 	@echo "stacks reiniciadas."
 
 docker-logs:
-	docker compose -f $(COMPOSE_APP) -f $(COMPOSE_PROXY) --env-file $(DOCKER_ENV) logs -f
+	$(DOCKER_COMPOSE) -f $(COMPOSE_APP) -f $(COMPOSE_PROXY) --env-file $(DOCKER_ENV) logs -f
 
 docker-ps:
-	docker compose -f $(COMPOSE_APP) --env-file $(DOCKER_ENV) ps
-	docker compose -f $(COMPOSE_PROXY) --env-file $(DOCKER_ENV) ps
+	$(DOCKER_COMPOSE) -f $(COMPOSE_APP) --env-file $(DOCKER_ENV) ps
+	$(DOCKER_COMPOSE) -f $(COMPOSE_PROXY) --env-file $(DOCKER_ENV) ps
 
 docker-build:
-	docker compose -f $(COMPOSE_APP) --env-file $(DOCKER_ENV) build --no-cache backend frontend
+	$(DOCKER_COMPOSE) -f $(COMPOSE_APP) --env-file $(DOCKER_ENV) build --no-cache backend frontend
