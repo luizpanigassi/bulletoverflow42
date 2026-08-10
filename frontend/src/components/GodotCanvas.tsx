@@ -10,10 +10,12 @@ interface GodotCanvasProps {
   mode?: "online" | "local";
   gameType?: "pvp" | "vs_bot";
   botDifficulty?: "easy" | "medium" | "hard";
+  player1UserName?: string;
+  player2UserName?: string;
   onMatchEnded?: () => void;
 }
 
-export function GodotCanvas({ matchId, slot, serverUrl, arenaId, seed, mode = "online", gameType = "pvp", botDifficulty = "easy", onMatchEnded }: GodotCanvasProps) {
+export function GodotCanvas({ matchId, slot, serverUrl, arenaId, seed, mode = "online", gameType = "pvp", botDifficulty = "easy", player1UserName = "Player 1", player2UserName = "Player 2", onMatchEnded }: GodotCanvasProps) {
   const [loading, setLoading] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -75,8 +77,8 @@ export function GodotCanvas({ matchId, slot, serverUrl, arenaId, seed, mode = "o
           bot_difficulty: botDifficulty,
           local_player_slot: slot,
           players: [
-            { user_id: slot === 1 ? "local" : "oponente", slot: 1, character_id: "adventurer", ready: true, username: "Player 1", is_bot: false },
-            { user_id: slot === 2 ? "local" : "oponente", slot: 2, character_id: "adventurer", ready: true, username: "Player 2", is_bot: false }
+            { user_id: slot === 1 ? "local" : "oponente", slot: 1, character_id: "adventurer", ready: true, username: player1UserName, is_bot: false },
+            { user_id: slot === 2 ? "local" : "oponente", slot: 2, character_id: "adventurer", ready: true, username: player2UserName, is_bot: false }
           ]
         };
 
@@ -132,7 +134,7 @@ export function GodotCanvas({ matchId, slot, serverUrl, arenaId, seed, mode = "o
       // @ts-ignore
       delete window.onMatchEnded;
     };
-  }, [matchId, slot, serverUrl, arenaId, seed, mode, gameType, botDifficulty]);
+  }, [matchId, slot, serverUrl, arenaId, seed, mode, gameType, botDifficulty, player1UserName, player2UserName]);
 
   return (
     <div

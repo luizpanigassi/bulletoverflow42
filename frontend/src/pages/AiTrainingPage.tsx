@@ -16,6 +16,7 @@ export function AiTrainingPage() {
   const location = useLocation();
 
   const difficulty: Difficulty = (location.state as { difficulty?: Difficulty } | null)?.difficulty ?? "easy";
+  const username = localStorage.getItem("bullet_username") || "Soldado_Anonimo";
 
   // Provisório: dificuldade vem do dropdown no Menu via router state; se
   // alguém cair aqui direto (refresh, link direto), usa "easy" como padrão.
@@ -69,6 +70,7 @@ export function AiTrainingPage() {
           mode="local"
           gameType="vs_bot"
           botDifficulty={difficulty}
+          player1UserName={username}
           onMatchEnded={() => navigate("/")} // Callback para quando a partida terminar, volta ao menu
         />
 
