@@ -23,6 +23,7 @@ var powerup_spawn_points: Array[Marker2D] = []
 var active_powerup: Powerup = null
 var round_number: int = 0
 var waiting_for_opponent_reconnect: bool = false
+var _force_quit_js_callback: JavaScriptObject
 var scores: Dictionary = {
 	1: 0,
 	2: 0
@@ -72,6 +73,9 @@ func _ready() -> void:
 	GameEvents.forfeit_victory_claimed.connect(_on_forfeit_victory_claimed)
 	GameEvents.opponent_disconnected.connect(_on_opponent_disconnected)
 	GameEvents.player_state_updated.connect(_on_player_state_updated_reconnect_check)
+	
+	if OS.has_feature("web"):
+		_register_force_quit_bridge()
 	
 	if MatchData.session == null or MatchData.session.mode == &"local":
 		start_round()
@@ -346,8 +350,26 @@ func show_winner(winner_id: int) -> void:
 
 func _return_to_matchmaking() -> void:
 	print("Returning to matchmaking...")
+	music_player.stop()
+	stinger_player.stop()
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("window.onMatchEnded && window.onMatchEnded();")
+		get_tree().quit()
+	else:
+		get_tree().quit()
+
+func _register_force_quit_bridge() -> void:
+	_force_quit_js_callback = JavaScriptBridge.create_callback(_on_force_quit_requested)
+	var window = JavaScriptBridge.get_interface("window")
+	if window:
+		window.forceQuitGame = _force_quit_js_callback
+		print("JavaScript bridge registered: window.forceQuitGame")
+
+func _on_force_quit_requested(_args) -> void:
+	print("Force quit requested from JS (saída manual pro menu)")
+	music_player.stop()
+	stinger_player.stop()
 	get_tree().quit()
-	pass
 
 func load_arena() -> void:
 	if MatchData.session == null:
