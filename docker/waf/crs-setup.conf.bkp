@@ -1,0 +1,28 @@
+SecAction \
+ "id:900110,\
+  phase:1,\
+  pass,\
+  nolog,\
+  t:none,\
+  setvar:tx.paranoia_level=1,\
+  setvar:tx.inbound_anomaly_score_threshold=10,\
+  setvar:tx.outbound_anomaly_score_threshold=5"
+
+SecAction \
+ "id:900120,\
+  phase:1,\
+  pass,\
+  nolog,\
+  t:none,\
+  setvar:tx.crs_validate_utf8_encoding=1,\
+  setvar:tx.allowed_request_content_type=|application/json| |application/x-www-form-urlencoded| |multipart/form-data| |text/plain|,\
+  setvar:tx.allowed_request_content_type_charset=|utf-8| |iso-8859-1|,\
+  setvar:tx.allowed_http_versions=HTTP/1.1 HTTP/2 HTTP/2.0"
+
+SecAction \
+ "id:900130,\
+  phase:1,\
+  pass,\
+  nolog,\
+  t:none,\
+  setvar:tx.allowed_methods=GET HEAD POST OPTIONS PUT PATCH DELETE"

@@ -114,3 +114,50 @@ play: server-bg setup-web-build
 	$(BROWSER) --new-window --user-data-dir=/tmp/bulletoverflow42-chrome-p1 $(GAME_URL) &
 	sleep 1
 	$(BROWSER) --new-window --user-data-dir=/tmp/bulletoverflow42-chrome-p2 $(GAME_URL) &
+
+DOCKER_DIR       := docker
+DOCKER_ENV       := $(DOCKER_DIR)/.env
+COMPOSE_APP      := $(DOCKER_DIR)/docker-compose.app.yml
+COMPOSE_PROXY    := $(DOCKER_DIR)/docker-compose.proxy.yml
+DOCKER_NETWORK   := transcendence_net
+
+.PHONY: docker-network docker-app-up docker-proxy-up docker-up docker-app-down docker-proxy-down docker-down docker-restart docker-logs docker-ps docker-build
+
+docker-network:
+	@if docker network inspect $(DOCKER_NETWORK) >/dev/null 2>&1; then \
+		echo "rede $(DOCKER_NETWORK) já existe"; \
+	else \
+		echo "criando rede $(DOCKER_NETWORK)..."; \
+		docker network create $(DOCKER_NETWORK); \
+	fi
+
+docker-app-up: docker-network
+	docker compose -f $(COMPOSE_APP) --env-file $(DOCKER_ENV) up -d --build
+
+docker-proxy-up: docker-network
+	docker compose -f $(COMPOSE_PROXY) --env-file $(DOCKER_ENV) up -d
+
+docker-up: docker-network docker-app-up docker-proxy-up
+	@echo "stacks de app e proxy no ar."
+
+docker-app-down:
+	docker compose -f $(COMPOSE_APP) --env-file $(DOCKER_ENV) down
+
+docker-proxy-down:
+	docker compose -f $(COMPOSE_PROXY) --env-file $(DOCKER_ENV) down
+
+docker-down: docker-proxy-down docker-app-down
+	@echo "stacks de app e proxy derrubadas."
+
+docker-restart: docker-down docker-up
+	@echo "stacks reiniciadas."
+
+docker-logs:
+	docker compose -f $(COMPOSE_APP) -f $(COMPOSE_PROXY) --env-file $(DOCKER_ENV) logs -f
+
+docker-ps:
+	docker compose -f $(COMPOSE_APP) --env-file $(DOCKER_ENV) ps
+	docker compose -f $(COMPOSE_PROXY) --env-file $(DOCKER_ENV) ps
+
+docker-build:
+	docker compose -f $(COMPOSE_APP) --env-file $(DOCKER_ENV) build --no-cache backend frontend
