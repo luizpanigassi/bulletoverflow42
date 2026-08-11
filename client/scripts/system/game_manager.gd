@@ -500,13 +500,8 @@ func fade_out_music() -> void:
 func _on_forfeit_victory_claimed() -> void:
 	if MatchData.session == null or MatchData.session.mode != &"online":
 		return
-		
-	GameEvents.match_event_received.emit({
-		"type": "match_end",
-		"winner_slot": MatchData.local_player_slot,
-		"player1_score": scores[1],
-		"player2_score": scores[2],
-	})
+	
+	NetworkClient.send_message({"type": "forfeit_claim"})
 
 func _on_opponent_disconnected() -> void:
 	if MatchData.session == null or MatchData.session.mode != &"online":
