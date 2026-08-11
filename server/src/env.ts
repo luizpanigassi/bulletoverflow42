@@ -19,4 +19,11 @@ export const env = {
     clientSecret: process.env.FORTYTWO_CLIENT_SECRET ?? "",
     callbackUrl: process.env.FORTYTWO_CALLBACK_URL ?? "",
   },
+  smtp: {
+    host: process.env.SMTP_HOST ?? "",
+    port: Number(process.env.SMTP_PORT ?? 587),
+    user: process.env.SMTP_USER ?? "",
+    pass: process.env.SMTP_PASS ?? "",
+    from: process.env.SMTP_FROM ?? "Bullet Overflow <no-reply@bulletoverflow.local>",
+  },
 };

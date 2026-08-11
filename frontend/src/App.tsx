@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Link, Navigate } from "react-router-dom";
 import { Menu } from "./pages/Menu";
 import { LeaderboardPage } from "./pages/LeaderboardPage";
@@ -5,10 +6,32 @@ import { MatchmakingPage } from "./pages/MatchmakingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { AiTrainingPage } from "./pages/AiTrainingPage";
+import { API_HTTP_BASE } from "./config/api";
+
+const HEARTBEAT_INTERVAL_MS = 20_000;
 
 // Componente de proteção simples para garantir que o jogador só acesse as telas se estiver "logado"
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const isAuthenticated = localStorage.getItem("bullet_authenticated") === "true";
+
+  // Marca presença ("online") pros amigos verem, enquanto o app estiver aberto.
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    const userId = localStorage.getItem("bullet_user_id");
+    const token = localStorage.getItem("bullet_token");
+    if (!userId || !token) return;
+
+    const sendHeartbeat = () => {
+      fetch(`${API_HTTP_BASE}/users/${userId}/heartbeat`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      }).catch(() => {});
+    };
+    sendHeartbeat();
+    const interval = setInterval(sendHeartbeat, HEARTBEAT_INTERVAL_MS);
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
+
   return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />;
 }
 

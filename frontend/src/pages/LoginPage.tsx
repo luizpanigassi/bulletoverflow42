@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { TermsModal } from "../components/TermsModal";
 import { PrivacyModal } from "../components/PrivacyModal";
+import { API_HTTP_BASE } from "../config/api";
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -9,33 +10,153 @@ export function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [use2fa, setUse2fa] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  // Preenchido quando o login pede o código de 2FA; controla a tela do código.
+  const [pending2fa, setPending2fa] = useState<{ userId: string } | null>(null);
+  const [code, setCode] = useState("");
 
   // Controla apenas se o modal está visível (true) ou oculto (false)
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
-  const handleAuthSubmit = (e: React.SyntheticEvent) => {
+  function completeLogin(data: { token: string; user: { id: string; username: string; email: string } }) {
+    localStorage.setItem("bullet_token", data.token);
+    localStorage.setItem("bullet_user_id", data.user.id);
+    localStorage.setItem("bullet_username", data.user.username);
+    localStorage.setItem("bullet_email", data.user.email);
+    localStorage.setItem("bullet_authenticated", "true");
+    navigate("/");
+  }
+
+  // Volta do redirect de /auth/42/callback com os dados na query string.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("oauth_token");
+    const userId = params.get("oauth_user_id");
+    const username = params.get("oauth_username");
+    const email = params.get("oauth_email");
+    if (token && userId && username && email) {
+      completeLogin({ token, user: { id: userId, username, email } });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleAuthSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
 
     if (!email || !password) return alert("Preencha todos os campos!");
-    
+
     if (isRegister && !acceptedTerms) {
       return alert("Você precisa aceitar os Termos de Serviço e a Política de Privacidade para prosseguir.");
     }
 
-    const mockUsername = email.split("@")[0] || "Soldado";
-    
-    localStorage.setItem("bullet_username", mockUsername);
-    localStorage.setItem("bullet_email", email);
-    localStorage.setItem("bullet_authenticated", "true");
+    setSubmitting(true);
+    try {
+      const path = isRegister ? "/auth/signup" : "/auth/login";
+      const body = isRegister
+        ? { username: email.split("@")[0] || "Soldado", email, password }
+        : { email, password, use2fa };
 
-    navigate("/");
+      const res = await fetch(`${API_HTTP_BASE}${path}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        return alert(data.error || "Falha ao autenticar.");
+      }
+
+      if (data.requires2fa) {
+        setPending2fa({ userId: data.userId });
+        return;
+      }
+
+      completeLogin(data);
+    } catch {
+      alert("Não foi possível conectar ao servidor.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleVerify2fa = async (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    if (!pending2fa || !code) return alert("Digite o código recebido por email.");
+
+    setSubmitting(true);
+    try {
+      const res = await fetch(`${API_HTTP_BASE}/auth/login/verify-2fa`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: pending2fa.userId, code }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        return alert(data.error || "Código inválido.");
+      }
+
+      completeLogin(data);
+    } catch {
+      alert("Não foi possível conectar ao servidor.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-57px)] px-4 select-none relative">
       <div className="w-full max-w-md bg-zinc-900/50 border border-zinc-800 p-8 rounded-2xl shadow-2xl backdrop-blur-sm flex flex-col gap-6">
         
+        {pending2fa ? (
+          <>
+            <div className="text-center">
+              <h1 className="text-3xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-fuchsia-500">
+                BULLET OVERFLOW
+              </h1>
+              <p className="text-zinc-500 text-xs tracking-wider uppercase mt-1">
+                Digite o código enviado pro seu email
+              </p>
+            </div>
+
+            <form onSubmit={handleVerify2fa} className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1 text-left">
+                <label className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Código de 6 dígitos</label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  maxLength={6}
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  className="w-full bg-zinc-950 border border-zinc-800 focus:border-purple-500 rounded-lg px-3 py-2 text-white text-sm tracking-[0.3em] text-center focus:outline-none transition-all"
+                  placeholder="000000"
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={submitting}
+                className="w-full py-3 mt-2 font-bold tracking-wider text-white uppercase bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-all cursor-pointer shadow-lg shadow-purple-600/20 active:scale-95"
+              >
+                {submitting ? "Verificando..." : "Confirmar código"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => { setPending2fa(null); setCode(""); }}
+                className="text-xs text-zinc-500 hover:text-zinc-300 font-medium cursor-pointer"
+              >
+                Voltar
+              </button>
+            </form>
+          </>
+        ) : (
+        <>
         <div className="text-center">
           <h1 className="text-3xl font-black tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-fuchsia-500">
             BULLET OVERFLOW
@@ -46,14 +167,14 @@ export function LoginPage() {
         </div>
 
         <div className="flex border-b border-zinc-800 text-sm font-bold">
-          <button 
+          <button
             type="button"
             onClick={() => { setIsRegister(false); setAcceptedTerms(false); }}
             className={`flex-1 pb-3 text-center transition-colors cursor-pointer ${!isRegister ? "text-purple-400 border-b-2 border-purple-500" : "text-zinc-500 hover:text-zinc-300"}`}
           >
             Entrar
           </button>
-          <button 
+          <button
             type="button"
             onClick={() => setIsRegister(true)}
             className={`flex-1 pb-3 text-center transition-colors cursor-pointer ${isRegister ? "text-purple-400 border-b-2 border-purple-500" : "text-zinc-500 hover:text-zinc-300"}`}
@@ -86,6 +207,21 @@ export function LoginPage() {
               required
             />
           </div>
+
+          {!isRegister && (
+            <div className="flex items-center gap-2 text-left">
+              <input
+                type="checkbox"
+                id="use-2fa"
+                checked={use2fa}
+                onChange={(e) => setUse2fa(e.target.checked)}
+                className="accent-purple-500 w-4 h-4 rounded cursor-pointer"
+              />
+              <label htmlFor="use-2fa" className="text-xs text-zinc-400 font-medium cursor-pointer">
+                Pedir código por email (2FA)
+              </label>
+            </div>
+          )}
 
           {isRegister && (
             <div className="flex items-start gap-3 bg-zinc-950/40 p-3 rounded-xl border border-zinc-800/80 my-1 text-left">
@@ -121,9 +257,10 @@ export function LoginPage() {
 
           <button
             type="submit"
-            className="w-full py-3 mt-2 font-bold tracking-wider text-white uppercase bg-purple-600 hover:bg-purple-500 rounded-xl transition-all cursor-pointer shadow-lg shadow-purple-600/20 active:scale-95"
+            disabled={submitting}
+            className="w-full py-3 mt-2 font-bold tracking-wider text-white uppercase bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-all cursor-pointer shadow-lg shadow-purple-600/20 active:scale-95"
           >
-            {isRegister ? "Finalizar Cadastro" : "Autenticar"}
+            {submitting ? "Aguarde..." : isRegister ? "Finalizar Cadastro" : "Autenticar"}
           </button>
         </form>
 
@@ -134,11 +271,13 @@ export function LoginPage() {
         </div>
 
         <button
-          onClick={() => alert("Redirecionando para o OAuth da API 42...")}
+          onClick={() => { window.location.href = `${API_HTTP_BASE}/auth/42`; }}
           className="w-full py-3 text-xs font-black tracking-widest text-zinc-300 uppercase bg-zinc-950 border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2"
         >
           <span>🌐</span> Entrar via Intra 42
         </button>
+        </>
+        )}
 
       </div>
 

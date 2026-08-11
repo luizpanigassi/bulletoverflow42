@@ -21,6 +21,15 @@ export class Match {
   matchStarted = false;
   lastHitAt = 0;
 
+  // Identidade real de cada slot, definida pelo matchmaking (resolvida via
+  // token JWT ou guest) — usada pra não perder a autenticação ao conectar
+  // no /matches/:matchId, que antes sempre sobrescrevia com um placeholder.
+  expectedUserIds: Partial<Record<1 | 2, string>> = {};
+
+  setExpectedUserId(slot: 1 | 2, userId: string): void {
+    this.expectedUserIds[slot] = userId;
+  }
+
   // Última posição aceita de cada jogador, pra anti-teleporte (websocket.plugin.ts).
   lastKnownPosition: Partial<Record<1 | 2, { x: number; y: number; at: number }>> = {};
 

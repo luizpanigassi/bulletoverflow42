@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { GodotCanvas } from "../components/GodotCanvas";
 import { API_WS_BASE } from "../config/api";
 
@@ -13,12 +13,24 @@ interface MatchData {
   player2UserName: string;
 }
 
+function buildMatchData(matchId: string, slot: number, arenaId: string, seed: number, player1UserName: string, player2UserName: string): MatchData {
+  return { matchId, slot, serverUrl: `${API_WS_BASE}/matches/${matchId}?slot=${slot}`, arenaId, seed, player1UserName, player2UserName };
+}
+
 export function MatchmakingPage() {
   const navigate = useNavigate();
-  
+  const location = useLocation();
+
+  // Vem de um desafio já aceito (ProfilePage): entra direto na partida, pula a fila.
+  const challengeMatch = location.state as { matchId: string; slot: number; arenaId: string; seed: number; player1Username: string; player2Username: string } | null;
+
   // 1. Estados para gerenciar as fases: Buscando Partida ou Jogando
-  const [inQueue, setInQueue] = useState(true);
-  const [matchData, setMatchData] = useState<MatchData | null>(null);
+  const [inQueue, setInQueue] = useState(!challengeMatch);
+  const [matchData, setMatchData] = useState<MatchData | null>(
+    challengeMatch
+      ? buildMatchData(challengeMatch.matchId, challengeMatch.slot, challengeMatch.arenaId, challengeMatch.seed, challengeMatch.player1Username, challengeMatch.player2Username)
+      : null,
+  );
 
   // Recupera o nome de usuário do localStorage que salvamos na tela de Menu
   const username = localStorage.getItem("bullet_username") || "Soldado_Anonimo";
@@ -27,8 +39,12 @@ export function MatchmakingPage() {
   useEffect(() => {
     if (!inQueue) return;
 
-    // Conecta na rota WebSocket de matchmaking descrita no arquivo do backend
-    const socketUrl = `${API_WS_BASE}/matchmaking/queue?userId=${encodeURIComponent(username)}`;
+    // Com sessão real (login/signup), o backend identifica o jogador pelo token,
+    // não pelo username solto — sem sessão, cai no fluxo guest de antes.
+    const token = localStorage.getItem("bullet_token");
+    const socketUrl = token
+      ? `${API_WS_BASE}/matchmaking/queue?token=${encodeURIComponent(token)}`
+      : `${API_WS_BASE}/matchmaking/queue?userId=${encodeURIComponent(username)}`;
     const ws = new WebSocket(socketUrl);
 
     ws.onopen = () => {
