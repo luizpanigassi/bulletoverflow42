@@ -323,6 +323,8 @@ func _on_powerup_removed() -> void:
 	active_powerup = null
 
 func end_match(winner_id: int) -> void:
+	if match_finished:
+		return
 	round_result_screen.hide_screen()
 	show_winner(winner_id)
 	clear_players()
@@ -339,10 +341,10 @@ func end_match(winner_id: int) -> void:
 func show_winner(winner_id: int) -> void:
 	match_end_screen.visible = true
 	
-	var winner_name := player1.player_name
+	var winner_name := player1.player_name if is_instance_valid(player1) else "Player 1"
 	
 	if winner_id == 2:
-		winner_name = player2.player_name
+		winner_name = player2.player_name if is_instance_valid(player2) else "Player 2"
 		
 	match_end_label.text = "%s WINS!" % winner_name
 	
