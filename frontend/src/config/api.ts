@@ -6,7 +6,9 @@ function isLocalViteDev() {
 }
 
 function getDefaultHttpBase() {
-	return isLocalViteDev() ? localHttpBase : "/api";
+	// em dev bate no backend, em produção o nginx roteia /auth, /users, /leaderboard etc.
+	// direto pro backend no mesmo domínio (sem prefixo /api) — ver docker/nginx/conf.d/default.conf
+	return isLocalViteDev() ? localHttpBase : "";
 }
 
 

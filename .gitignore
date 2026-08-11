@@ -6,6 +6,8 @@
 .env
 .env.*
 !.env.example
+EMAIL_CREDENTIALS.local.md
+TEAM_SECRETS.local.md
 
 # Export presets credentials
 export_presets.cfg
@@ -13,6 +15,9 @@ export_presets.cfg
 # Node
 node_modules/
 /server/dist/
+
+# Uploads de usuário (avatares etc.) — conteúdo gerado em runtime, não versionar
+/server/uploads/
 
 # Artefatos locais do Makefile (logs, perfis de Chrome de teste, exports soltos)
 *.make-tmp/

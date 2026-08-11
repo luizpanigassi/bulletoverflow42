@@ -40,6 +40,8 @@ services:
         condition: service_healthy
     expose:
       - "${PORT:-3000}"
+    volumes:
+      - avatar_uploads:/app/uploads
     networks:
       - transcendence_net
 
@@ -58,6 +60,7 @@ services:
 
 volumes:
   postgres_data:
+  avatar_uploads:
 
 networks:
   transcendence_net:

@@ -21,6 +21,13 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  // Código de 2FA por email: gerado só quando o login pede 2FA, expira em minutos.
+  twoFactorCode          String?
+  twoFactorCodeExpiresAt DateTime?
+
+  // Atualizado por heartbeat do frontend; "online" = visto nos últimos ~30s.
+  lastSeenAt DateTime?
+
   friendshipsSent     Friendship[] @relation("FriendshipRequester")
   friendshipsReceived Friendship[] @relation("FriendshipAddressee")
 

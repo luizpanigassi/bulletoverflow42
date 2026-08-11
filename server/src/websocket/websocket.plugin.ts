@@ -18,7 +18,8 @@ export async function registerWebsocket(app: FastifyInstance) {
     }
 
     const playerSlot = Number(slot) as 1 | 2;
-    match.addPlayer({ slot: playerSlot, userId: `smoke-test-slot-${slot}`, socket });
+    const userId = match.expectedUserIds[playerSlot] ?? `smoke-test-slot-${slot}`;
+    match.addPlayer({ slot: playerSlot, userId, socket });
 
     app.log.info(`Cliente conectado: match=${matchId} slot=${slot}`);
 

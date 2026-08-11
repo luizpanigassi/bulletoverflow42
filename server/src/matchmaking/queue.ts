@@ -4,6 +4,7 @@ import type { WebSocket } from "ws";
 /** Fila de matchmaking simples (FIFO). Ver matchmaking.routes.ts pra formação do par. */
 export interface QueuedPlayer {
   userId: string;
+  username: string;
   characterId: string;
   queuedAt: number;
   socket: WebSocket;
