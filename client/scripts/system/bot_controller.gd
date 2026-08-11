@@ -20,6 +20,8 @@ func _process(_delta: float) -> void:
 		"hard": _process_hard()
 
 func _process_easy() -> void:
+	if not is_instance_valid(controlled_player) or not is_instance_valid(target_player):
+		return
 	var snapshot := InputSnapshot.new()
 	var to_target := target_player.global_position - controlled_player.global_position
 	var dir := to_target.normalized()
