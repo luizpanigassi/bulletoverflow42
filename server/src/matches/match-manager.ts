@@ -20,6 +20,8 @@ export class Match {
 
   matchStarted = false;
   lastHitAt = 0;
+  matchFinished = false;
+  readonly disconnectedSlots: Set<1 | 2> = new Set();
 
   // Identidade real de cada slot, definida pelo matchmaking (resolvida via
   // token JWT ou guest) — usada pra não perder a autenticação ao conectar

@@ -45,6 +45,11 @@ export async function registerWebsocket(app: FastifyInstance) {
         return;
       }
 
+      if (data.type == "forfeit_claim") {
+        handleForfeitClaim(app, match, playerSlot);
+        return;
+      }
+
       if (data.type === "powerup_collect_request") {
         handlePowerupCollectRequest(app, match, data);
         return;
@@ -92,6 +97,7 @@ function handlePlayerHit(app: FastifyInstance, match: Match, data: Record<string
 
   if (matchFinished) {
     app.log.info(`match_end: match=${match.matchId} winner=${shooterSlot}`);
+    match.matchFinished = true;
     match.broadcast({
       type: "match_end",
       player1_score: match.scores[1],
@@ -104,6 +110,28 @@ function handlePlayerHit(app: FastifyInstance, match: Match, data: Record<string
       app.log.error({ err }, `Falha ao persistir resultado da match=${match.matchId}`);
     });
   }
+}
+
+// Função pra aceitar o forfeit se o player caiu
+
+function handleForfeitClaim(app: FastifyInstance, match: Match, claimingSlot: 1 | 2) {
+  const opponentSlot = claimingSlot === 1 ? 2 : 1;
+  if (match.disconnectedSlots.has(opponentSlot)) {
+    app.log.warn(`forfeit_claim rejeitado: match=${match.matchId} slot=${claimingSlot} (oponente ainda conectado)`);
+    return;
+  }
+  match.matchFinished = true;
+  app.log.info(`forfeit_claim aceito: match=${match.matchId} winner=${claimingSlot}`);
+  match.broadcast({
+    type: "match_end",
+    player1_score: match.scores[1],
+    player2_score: match.scores[2],
+    winner_slot: claimingSlot,
+  })
+
+  persistMatchResult(match, claimingSlot).catch((err) => {
+    app.log.error({ err }, `Falha ao persistir resultado (forfeit) da match=${match.matchId}`);
+  });
 }
 
 // Dash (850px/s) é o movimento mais rápido do jogo; 2x de folga por ser
