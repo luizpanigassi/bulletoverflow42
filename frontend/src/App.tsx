@@ -6,6 +6,7 @@ import { MatchmakingPage } from "./pages/MatchmakingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { AiTrainingPage } from "./pages/AiTrainingPage";
+import { Footer } from "./components/Footer";
 import { API_HTTP_BASE } from "./config/api";
 
 const HEARTBEAT_INTERVAL_MS = 20_000;
@@ -73,6 +74,7 @@ export default function App() {
           <Route path="/treino-ia" element={<ProtectedRoute><AiTrainingPage /></ProtectedRoute>} />
         </Routes>
       </main>
+      < Footer />
     </BrowserRouter>
   );
 }

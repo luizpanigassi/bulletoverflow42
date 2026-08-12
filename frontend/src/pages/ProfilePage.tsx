@@ -45,6 +45,10 @@ interface ProfileData {
 const MAX_AVATAR_BYTES = 2 * 1024 * 1024; // 2MB
 const ALLOWED_AVATAR_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
 
+// Conquistas derivadas direto de `wins` (que já vem persistido via partidas
+// reais no banco) — não precisa de tabela própria.
+const ACHIEVEMENT_THRESHOLDS = [1, 5, 10, 50, 100];
+
 export function ProfilePage() {
   const navigate = useNavigate();
 
@@ -426,6 +430,44 @@ export function ProfilePage() {
               <span className="text-xl font-mono font-black text-emerald-400 mt-1 block">
                 {loading ? "…" : profile?.wins ?? 0}
               </span>
+            </div>
+          </div>
+
+          {/* Conquistas (derivadas de wins, sem tabela própria) */}
+          <div className="bg-zinc-900/40 border border-zinc-800 p-6 rounded-2xl shadow-2xl backdrop-blur-sm flex flex-col gap-4">
+            <div className="flex justify-between items-center border-b border-zinc-800 pb-3">
+              <h3 className="font-black text-purple-400 tracking-wider uppercase text-xs">Conquistas</h3>
+              {(() => {
+                const wins = profile?.wins ?? 0;
+                const next = ACHIEVEMENT_THRESHOLDS.find((t) => t > wins);
+                return next ? (
+                  <span className="text-zinc-600 font-mono text-[10px] uppercase">
+                    {wins}/{next} vitórias pra próxima
+                  </span>
+                ) : null;
+              })()}
+            </div>
+
+            <div className="grid grid-cols-5 gap-3">
+              {ACHIEVEMENT_THRESHOLDS.map((threshold) => {
+                const unlocked = (profile?.wins ?? 0) >= threshold;
+                return (
+                  <div
+                    key={threshold}
+                    title={unlocked ? `${threshold} vitórias — desbloqueada` : `${threshold} vitórias — bloqueada`}
+                    className={`flex flex-col items-center gap-1 p-3 rounded-xl border text-center transition-all ${
+                      unlocked
+                        ? "bg-purple-950/30 border-purple-700/50 shadow-lg shadow-purple-600/10"
+                        : "bg-zinc-950/40 border-zinc-800 opacity-40"
+                    }`}
+                  >
+                    <span className="text-2xl">{unlocked ? "🏆" : "🔒"}</span>
+                    <span className={`text-[10px] font-black uppercase tracking-wider ${unlocked ? "text-purple-300" : "text-zinc-600"}`}>
+                      {threshold} {threshold === 1 ? "vitória" : "vitórias"}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
