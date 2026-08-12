@@ -11,15 +11,18 @@ interface MatchData {
   seed: number;
   player1UserName: string;
   player2UserName: string;
+  player1CharacterId: string;
+  player2CharacterId: string;
 }
 
 function buildMatchData(matchId: string, slot: number, arenaId: string, seed: number, player1UserName: string, player2UserName: string): MatchData {
-  return { matchId, slot, serverUrl: `${API_WS_BASE}/matches/${matchId}?slot=${slot}`, arenaId, seed, player1UserName, player2UserName };
+  return { matchId, slot, serverUrl: `${API_WS_BASE}/matches/${matchId}?slot=${slot}`, arenaId, seed, player1UserName, player2UserName, player1CharacterId: "adventurer", player2CharacterId: "adventurer" };
 }
 
 export function MatchmakingPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const characterId = (location.state as { characterId?: string } | null)?.characterId ?? "adventurer";
 
   // Vem de um desafio já aceito (ProfilePage): entra direto na partida, pula a fila.
   const challengeMatch = location.state as { matchId: string; slot: number; arenaId: string; seed: number; player1Username: string; player2Username: string } | null;
@@ -43,8 +46,8 @@ export function MatchmakingPage() {
     // não pelo username solto — sem sessão, cai no fluxo guest de antes.
     const token = localStorage.getItem("bullet_token");
     const socketUrl = token
-      ? `${API_WS_BASE}/matchmaking/queue?token=${encodeURIComponent(token)}`
-      : `${API_WS_BASE}/matchmaking/queue?userId=${encodeURIComponent(username)}`;
+      ? `${API_WS_BASE}/matchmaking/queue?token=${encodeURIComponent(token)}&characterId=${encodeURIComponent(characterId)}`
+      : `${API_WS_BASE}/matchmaking/queue?userId=${encodeURIComponent(username)}&characterId=${encodeURIComponent(characterId)}`;
     const ws = new WebSocket(socketUrl);
 
     ws.onopen = () => {
@@ -70,6 +73,8 @@ export function MatchmakingPage() {
             seed: data.seed,              // Semente idêntica do mapa
             player1UserName: data.player1_username || "Player 1", // Nome do jogador 1
             player2UserName: data.player2_username || "Player 2", // Nome do jogador 2
+            player1CharacterId: data.player1_character_id || "adventurer",
+            player2CharacterId: data.player2_character_id || "adventurer",
           });
           
           setInQueue(false); // Sai do estado de busca da fila

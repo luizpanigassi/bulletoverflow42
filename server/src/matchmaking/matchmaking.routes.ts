@@ -73,12 +73,12 @@ export async function registerMatchmaking(app: FastifyInstance) {
     app.log.info(`Match formada: match=${match.matchId} arena=${match.arenaId} seed=${match.seed}`);
     startPowerupLoop(match);
 
-    notifyMatchFound(app, request, p1, 1, match, p1.username, p2.username);
-    notifyMatchFound(app, request, p2, 2, match, p1.username, p2.username);
+    notifyMatchFound(app, request, p1, 1, match, p1.username, p2.username, p1.characterId, p2.characterId);
+    notifyMatchFound(app, request, p2, 2, match, p1.username, p2.username, p1.characterId, p2.characterId);
   });
 }
 
-function notifyMatchFound(app: FastifyInstance, request: FastifyRequest, player: QueuedPlayer, slot: 1 | 2, match: Match, player1UserName: string, player2UserName: string) {
+function notifyMatchFound(app: FastifyInstance, request: FastifyRequest, player: QueuedPlayer, slot: 1 | 2, match: Match, player1UserName: string, player2UserName: string, player1CharacterId: string, player2CharacterId: string) {
   app.log.info(`Match formada: match=${match.matchId} slot=${slot} userId=${player.userId}`);
   player.socket.send(
     JSON.stringify({
@@ -90,6 +90,8 @@ function notifyMatchFound(app: FastifyInstance, request: FastifyRequest, player:
       websocket_url: buildWebsocketUrl(request, match.matchId, slot),
       player1_username: player1UserName,
       player2_username: player2UserName,
+      player1_character_id: player1CharacterId,
+      player2_character_id: player2CharacterId,
     }),
   );
   // Não fecha o socket aqui: o client encerra sozinho ao reconectar em websocket_url.
