@@ -1,5 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { GodotCanvas } from "../components/GodotCanvas";
+import { type CharacterId, randomCharacterId } from "../config/characters";
 
 type Difficulty = "easy" | "medium" | "hard";
 
@@ -17,6 +18,8 @@ export function AiTrainingPage() {
 
   const difficulty: Difficulty = (location.state as { difficulty?: Difficulty } | null)?.difficulty ?? "easy";
   const username = localStorage.getItem("bullet_username") || "Soldado_Anonimo";
+  const characterId: CharacterId = (location.state as { characterId?: CharacterId } | null)?.characterId ?? "adventurer";
+  const botCharacterId = randomCharacterId();
 
   // Provisório: dificuldade vem do dropdown no Menu via router state; se
   // alguém cair aqui direto (refresh, link direto), usa "easy" como padrão.
@@ -71,6 +74,8 @@ export function AiTrainingPage() {
           gameType="vs_bot"
           botDifficulty={difficulty}
           player1UserName={username}
+          player1CharacterId={characterId}
+          player2CharacterId={botCharacterId}
           onMatchEnded={() => navigate("/")} // Callback para quando a partida terminar, volta ao menu
         />
 

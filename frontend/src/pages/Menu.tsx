@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { CHARACTERS, type CharacterId } from "../config/characters";
 
 type Difficulty = "easy" | "medium" | "hard";
 
@@ -7,6 +8,7 @@ export function Menu() {
   const navigate = useNavigate();
   const username = localStorage.getItem("bullet_username") || "Soldado";
   const [botDifficulty, setBotDifficulty] = useState<Difficulty>("easy");
+  const [characterId, setCharacterId] = useState<CharacterId>("adventurer");
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[calc(100vh-57px)] px-4 py-8 select-none">
@@ -33,12 +35,39 @@ export function Menu() {
               Prepare seus reflexos antes de entrar na arena
             </p>
           </div>
-
+        {/* Seletor de Personagem */}
+          <div className="flex flex-col gap-3 items-center">
+            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Escolha seu Personagem</span>
+            <div className="flex gap-3">
+              {CHARACTERS.map((char) => (
+                <button
+                  key={char.id}
+                  type="button"
+                  onClick={() => setCharacterId(char.id)}
+                  title={char.name}
+                  className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all cursor-pointer ${
+                    characterId === char.id
+                      ? "border-purple-500 bg-purple-950/30 shadow-lg shadow-purple-600/20"
+                      : "border-zinc-800 bg-zinc-900/50 hover:border-zinc-700"
+                  }`}
+                >
+                  <div
+                      style={{ width: 64, height: 64, imageRendering: "pixelated" }}
+                  >
+                    <img src={char.image} alt={char.name} className="w-full h-full" style={{ imageRendering: "pixelated" }} />
+                  </div>
+                  <span className={`text-[9px] font-bold uppercase tracking-wider text-center leading-tight w-16 ${characterId === char.id ? "text-purple-300" : "text-zinc-500"}`}>
+                    {char.name}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
             
             {/* CARD 1: MULTIPLAYER ONLINE (PVP) */}
             <button
-              onClick={() => navigate("/jogar")}
+              onClick={() => navigate("/jogar", { state: { characterId } })}
               className="group flex flex-col text-left p-6 bg-zinc-900/50 hover:bg-purple-950/20 border border-zinc-800 hover:border-purple-500/50 rounded-2xl transition-all duration-300 shadow-xl cursor-pointer hover:-translate-y-0.5"
             >
               <div className="w-12 h-12 bg-purple-600/10 border border-purple-500/30 rounded-xl flex items-center justify-center text-xl group-hover:bg-purple-600 group-hover:text-white transition-all">
@@ -78,7 +107,7 @@ export function Menu() {
                   <option value="hard">Difícil</option>
                  </select>
                  <button
-                  onClick={() => navigate("/treino-ia", { state: { difficulty: botDifficulty } })}
+                  onClick={() => navigate("/treino-ia", { state: { difficulty: botDifficulty, characterId } })}
                   className="text-[10px] font-bold text-fuchsia-500 uppercase tracking-widest mt-4 block cursor-pointer"
                   >
                 Iniciar Treino Local →
