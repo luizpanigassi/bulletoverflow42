@@ -6,6 +6,7 @@ import { MatchmakingPage } from "./pages/MatchmakingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { AiTrainingPage } from "./pages/AiTrainingPage";
+import { ChooseUsernamePage } from "./pages/ChooseUsernamePage";
 import { Footer } from "./components/Footer";
 import { API_HTTP_BASE } from "./config/api";
 
@@ -72,6 +73,7 @@ export default function App() {
           <Route path="/jogar" element={<ProtectedRoute><MatchmakingPage /></ProtectedRoute>} />
           <Route path="/perfil" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
           <Route path="/treino-ia" element={<ProtectedRoute><AiTrainingPage /></ProtectedRoute>} />
+          <Route path="/escolher-username" element={<ProtectedRoute><ChooseUsernamePage /></ProtectedRoute>} />
         </Routes>
       </main>
       < Footer />

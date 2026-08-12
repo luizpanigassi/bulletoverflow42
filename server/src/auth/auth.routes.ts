@@ -135,6 +135,7 @@ export async function registerAuthRoutes(app: FastifyInstance) {
 
     try {
       const profile = await exchangeCodeForProfile(code);
+      const existingUser = await prisma.user.findUnique({ where: { fortyTwoId: profile.id } });
 
       const user = await prisma.user.upsert({
         where: { fortyTwoId: profile.id },
@@ -148,6 +149,7 @@ export async function registerAuthRoutes(app: FastifyInstance) {
       redirectUrl.searchParams.set("oauth_user_id", user.id);
       redirectUrl.searchParams.set("oauth_username", user.username);
       redirectUrl.searchParams.set("oauth_email", user.email);
+      redirectUrl.searchParams.set("oauth_new_user", String(!existingUser));
       reply.redirect(redirectUrl.toString());
     } catch (err) {
       if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === "P2002") {
