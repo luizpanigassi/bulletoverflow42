@@ -21,13 +21,13 @@ export function LoginPage() {
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
 
-  function completeLogin(data: { token: string; user: { id: string; username: string; email: string } }) {
+  function completeLogin(data: { token: string; user: { id: string; username: string; email: string } }, redirectTo: string = "/") {
     localStorage.setItem("bullet_token", data.token);
     localStorage.setItem("bullet_user_id", data.user.id);
     localStorage.setItem("bullet_username", data.user.username);
     localStorage.setItem("bullet_email", data.user.email);
     localStorage.setItem("bullet_authenticated", "true");
-    navigate("/");
+    navigate(redirectTo);
   }
 
   // Volta do redirect de /auth/42/callback com os dados na query string.
@@ -37,8 +37,9 @@ export function LoginPage() {
     const userId = params.get("oauth_user_id");
     const username = params.get("oauth_username");
     const email = params.get("oauth_email");
+    const isNewUser = params.get("oauth_new_user") === "true";
     if (token && userId && username && email) {
-      completeLogin({ token, user: { id: userId, username, email } });
+       completeLogin({ token, user: { id: userId, username, email } }, isNewUser ? "/escolher-username" : "/");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -75,7 +76,7 @@ export function LoginPage() {
         return;
       }
 
-      completeLogin(data);
+      completeLogin(data, isRegister ? "/escolher-username" : "/");
     } catch {
       alert("Não foi possível conectar ao servidor.");
     } finally {
