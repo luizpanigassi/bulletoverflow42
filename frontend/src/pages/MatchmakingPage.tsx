@@ -22,10 +22,16 @@ function buildMatchData(matchId: string, slot: number, arenaId: string, seed: nu
 export function MatchmakingPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const characterId = (location.state as { characterId?: string } | null)?.characterId ?? "adventurer";
+
+  const routerState = location.state as { matchId?: string; slot?: number; arenaId?: string; seed?: number; player1Username?: string; player2Username?: string; characterId?: string } | null;
+  const characterId = routerState?.characterId ?? "adventurer";
 
   // Vem de um desafio já aceito (ProfilePage): entra direto na partida, pula a fila.
-  const challengeMatch = location.state as { matchId: string; slot: number; arenaId: string; seed: number; player1Username: string; player2Username: string } | null;
+  // Só considera "desafio" se realmente tiver matchId — location.state também é usado
+  // só pra levar o characterId escolhido no Menu, que sozinho não significa desafio.
+  const challengeMatch = routerState?.matchId
+    ? (routerState as { matchId: string; slot: number; arenaId: string; seed: number; player1Username: string; player2Username: string })
+    : null;
 
   // 1. Estados para gerenciar as fases: Buscando Partida ou Jogando
   const [inQueue, setInQueue] = useState(!challengeMatch);
