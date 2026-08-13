@@ -72,7 +72,7 @@ export async function registerWebsocket(app: FastifyInstance) {
 
 // Debounce pra ignorar player_hit duplicado (os dois clients têm cópia
 // própria do projétil e podem reportar a mesma colisão quase ao mesmo tempo).
-const HIT_DEBOUNCE_MS = 1000;
+const HIT_DEBOUNCE_MS = 150;
 
 function handlePlayerHit(app: FastifyInstance, match: Match, data: Record<string, unknown>) {
   const now = Date.now();
