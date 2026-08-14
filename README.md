@@ -157,7 +157,7 @@ Designed and built the frontend's foundational architecture: the React/Vite proj
 
 **João (jcologne) — Project Manager / Scrum Master**
 Built the full authentication and social system: signup/login with hashed passwords, JWT sessions, 2FA by email, OAuth 42 integration, friends (requests/acceptance/online status), direct challenges, avatar upload, and profile/match-history endpoints.
-*Challenges faced*: [PREENCHER COM JOÃO]
+*Challenges faced*: Getting the real user identity to flow correctly through matchmaking into persisted match results, and reconciling weeks of parallel work between the auth system and the team's infra/WAF rework into a single working merge.
 
 **Thiago (tguilher) — QA / DevOps Lead**
 Built the Docker Compose infrastructure (app + proxy stacks), the nginx reverse proxy with TLS termination, and the OWASP ModSecurity WAF. Handled cloud deployment configuration (SMTP for 2FA emails, OAuth 42 credentials, TLS certificates for the deployed VM).
