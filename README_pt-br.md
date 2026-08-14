@@ -130,7 +130,7 @@ Relações: um `User` tem várias `friendshipsSent`/`friendshipsReceived` (auto-
 
 ## Módulos
 
-**Total reivindicado: 18 pontos** (14 mínimo + 4 de margem)
+**Total reivindicado: 16 pontos** (14 mínimo + 2 de margem)
 
 | Módulo | Categoria | Tipo | Pontos | Justificativa |
 |---|---|---|---|---|
