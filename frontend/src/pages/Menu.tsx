@@ -116,11 +116,51 @@ export function Menu() {
           </div>
         </div>
 
-        {/* Espaço reservado para Futuras Funcionalidades*/}
-        <div className="border border-dashed border-zinc-800 p-4 rounded-xl text-center bg-zinc-950/20">
-          <span className="text-[10px] font-bold text-zinc-600 uppercase tracking-widest">
-            🔒 Novos módulos (Torneios e Custom Rooms) serão liberados em breve
-          </span>
+        {/* Comandos e Power-ups */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+          {/* Comandos */}
+          <div className="bg-zinc-900/40 border border-zinc-800 p-5 rounded-2xl flex flex-col gap-3">
+            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Comandos</span>
+            <div className="flex flex-col gap-2 text-xs">
+              <div className="flex items-center gap-3">
+                <span className="w-16 shrink-0 text-center font-mono font-bold text-white bg-zinc-800 border border-zinc-700 rounded px-2 py-1">WASD</span>
+                <span className="text-zinc-400">Mover</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="w-16 shrink-0 text-center font-mono font-bold text-white bg-zinc-800 border border-zinc-700 rounded px-2 py-1">Clique</span>
+                <span className="text-zinc-400">Atirar</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="w-16 shrink-0 text-center font-mono font-bold text-white bg-zinc-800 border border-zinc-700 rounded px-2 py-1">Espaço</span>
+                <span className="text-zinc-400">Esquiva (dash)</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="w-16 shrink-0 text-center font-mono font-bold text-white bg-zinc-800 border border-zinc-700 rounded px-2 py-1">R</span>
+                <span className="text-zinc-400">Recarregar</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Power-ups */}
+          <div className="bg-zinc-900/40 border border-zinc-800 p-5 rounded-2xl flex flex-col gap-3">
+            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Power-ups</span>
+            <div className="flex flex-col gap-2 text-xs">
+              <div className="flex items-center gap-3">
+                <img src="/powerups/rapid_fire.png" alt="Tiro Rápido" className="w-6 h-6" style={{ imageRendering: "pixelated" }} />
+                <span className="text-zinc-400"><span className="text-white font-bold">Tiro Rápido</span> — recarga 2x mais veloz por 5s</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <img src="/powerups/speed_boost.png" alt="Velocidade" className="w-6 h-6" style={{ imageRendering: "pixelated" }} />
+                <span className="text-zinc-400"><span className="text-white font-bold">Velocidade</span> — movimento 40% mais rápido por 5s</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <img src="/powerups/shield.png" alt="Escudo" className="w-6 h-6" style={{ imageRendering: "pixelated" }} />
+                <span className="text-zinc-400"><span className="text-white font-bold">Escudo</span> — bloqueia o próximo golpe recebido</span>
+              </div>
+            </div>
+          </div>
+
         </div>
 
       </div>
