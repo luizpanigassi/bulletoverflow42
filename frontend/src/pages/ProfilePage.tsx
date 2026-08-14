@@ -40,6 +40,7 @@ interface ProfileData {
   rankingPoints: number;
   matchesPlayed: number;
   wins: number;
+  twoFactorEnabled: boolean;
 }
 
 const MAX_AVATAR_BYTES = 2 * 1024 * 1024; // 2MB
@@ -93,7 +94,7 @@ export function ProfilePage() {
       .then((data: ChallengeItem[]) => {
         const accepted = data.find((c) => c.direction === "sent" && c.status === "accepted" && c.match);
         if (accepted?.match) {
-          fetch(`${API_HTTP_BASE}/users/${userId}/challenges/${accepted.id}`, { method: "DELETE", headers: authHeaders() }).catch(() => {});
+          fetch(`${API_HTTP_BASE}/users/${userId}/challenges/${accepted.id}`, { method: "DELETE", headers: authHeaders() }).catch(() => { });
           navigate("/jogar", { state: { matchId: accepted.match.matchId, slot: accepted.match.slot, arenaId: accepted.match.arenaId, seed: accepted.match.seed, player1Username: accepted.match.player1Username, player2Username: accepted.match.player2Username } });
           return;
         }
@@ -239,6 +240,21 @@ export function ProfilePage() {
     setProfile((prev) => (prev ? { ...prev, avatarUrl: data.avatarUrl } : prev));
   };
 
+  const handleToggle2fa = async (enabled: boolean) => {
+    if (!profile) return;
+    const res = await fetch(`${API_HTTP_BASE}/users/${profile.id}`, {
+      method: "PATCH",
+      headers: { ...authHeaders(), "Content-Type": "application/json" },
+      body: JSON.stringify({ twoFactorEnabled: enabled }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      alert(data.error || "Não foi possível atualizar o 2FA.");
+      return;
+    }
+    setProfile((prev) => (prev ? { ...prev, twoFactorEnabled: data.twoFactorEnabled } : prev));
+  };
+
   // Função para deslogar da conta
   const handleLogout = () => {
     localStorage.removeItem("bullet_authenticated");
@@ -282,6 +298,15 @@ export function ProfilePage() {
             >
               Sair da Conta
             </button>
+            <label className="w-full flex items-center justify-between gap-2 text-xs text-zinc-400 font-medium cursor-pointer bg-zinc-950/40 border border-zinc-800 rounded-lg px-3 py-2">
+              <span>Autenticação em 2 fatores (2FA)</span>
+              <input
+                type="checkbox"
+                checked={profile?.twoFactorEnabled ?? false}
+                onChange={(e) => handleToggle2fa(e.target.checked)}
+                className="accent-purple-500 w-4 h-4 rounded cursor-pointer"
+              />
+            </label>
           </div>
 
           {/* Adicionar amigo (POST /users/:id/friends) */}
@@ -455,11 +480,10 @@ export function ProfilePage() {
                   <div
                     key={threshold}
                     title={unlocked ? `${threshold} vitórias — desbloqueada` : `${threshold} vitórias — bloqueada`}
-                    className={`flex flex-col items-center gap-1 p-3 rounded-xl border text-center transition-all ${
-                      unlocked
-                        ? "bg-purple-950/30 border-purple-700/50 shadow-lg shadow-purple-600/10"
-                        : "bg-zinc-950/40 border-zinc-800 opacity-40"
-                    }`}
+                    className={`flex flex-col items-center gap-1 p-3 rounded-xl border text-center transition-all ${unlocked
+                      ? "bg-purple-950/30 border-purple-700/50 shadow-lg shadow-purple-600/10"
+                      : "bg-zinc-950/40 border-zinc-800 opacity-40"
+                      }`}
                   >
                     <span className="text-2xl">{unlocked ? "🏆" : "🔒"}</span>
                     <span className={`text-[10px] font-black uppercase tracking-wider ${unlocked ? "text-purple-300" : "text-zinc-600"}`}>
@@ -486,9 +510,8 @@ export function ProfilePage() {
                 history.map((match) => (
                   <div
                     key={match.id}
-                    className={`flex justify-between items-center bg-zinc-950/40 border p-4 rounded-xl transition-all ${
-                      match.result === "VITÓRIA" ? "border-emerald-950/50 hover:bg-emerald-950/5" : "border-red-950/50 hover:bg-red-950/5"
-                    }`}
+                    className={`flex justify-between items-center bg-zinc-950/40 border p-4 rounded-xl transition-all ${match.result === "VITÓRIA" ? "border-emerald-950/50 hover:bg-emerald-950/5" : "border-red-950/50 hover:bg-red-950/5"
+                      }`}
                   >
                     <div className="flex flex-col gap-0.5">
                       <span className={`text-xs font-black uppercase tracking-widest ${match.result === "VITÓRIA" ? "text-emerald-400" : "text-red-400"}`}>

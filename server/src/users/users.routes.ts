@@ -19,6 +19,7 @@ const PUBLIC_USER_FIELDS = {
   username: true,
   avatarUrl: true,
   rankingPoints: true,
+  twoFactorEnabled: true,
   createdAt: true,
 } satisfies Prisma.UserSelect;
 
@@ -58,7 +59,7 @@ export async function registerUserRoutes(app: FastifyInstance) {
 
   app.patch("/users/:id", { preHandler: requireAuth }, async (request, reply) => {
     const { id } = request.params as { id: string };
-    const { username, avatarUrl } = request.body as { username?: string; avatarUrl?: string };
+    const { username, avatarUrl, twoFactorEnabled } = request.body as { username?: string; avatarUrl?: string; twoFactorEnabled?: boolean };
 
     if (getAuthUserId(request) !== id) {
       reply.code(403);
@@ -71,6 +72,7 @@ export async function registerUserRoutes(app: FastifyInstance) {
         data: {
           ...(username !== undefined ? { username } : {}),
           ...(avatarUrl !== undefined ? { avatarUrl } : {}),
+          ...(twoFactorEnabled !== undefined ? { twoFactorEnabled } : {}),
         },
         select: PUBLIC_USER_FIELDS,
       });

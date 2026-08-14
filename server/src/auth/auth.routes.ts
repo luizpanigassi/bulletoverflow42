@@ -59,7 +59,7 @@ export async function registerAuthRoutes(app: FastifyInstance) {
   });
 
   app.post("/auth/login", async (request, reply) => {
-    const { email, password, use2fa } = request.body as { email?: string; password?: string; use2fa?: boolean };
+    const { email, password } = request.body as { email?: string; password?: string };
 
     if (!email || !password) {
       reply.code(400);
@@ -78,7 +78,7 @@ export async function registerAuthRoutes(app: FastifyInstance) {
       return { error: "credenciais inválidas" };
     }
 
-    if (use2fa) {
+    if (user.twoFactorEnabled) {
       const code = generateTwoFactorCode();
       await prisma.user.update({
         where: { id: user.id },

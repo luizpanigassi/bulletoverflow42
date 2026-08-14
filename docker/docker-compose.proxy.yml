@@ -4,8 +4,8 @@ services:
     container_name: transcendence-waf
     restart: unless-stopped
     ports:
-      - "8080:80"
-      - "8443:443"
+      - "${WAF_HTTP_PORT:-8080}:80"
+      - "${WAF_HTTPS_PORT:-8443}:443"
     environment:
       TZ: America/Sao_Paulo
       SERVER_NAME: _
@@ -13,6 +13,8 @@ services:
       BLOCKING_PARANOIA: "1"
       ANOMALY_INBOUND: "10"
       ANOMALY_OUTBOUND: "5"
+      SSL_CERT_PATH: ${SSL_CERT_PATH:-/etc/nginx/certs/local.crt}
+      SSL_CERT_KEY_PATH: ${SSL_CERT_KEY_PATH:-/etc/nginx/certs/local.key}
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/templates/nginx.conf.template:ro
       - ./nginx/conf.d/default.conf:/etc/nginx/templates/conf.d/default.conf.template:ro

@@ -22,6 +22,7 @@ model User {
   updatedAt    DateTime @updatedAt
 
   // Código de 2FA por email: gerado só quando o login pede 2FA, expira em minutos.
+  twoFactorEnabled       Boolean  @default(false)
   twoFactorCode          String?
   twoFactorCodeExpiresAt DateTime?
 
