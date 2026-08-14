@@ -10,7 +10,6 @@ export function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [acceptedTerms, setAcceptedTerms] = useState(false);
-  const [use2fa, setUse2fa] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   // Preenchido quando o login pede o código de 2FA; controla a tela do código.
@@ -58,7 +57,7 @@ export function LoginPage() {
       const path = isRegister ? "/auth/signup" : "/auth/login";
       const body = isRegister
         ? { username: email.split("@")[0] || "Soldado", email, password }
-        : { email, password, use2fa };
+        : { email, password };
 
       const res = await fetch(`${API_HTTP_BASE}${path}`, {
         method: "POST",
@@ -208,21 +207,6 @@ export function LoginPage() {
               required
             />
           </div>
-
-          {!isRegister && (
-            <div className="flex items-center gap-2 text-left">
-              <input
-                type="checkbox"
-                id="use-2fa"
-                checked={use2fa}
-                onChange={(e) => setUse2fa(e.target.checked)}
-                className="accent-purple-500 w-4 h-4 rounded cursor-pointer"
-              />
-              <label htmlFor="use-2fa" className="text-xs text-zinc-400 font-medium cursor-pointer">
-                Pedir código por email (2FA)
-              </label>
-            </div>
-          )}
 
           {isRegister && (
             <div className="flex items-start gap-3 bg-zinc-950/40 p-3 rounded-xl border border-zinc-800/80 my-1 text-left">

@@ -139,8 +139,14 @@ docker-app-up: docker-network
 docker-proxy-up: docker-network
 	$(DOCKER_COMPOSE) -f $(COMPOSE_PROXY) --env-file $(DOCKER_ENV) up -d
 
+docker-proxy-up-prod: docker-network
+	$(DOCKER_COMPOSE) -f $(COMPOSE_PROXY) -f $(DOCKER_DIR)/docker-compose.proxy.prod.yml --env-file $(DOCKER_ENV) up -d
+
 docker-up: docker-network docker-app-up docker-proxy-up
 	@echo "stacks de app e proxy no ar."
+
+docker-up-prod: docker-network docker-app-up docker-proxy-up-prod
+	@echo "stacks de app e proxy (VM/produção) no ar."
 
 docker-app-down:
 	$(DOCKER_COMPOSE) -f $(COMPOSE_APP) --env-file $(DOCKER_ENV) down
