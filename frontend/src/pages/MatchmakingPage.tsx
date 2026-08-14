@@ -133,8 +133,7 @@ export function MatchmakingPage() {
               onClick={() => {
                 // @ts-ignore
                 window.forceQuitGame && window.forceQuitGame(); // Força a Godot a encerrar a partida
-                setMatchData(null);
-                setInQueue(true); // Volta para a busca
+                navigate("/"); // Volta ao menu principal
               }}
               className="px-4 py-2 text-xs font-bold uppercase tracking-wider bg-red-950/40 hover:bg-red-900/40 text-red-400 border border-red-900/50 rounded-lg transition-all cursor-pointer active:scale-95"
             >
