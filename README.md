@@ -161,4 +161,4 @@ Built the full authentication and social system: signup/login with hashed passwo
 
 **Thiago (tguilher) — QA / DevOps Lead**
 Built the Docker Compose infrastructure (app + proxy stacks), the nginx reverse proxy with TLS termination, and the OWASP ModSecurity WAF. Handled cloud deployment configuration (SMTP for 2FA emails, OAuth 42 credentials, TLS certificates for the deployed VM).
-*Challenges faced*: [PREENCHER COM THIAGO]
+*Challenges faced*: Getting OWASP CRS to actually load its full ruleset (932 rules, not the incomplete 0/3/0 state) without ModSecurity blocking WebSocket and JSON traffic on the matchmaking/match routes, and keeping the OAuth 42 callback URL byte-for-byte consistent with what's registered on the Intra as the deployment moved between local, IP-based, and domain-based setups.
