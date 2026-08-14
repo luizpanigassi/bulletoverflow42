@@ -141,8 +141,7 @@ docker-certs:
 		echo "certificado local já existe"; \
 	else \
 		echo "certificado local não existe, gerando..."; \
-		cd docker/nginx/certs && openssl req -x509 -nodes -days 825 -newkey rsa:2048 -keyout local.key -out local.crt -config openssl-local.cnf; \
-		chmod 644 docker/nginx/certs/local.key; \
+		cd docker/nginx/certs && openssl req -x509 -nodes -days 825 -newkey rsa:2048 -keyout local.key -out local.crt -config openssl-local.cnf && chmod 644 local.key; \
 	fi
 
 docker-proxy-up: docker-certs
