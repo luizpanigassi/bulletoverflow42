@@ -11,6 +11,7 @@ config_version=5
 [application]
 
 config/name="Bullet Overflow"
+run/main_scene="uid://c14y4qn8q7ywm"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://client/icon.svg"
 
