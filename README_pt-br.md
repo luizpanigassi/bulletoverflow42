@@ -157,7 +157,7 @@ Desenhou e construiu a arquitetura fundamental do frontend: a estrutura do proje
 
 **João (jcologne) — Project Manager / Scrum Master**
 Construiu todo o sistema de autenticação e social: cadastro/login com senha em hash, sessões JWT, 2FA por email, integração OAuth 42, amigos (pedido/aceite/status online), desafios diretos, upload de avatar, e endpoints de perfil/histórico de partidas.
-*Desafios enfrentados*: [PREENCHER COM O JOÃO]
+*Desafios enfrentados*: Fazer com que a identidade real do usuário flua corretamente pelo matchmaking em resultados persistentes de partidas, e reconciliar semanas de trabalhos em paralelo entre o auth system e o retrabalho da infra/WAF da equipe em um único merge funcional
 
 **Thiago (tguilher) — QA / DevOps Lead**
 Construiu a infraestrutura Docker Compose (stacks de app e proxy), o proxy reverso nginx com terminação TLS, e o WAF ModSecurity da OWASP. Cuidou da configuração de deploy na nuvem (SMTP pros emails de 2FA, credenciais OAuth 42, certificados TLS pra VM em produção).
