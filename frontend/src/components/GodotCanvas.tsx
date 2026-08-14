@@ -129,7 +129,7 @@ export function GodotCanvas({ matchId, slot, serverUrl, arenaId, seed, mode = "o
 
     return () => {
       // @ts-ignore
-      window.forceQuiteGame && window.forceQuitGame(); // Força a Godot a encerrar a partida
+      window.forceQuitGame && window.forceQuitGame(); // Força a Godot a encerrar a partida
       document.body.removeChild(script);
       // @ts-ignore
       delete window.initGameSession;
