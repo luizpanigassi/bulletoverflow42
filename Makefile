@@ -136,7 +136,16 @@ docker-network:
 docker-app-up: docker-network
 	$(DOCKER_COMPOSE) -f $(COMPOSE_APP) --env-file $(DOCKER_ENV) up -d --build
 
-docker-proxy-up: docker-network
+docker-certs:
+	@if [ -f docker/nginx/certs/local.crt ] && [ -f docker/nginx/certs/local.key ]; then \
+		echo "certificado local já existe"; \
+	else \
+		echo "certificado local não existe, gerando..."; \
+		cd docker/nginx/certs && openssl req -x509 -nodes -days 825 -newkey rsa:2048 -keyout local.key -out local.crt -config openssl-local.cnf; \
+		chmod 644 docker/nginx/certs/local.key; \
+	fi
+
+docker-proxy-up: docker-certs
 	$(DOCKER_COMPOSE) -f $(COMPOSE_PROXY) --env-file $(DOCKER_ENV) up -d
 
 docker-proxy-up-prod: docker-network
