@@ -130,7 +130,7 @@ Relations: a `User` has many `friendshipsSent`/`friendshipsReceived` (self-refer
 
 ## Modules
 
-**Total claimed: 18 points** (14 minimum + 4 margin)
+**Total claimed: 16 points** (14 minimum + 2 margin)
 
 | Module | Category | Type | Points | Justification |
 |---|---|---|---|---|
