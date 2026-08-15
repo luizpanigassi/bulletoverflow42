@@ -27,7 +27,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
       fetch(`${API_HTTP_BASE}/users/${userId}/heartbeat`, {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
-      }).catch(() => {});
+      }).catch(() => { });
     };
     sendHeartbeat();
     const interval = setInterval(sendHeartbeat, HEARTBEAT_INTERVAL_MS);
@@ -42,7 +42,7 @@ export default function App() {
     <BrowserRouter>
       {/* 1. O PAI: h-screen e flex-col travam o site no tamanho exato do monitor, sem sobrar espaço */}
       <div className="flex flex-col h-screen bg-zinc-950 text-white overflow-hidden selection:bg-purple-500/30">
-       
+
         {/* Menu Superior Estilizado - Adicionada a classe shrink-0 para não ser esmagada */}
         <nav className="flex justify-between items-center p-4 bg-zinc-900 border-b border-zinc-800 tracking-wide select-none shrink-0">
           <div className="flex gap-6 items-center">
@@ -58,9 +58,14 @@ export default function App() {
           </div>
 
           <div>
-            <Link to="/perfil" className="text-xs font-bold bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700/50 px-3 py-1.5 rounded-lg transition-all uppercase tracking-wider">
-              👤 Perfil
+            <Link
+              to="/perfil"
+              className="text-xs font-bold bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700/50 px-3 py-1.5 rounded-lg transition-all uppercase tracking-wider flex items-center gap-1 shrink-0"
+            >
+              <span>👤</span>
+              <span className="hidden sm:inline">Perfil</span>
             </Link>
+
           </div>
         </nav>
 

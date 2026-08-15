@@ -1,54 +1,20 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { API_HTTP_BASE } from "../config/api";
+import type {
+  ChallengeItem,
+  MatchHistoryItem,
+  Friend,
+  PendingRequest,
+  ProfileData
+} from "../config/profile.config";
 
-interface ChallengeItem {
-  id: string;
-  direction: "sent" | "received";
-  otherUsername: string;
-  status: "pending" | "accepted";
-  match: { matchId: string; arenaId: string; seed: number; slot: 1 | 2; player1Username: string; player2Username: string } | null;
-}
+import {
+  MAX_AVATAR_BYTES,
+  ALLOWED_AVATAR_TYPES,
+  ACHIEVEMENT_THRESHOLDS
+} from "../config/profile.config";
 
-interface MatchHistoryItem {
-  id: string;
-  opponent: string;
-  yourScore: number;
-  opponentScore: number;
-  result: "VITÓRIA" | "DERROTA";
-  date: string;
-  arena: string;
-}
-
-interface Friend {
-  id: string;
-  username: string;
-  avatarUrl: string | null;
-  rankingPoints: number;
-  online: boolean;
-}
-
-interface PendingRequest {
-  friendshipId: string;
-  requester: Friend;
-}
-
-interface ProfileData {
-  id: string;
-  username: string;
-  avatarUrl: string | null;
-  rankingPoints: number;
-  matchesPlayed: number;
-  wins: number;
-  twoFactorEnabled: boolean;
-}
-
-const MAX_AVATAR_BYTES = 2 * 1024 * 1024; // 2MB
-const ALLOWED_AVATAR_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif"];
-
-// Conquistas derivadas direto de `wins` (que já vem persistido via partidas
-// reais no banco) — não precisa de tabela própria.
-const ACHIEVEMENT_THRESHOLDS = [1, 5, 10, 50, 100];
 
 export function ProfilePage() {
   const navigate = useNavigate();
@@ -271,11 +237,11 @@ export function ProfilePage() {
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-6">
 
         {/* COLUNA DA ESQUERDA: Dados do Perfil, Amigos e Estatísticas */}
-        <div className="md:col-span-1 flex flex-col gap-6">
+        <div className="md:col-span-1 flex flex-col gap-6 w-full">
 
-          {/* Bloco do Usuário */}
+          {/* Bloco do Usuário e Configurações */}
           <div className="bg-zinc-900/40 border border-zinc-800 p-6 rounded-2xl shadow-2xl backdrop-blur-sm flex flex-col gap-5 text-center items-center">
-            <label className="relative w-16 h-16 rounded-xl overflow-hidden cursor-pointer group shadow-lg shadow-purple-600/30">
+            <label className="relative w-16 h-16 rounded-xl overflow-hidden cursor-pointer group shadow-lg shadow-purple-600/30 shrink-0">
               {profile?.avatarUrl ? (
                 <img src={`${API_HTTP_BASE}${profile.avatarUrl}`} alt={username} className="w-full h-full object-cover" />
               ) : (
@@ -288,70 +254,73 @@ export function ProfilePage() {
               </div>
               <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" className="hidden" onChange={handleAvatarChange} />
             </label>
+
             <div>
-              <h1 className="text-xl font-black tracking-wide text-white uppercase">{username}</h1>
-              <p className="text-zinc-500 text-xs font-medium truncate max-w-[200px]">{email}</p>
+              <h1 className="text-xl font-black tracking-wide text-white uppercase truncate max-w-[180px]">{username}</h1>
+              <p className="text-zinc-500 text-xs font-medium truncate max-w-[180px]">{email}</p>
             </div>
+
             <button
               onClick={handleLogout}
               className="w-full py-2 text-xs font-bold uppercase tracking-wider bg-red-950/20 hover:bg-red-950/60 text-red-400 border border-red-900/40 rounded-lg transition-colors cursor-pointer"
             >
               Sair da Conta
             </button>
-            <label className="w-full flex items-center justify-between gap-2 text-xs text-zinc-400 font-medium cursor-pointer bg-zinc-950/40 border border-zinc-800 rounded-lg px-3 py-2">
-              <span>Autenticação em 2 fatores (2FA)</span>
+
+            <label className="w-full flex items-center justify-between gap-2 text-xs text-zinc-400 font-medium cursor-pointer bg-zinc-950/40 border border-zinc-800 rounded-lg px-3 py-2 select-none">
+              <span className="text-left leading-tight">Autenticação em 2 fatores (2FA)</span>
               <input
                 type="checkbox"
                 checked={profile?.twoFactorEnabled ?? false}
                 onChange={(e) => handleToggle2fa(e.target.checked)}
-                className="accent-purple-500 w-4 h-4 rounded cursor-pointer"
+                className="accent-purple-500 w-4 h-4 rounded cursor-pointer shrink-0"
               />
             </label>
           </div>
 
-          {/* Adicionar amigo (POST /users/:id/friends) */}
+          {/* Adicionar amigo — CORREÇÃO ANTI-ESTOURO COM FLEX-WRAP */}
           <div className="bg-zinc-900/40 border border-zinc-800 p-5 rounded-2xl shadow-2xl backdrop-blur-sm flex flex-col gap-3">
-            <h3 className="text-xs font-black tracking-widest text-zinc-500 uppercase">
+            <h3 className="text-[10px] font-black tracking-widest text-zinc-500 uppercase">
               Adicionar Amigo
             </h3>
-            <form onSubmit={handleAddFriend} className="flex gap-2">
+            <form onSubmit={handleAddFriend} className="flex flex-col sm:flex-row md:flex-col lg:flex-row gap-2 w-full">
               <input
                 type="text"
                 value={addFriendInput}
                 onChange={(e) => setAddFriendInput(e.target.value)}
-                placeholder="username do jogador"
-                className="flex-1 bg-zinc-950 border border-zinc-800 focus:border-purple-500 rounded-lg px-3 py-2 text-white text-sm focus:outline-none transition-all"
+                placeholder="Username do jogador"
+                className="flex-1 min-w-0 bg-zinc-950 border border-zinc-800 focus:border-purple-500 rounded-lg px-3 py-2 text-white text-sm focus:outline-none transition-all"
               />
               <button
                 type="submit"
                 disabled={addFriendSubmitting}
-                className="px-4 py-2 text-xs font-bold uppercase tracking-wider bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors cursor-pointer"
+                className="sm:w-auto md:w-full lg:w-auto px-4 py-2 shrink-0 text-xs font-bold uppercase tracking-wider bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors cursor-pointer text-center"
               >
                 Adicionar
               </button>
             </form>
           </div>
 
-          {/* Pedidos pendentes (GET /users/:id/friends/pending) */}
+          {/* Pedidos pendentes */}
           {pendingRequests.length > 0 && (
             <div className="bg-zinc-900/40 border border-zinc-800 p-5 rounded-2xl shadow-2xl backdrop-blur-sm flex flex-col gap-3">
-              <h3 className="text-xs font-black tracking-widest text-zinc-500 uppercase">
+              <h3 className="text-[10px] font-black tracking-widest text-zinc-500 uppercase">
                 Pedidos Pendentes
               </h3>
-              <div className="bg-zinc-950/40 border border-zinc-800 rounded-xl divide-y divide-zinc-900">
+              <div className="bg-zinc-950/40 border border-zinc-800 rounded-xl divide-y divide-zinc-900 max-h-[160px] overflow-y-auto pr-1">
                 {pendingRequests.map((req) => (
-                  <div key={req.friendshipId} className="p-3.5 flex justify-between items-center text-sm gap-2">
-                    <span className="text-zinc-300 font-bold">{req.requester.username}</span>
-                    <div className="flex gap-2">
+                  <div key={req.friendshipId} className="p-3 flex justify-between items-center text-sm gap-2 flex-wrap sm:flex-nowrap md:flex-wrap lg:flex-nowrap">
+                    <span className="text-zinc-300 font-bold truncate max-w-[100px]">{req.requester.username}</span>
+                    <div className="flex gap-1.5 shrink-0">
                       <button
                         onClick={() => handleAcceptRequest(req.friendshipId)}
-                        className="px-2 py-1 text-[10px] font-bold uppercase bg-emerald-950/40 hover:bg-emerald-950/70 text-emerald-400 border border-emerald-900/40 rounded cursor-pointer"
+                        className="px-2 py-1 text-[9px] font-bold uppercase bg-emerald-950/40 hover:bg-emerald-950/70 text-emerald-400 border border-emerald-900/40 rounded cursor-pointer"
                       >
                         Aceitar
                       </button>
                       <button
                         onClick={() => handleRejectRequest(req.friendshipId)}
-                        className="px-2 py-1 text-[10px] font-bold uppercase bg-red-950/20 hover:bg-red-950/60 text-red-400 border border-red-900/40 rounded cursor-pointer"
+                        className="px-2 py-1 text-[9px] font-bold uppercase bg-red-950/20 hover:bg-red-950/60 text-red-400 border border-red-900/40 rounded cursor-pointer"
                       >
                         Recusar
                       </button>
@@ -362,26 +331,26 @@ export function ProfilePage() {
             </div>
           )}
 
-          {/* Desafios recebidos (GET /users/:id/challenges) */}
+          {/* Desafios recebidos */}
           {incomingChallenges.length > 0 && (
             <div className="bg-zinc-900/40 border border-purple-800/50 p-5 rounded-2xl shadow-2xl backdrop-blur-sm flex flex-col gap-3">
-              <h3 className="text-xs font-black tracking-widest text-purple-400 uppercase animate-pulse">
+              <h3 className="text-[10px] font-black tracking-widest text-purple-400 uppercase animate-pulse">
                 Desafios Recebidos
               </h3>
-              <div className="bg-zinc-950/40 border border-zinc-800 rounded-xl divide-y divide-zinc-900">
+              <div className="bg-zinc-950/40 border border-zinc-800 rounded-xl divide-y divide-zinc-900 max-h-[160px] overflow-y-auto pr-1">
                 {incomingChallenges.map((challenge) => (
-                  <div key={challenge.id} className="p-3.5 flex justify-between items-center text-sm gap-2">
-                    <span className="text-zinc-300 font-bold">{challenge.otherUsername}</span>
-                    <div className="flex gap-2">
+                  <div key={challenge.id} className="p-3 flex justify-between items-center text-sm gap-2 flex-wrap sm:flex-nowrap md:flex-wrap lg:flex-nowrap">
+                    <span className="text-zinc-300 font-bold truncate max-w-[100px]">{challenge.otherUsername}</span>
+                    <div className="flex gap-1.5 shrink-0">
                       <button
                         onClick={() => handleAcceptChallenge(challenge)}
-                        className="px-2 py-1 text-[10px] font-bold uppercase bg-emerald-950/40 hover:bg-emerald-950/70 text-emerald-400 border border-emerald-900/40 rounded cursor-pointer"
+                        className="px-2 py-1 text-[9px] font-bold uppercase bg-emerald-950/40 hover:bg-emerald-950/70 text-emerald-400 border border-emerald-900/40 rounded cursor-pointer"
                       >
                         Aceitar
                       </button>
                       <button
                         onClick={() => handleDeclineChallenge(challenge.id)}
-                        className="px-2 py-1 text-[10px] font-bold uppercase bg-red-950/20 hover:bg-red-950/60 text-red-400 border border-red-900/40 rounded cursor-pointer"
+                        className="px-2 py-1 text-[9px] font-bold uppercase bg-red-950/20 hover:bg-red-950/60 text-red-400 border border-red-900/40 rounded cursor-pointer"
                       >
                         Recusar
                       </button>
@@ -392,36 +361,36 @@ export function ProfilePage() {
             </div>
           )}
 
-          {/* Lista de Amigos (dados reais via GET /users/:id/friends) */}
+          {/* Lista de Amigos */}
           <div className="bg-zinc-900/40 border border-zinc-800 p-5 rounded-2xl shadow-2xl backdrop-blur-sm flex flex-col gap-3">
-            <h3 className="text-xs font-black tracking-widest text-zinc-500 uppercase">
+            <h3 className="text-[10px] font-black tracking-widest text-zinc-500 uppercase">
               Lista de Amigos
             </h3>
-            <div className="bg-zinc-950/40 border border-zinc-800 rounded-xl divide-y divide-zinc-900">
+            <div className="bg-zinc-950/40 border border-zinc-800 rounded-xl divide-y divide-zinc-900 max-h-[220px] overflow-y-auto pr-1">
               {loading ? (
                 <div className="p-3.5 text-sm text-zinc-500">Carregando...</div>
               ) : friends.length === 0 ? (
                 <div className="p-3.5 text-sm text-zinc-500">Nenhum amigo ainda.</div>
               ) : (
                 friends.map((friend) => (
-                  <div key={friend.id} className="p-3.5 flex justify-between items-center text-sm gap-2">
-                    <span className="text-zinc-300 font-bold flex items-center gap-2">
+                  <div key={friend.id} className="p-3 flex justify-between items-center text-sm gap-2">
+                    <span className="text-zinc-300 font-bold flex items-center gap-2 truncate max-w-[120px]">
                       <span
                         title={friend.online ? "Online" : "Offline"}
-                        className={`w-2 h-2 rounded-full ${friend.online ? "bg-emerald-400" : "bg-zinc-600"}`}
+                        className={`w-2 h-2 rounded-full shrink-0 ${friend.online ? "bg-emerald-400" : "bg-zinc-600"}`}
                       />
-                      {friend.username}
+                      <span className="truncate">{friend.username}</span>
                     </span>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 shrink-0">
                       {friend.online && (
                         <button
                           onClick={() => handleChallengeFriend(friend.id)}
-                          className="px-2 py-1 text-[10px] font-bold uppercase bg-purple-950/40 hover:bg-purple-900/60 text-purple-400 border border-purple-900/40 rounded cursor-pointer"
+                          className="px-2 py-1 text-[9px] font-bold uppercase bg-purple-950/40 hover:bg-purple-900/60 text-purple-400 border border-purple-900/40 rounded cursor-pointer"
                         >
                           Desafiar
                         </button>
                       )}
-                      <span className="text-[10px] bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded border border-zinc-700 font-medium">
+                      <span className="text-[9px] bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded border border-zinc-700 font-medium">
                         {friend.rankingPoints} pts
                       </span>
                     </div>
@@ -433,14 +402,14 @@ export function ProfilePage() {
 
         </div>
 
-        {/* COLUNA DA DIREITA: Estatísticas Grandes e Histórico de Combates */}
-        <div className="md:col-span-2 flex flex-col gap-6">
+        {/* COLUNA DA DIREITA: Estatísticas Grandes, Conquistas e Histórico de Combates */}
+        <div className="md:col-span-2 flex flex-col gap-6 w-full">
 
           {/* Grid de Estatísticas (dados reais via GET /users/:id) */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-4 shrink-0">
             <div className="bg-zinc-900/40 border border-zinc-800 p-4 rounded-xl text-center shadow-xl backdrop-blur-sm">
               <span className="text-zinc-500 text-xs font-bold uppercase tracking-wider block">Ranking</span>
-              <span className="text-xl font-mono font-black text-purple-400 mt-1 block">
+              <span className="text-xl font-mono font-black text-purple-400 mt-1 block truncate">
                 {loading ? "…" : `${profile?.rankingPoints ?? 0} pts`}
               </span>
             </div>
@@ -459,8 +428,8 @@ export function ProfilePage() {
           </div>
 
           {/* Conquistas (derivadas de wins, sem tabela própria) */}
-          <div className="bg-zinc-900/40 border border-zinc-800 p-6 rounded-2xl shadow-2xl backdrop-blur-sm flex flex-col gap-4">
-            <div className="flex justify-between items-center border-b border-zinc-800 pb-3">
+          <div className="bg-zinc-900/40 border border-zinc-800 p-6 rounded-2xl shadow-2xl backdrop-blur-sm flex flex-col gap-4 shrink-0">
+            <div className="flex justify-between items-center border-b border-zinc-800 pb-3 flex-wrap gap-2">
               <h3 className="font-black text-purple-400 tracking-wider uppercase text-xs">Conquistas</h3>
               {(() => {
                 const wins = profile?.wins ?? 0;
@@ -472,8 +441,7 @@ export function ProfilePage() {
                 ) : null;
               })()}
             </div>
-
-            <div className="grid grid-cols-5 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
               {ACHIEVEMENT_THRESHOLDS.map((threshold) => {
                 const unlocked = (profile?.wins ?? 0) >= threshold;
                 return (
@@ -481,12 +449,12 @@ export function ProfilePage() {
                     key={threshold}
                     title={unlocked ? `${threshold} vitórias — desbloqueada` : `${threshold} vitórias — bloqueada`}
                     className={`flex flex-col items-center gap-1 p-3 rounded-xl border text-center transition-all ${unlocked
-                      ? "bg-purple-950/30 border-purple-700/50 shadow-lg shadow-purple-600/10"
-                      : "bg-zinc-950/40 border-zinc-800 opacity-40"
+                        ? "bg-purple-950/30 border-purple-700/50 shadow-lg shadow-purple-600/10"
+                        : "bg-zinc-950/40 border-zinc-800 opacity-40"
                       }`}
                   >
                     <span className="text-2xl">{unlocked ? "🏆" : "🔒"}</span>
-                    <span className={`text-[10px] font-black uppercase tracking-wider ${unlocked ? "text-purple-300" : "text-zinc-600"}`}>
+                    <span className={`text-[9px] font-black uppercase tracking-wider ${unlocked ? "text-purple-300" : "text-zinc-600"}`}>
                       {threshold} {threshold === 1 ? "vitória" : "vitórias"}
                     </span>
                   </div>
@@ -495,42 +463,45 @@ export function ProfilePage() {
             </div>
           </div>
 
-          {/* Histórico de Combates (dados reais via GET /users/:id/matches) */}
-          <div className="bg-zinc-900/40 border border-zinc-800 p-6 rounded-2xl shadow-2xl backdrop-blur-sm flex flex-col gap-4">
+          {/* Histórico de Combates — ADICIONADO CONTROLE DE ALTURA E SCROLL INTELIGENTE */}
+          <div className="bg-zinc-900/40 border border-zinc-800 p-6 rounded-2xl shadow-2xl backdrop-blur-sm flex flex-col gap-4 flex-1 min-h-0">
             <div className="flex justify-between items-center border-b border-zinc-800 pb-3">
               <h3 className="font-black text-purple-400 tracking-wider uppercase text-xs">Histórico Recente de Partidas</h3>
             </div>
 
-            <div className="flex flex-col gap-3 max-h-[310px] overflow-y-auto pr-1">
+            {/* O pulo do gato: flex-1 e overflow-y-auto impedem o histórico de vazar e quebrar o Footer */}
+            <div className="flex flex-col gap-3 overflow-y-auto pr-1 flex-1 max-h-[340px] md:max-h-[none]">
               {loading ? (
-                <div className="text-sm text-zinc-500">Carregando...</div>
+                <div className="text-sm text-zinc-500 py-4">Carregando histórico...</div>
               ) : history.length === 0 ? (
-                <div className="text-sm text-zinc-500">Nenhuma partida ainda.</div>
+                <div className="text-sm text-zinc-500 py-4">Nenhuma partida registrada até o momento.</div>
               ) : (
                 history.map((match) => (
                   <div
                     key={match.id}
-                    className={`flex justify-between items-center bg-zinc-950/40 border p-4 rounded-xl transition-all ${match.result === "VITÓRIA" ? "border-emerald-950/50 hover:bg-emerald-950/5" : "border-red-950/50 hover:bg-red-950/5"
+                    className={`flex justify-between items-center bg-zinc-950/40 border p-4 rounded-xl transition-all shrink-0 ${match.result === "VITÓRIA"
+                        ? "border-emerald-950/50 hover:bg-emerald-950/5"
+                        : "border-red-950/50 hover:bg-red-950/5"
                       }`}
                   >
-                    <div className="flex flex-col gap-0.5">
+                    <div className="flex flex-col gap-0.5 min-w-0 flex-1">
                       <span className={`text-xs font-black uppercase tracking-widest ${match.result === "VITÓRIA" ? "text-emerald-400" : "text-red-400"}`}>
                         {match.result}
                       </span>
-                      <span className="text-zinc-400 text-xs font-medium">
-                        Contra: <span className="text-zinc-200 font-bold">{match.opponent}</span>
+                      <span className="text-zinc-400 text-xs font-medium truncate pr-2">
+                        Contra: <span className="text-zinc-200 font-bold truncate">{match.opponent}</span>
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-6 shrink-0">
                       <div className="text-center">
                         <span className="text-zinc-600 text-[10px] block uppercase font-bold tracking-wider">Resultado</span>
                         <span className="font-mono font-black text-sm text-zinc-100">
                           {match.yourScore} <span className="text-zinc-600 font-normal text-xs mx-0.5">-</span> {match.opponentScore}
                         </span>
                       </div>
-                      <div className="text-right text-[10px] text-zinc-500 font-medium">
-                        <span>{match.arena}</span>
+                      <div className="text-right text-[10px] text-zinc-500 font-medium hidden sm:block">
+                        <span className="block text-zinc-400 truncate max-w-[70px]" title={match.arena}>{match.arena}</span>
                         <span className="block text-zinc-600">{new Date(match.date).toLocaleDateString("pt-BR")}</span>
                       </div>
                     </div>
@@ -542,7 +513,7 @@ export function ProfilePage() {
 
         </div>
 
-      </div>
-    </div>
+      </div> {/* Fecha a div do Grid Responsivo Principal */}
+    </div> /* Fecha a div centralizada inicial */
   );
 }
