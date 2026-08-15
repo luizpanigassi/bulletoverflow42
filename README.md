@@ -111,21 +111,21 @@ Relations: a `User` has many `friendshipsSent`/`friendshipsReceived` (self-refer
 | Feature | Description | Contributor(s) |
 |---|---|---|
 | Real-time 1v1 combat | Movement, dash, shooting, shields, power-ups, arena hazards | Luiz |
-| AI opponent (3 difficulties) | Bot with dodge, predictive aim, and powerup-seeking behavior | Luiz |
+| AI opponent (3 difficulties) | Bot with dodge, predictive aim, and powerup-seeking behavior | Luiz, Lilian |
 | Character selection | 3 skins, chosen before PvP or vs-AI matches | Luiz |
 | Matchmaking (online PvP) | FIFO queue, WebSocket relay, reconnect + forfeit-by-disconnect | Luiz, Lilian |
-| Signup / login | Email+password with hashed/salted passwords, JWT sessions | João |
+| Signup / login | Email+password with hashed/salted passwords, JWT sessions, ProtectedRoute | João, Lilian |
 | 2FA by email | 6-digit code, 10-minute expiry | João, Thiago (SMTP delivery) |
 | OAuth 42 login | Login via Intra 42 | João, Thiago (credentials/deployment) |
 | Custom username | Player-chosen username at signup / first OAuth login | Luiz |
 | Avatar upload | Base64 image upload, served by the backend | João |
 | Friends & online status | Add/accept friends, heartbeat-based online indicator | João |
 | Direct challenges | Challenge a friend directly, skip the matchmaking queue | João |
-| Match history & stats | Wins/losses, ranking points, recent matches | João |
+| Match history & stats | Wins/losses, ranking points, recent matches | João, Lilian |
 | Achievements | Win-count milestone badges (1/5/10/50/100) | Luiz |
-| Leaderboard | Global ranking by points | João |
+| Leaderboard | Global ranking by points | João, Lilian |
 | WAF | OWASP ModSecurity CRS in front of the whole stack | Thiago |
-| Dockerized deployment | Single-command multi-container orchestration | Thiago |
+| Dockerized deployment | Single-command multi-container orchestration | Thiago, Lilian |
 | Privacy Policy / Terms of Service | Accessible from every page via the footer | Luiz |
 
 ## Modules
@@ -153,7 +153,7 @@ Built the Godot game client end-to-end: player movement/combat, arenas, power-up
 
 **Lilian (lilmende) — Tech Lead / Architect**
 Designed and built the frontend's foundational architecture: the React/Vite project structure, routing, and the consistent Tailwind-based dark UI design system used across every page. Built the original Godot-in-React embedding approach (script injection, canvas lifecycle, the JS↔Godot session bridge) and the original matchmaking queue UI that later work (character selection, custom usernames, etc.) was built on top of. Owned the real-time integration layer connecting the client to the backend's WebSocket-based matchmaking and live-match protocol.
-*Challenges faced*: [PREENCHER COM WITH LILIAN]
+*Challenges faced*: Overcoming an autonomous learning curve in new technologies like TypeScript, Tailwind CSS, and backend network integration, while designing a preliminary Docker/Nginx sandbox branch that unblocked team-wide integration testing, in addition to preventing the SPA lifecycle from generating "zombie" Godot instances in RAM and fixing conflicts that broke map (.pck) downloads and the favicon.
 
 **João (jcologne) — Project Manager / Scrum Master**
 Built the full authentication and social system: signup/login with hashed passwords, JWT sessions, 2FA by email, OAuth 42 integration, friends (requests/acceptance/online status), direct challenges, avatar upload, and profile/match-history endpoints.
