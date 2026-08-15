@@ -111,21 +111,21 @@ Relações: um `User` tem várias `friendshipsSent`/`friendshipsReceived` (auto-
 | Funcionalidade | Descrição | Autor(es) |
 |---|---|---|
 | Combate 1v1 em tempo real | Movimento, dash, tiro, escudos, power-ups, obstáculos de arena | Luiz |
-| Oponente de IA (3 dificuldades) | Bot com desvio, mira preditiva e busca por powerup | Luiz |
+| Oponente de IA (3 dificuldades) | Bot com desvio, mira preditiva e busca por powerup | Luiz, Lilian |
 | Seleção de personagem | 3 skins, escolhidas antes de partidas PvP ou vs IA | Luiz |
 | Matchmaking (PvP online) | Fila FIFO, relay via WebSocket, reconexão + desistência por desconexão | Luiz, Lilian |
-| Cadastro / login | Email+senha com hash/salt, sessões JWT | João |
+| Cadastro / login | Email+senha com hash/salt, sessões JWT, ProtectedRoute | João, Lilian |
 | 2FA por email | Código de 6 dígitos, expira em 10 minutos | João, Thiago (envio via SMTP) |
 | Login via OAuth 42 | Login pela Intra 42 | João, Thiago (credenciais/deploy) |
 | Nome de usuário customizado | Usuário escolhe o próprio username no cadastro / primeiro login OAuth | Luiz |
 | Upload de avatar | Upload de imagem em base64, servido pelo backend | João |
 | Amigos e status online | Adicionar/aceitar amigos, indicador online via heartbeat | João |
 | Desafios diretos | Desafiar um amigo direto, pulando a fila de matchmaking | João |
-| Histórico e estatísticas | Vitórias/derrotas, pontos de ranking, partidas recentes | João |
+| Histórico e estatísticas | Vitórias/derrotas, pontos de ranking, partidas recentes | João, Lilian |
 | Conquistas | Badges por marco de vitórias (1/5/10/50/100) | Luiz |
-| Leaderboard | Ranking global por pontos | João |
+| Leaderboard | Ranking global por pontos | João, Lilian |
 | WAF | OWASP ModSecurity CRS na frente de toda a stack | Thiago |
-| Deploy containerizado | Orquestração multi-container com um único comando | Thiago |
+| Deploy containerizado | Orquestração multi-container com um único comando | Thiago, Lilian |
 | Política de Privacidade / Termos de Serviço | Acessível de qualquer página via rodapé | Luiz |
 
 ## Módulos
@@ -153,7 +153,7 @@ Construiu o client em Godot de ponta a ponta: movimento/combate do jogador, aren
 
 **Lilian (lilmende) — Tech Lead / Arquiteta**
 Desenhou e construiu a arquitetura fundamental do frontend: a estrutura do projeto React/Vite, o roteamento, e o sistema de design visual escuro consistente em Tailwind usado em todas as páginas. Construiu a abordagem original de embutir a Godot dentro do React (injeção de script, ciclo de vida do canvas, a ponte de sessão JS↔Godot) e a UI original da fila de matchmaking, sobre as quais o trabalho posterior (seleção de personagem, username customizado, etc.) foi construído. Responsável pela camada de integração em tempo real conectando o client ao protocolo de matchmaking e partida ao vivo via WebSocket do backend.
-*Desafios enfrentados*: [PREENCHER COM A LILIAN]
+*Desafios enfrentados*: Superar a curva de aprendizado autônoma em novas tecnologias como TypeScript, Tailwind CSS e na integração de rede com o backend, além de idealizar uma branch preliminar de sandbox com Docker/Nginx que destravou os testes de integração de toda a equipe, impedindo que o ciclo de vida da SPA gerasse instâncias "zumbis" da Godot na memória RAM e corrigindo conflitos que quebravam o download dos mapas (.pck) e o favicon.
 
 **João (jcologne) — Project Manager / Scrum Master**
 Construiu todo o sistema de autenticação e social: cadastro/login com senha em hash, sessões JWT, 2FA por email, integração OAuth 42, amigos (pedido/aceite/status online), desafios diretos, upload de avatar, e endpoints de perfil/histórico de partidas.
