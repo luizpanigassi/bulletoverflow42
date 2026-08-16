@@ -9,7 +9,10 @@ export function Footer() {
   return (
     <>
       <footer className="flex flex-wrap justify-between items-center gap-3 px-4 py-4 bg-zinc-900 border-t border-zinc-800 text-xs text-zinc-500 select-none">
-        <span className="tracking-wide">🎮 Bullet Overflow</span>
+        <span className="inline-flex items-center gap-1.5 tracking-wide">
+          <img src="/favicon.png" alt="Logo Bullet Overflow" className="w-6 h-6 object-contain" />
+          <span>Bullet Overflow</span>
+        </span>
         <div className="flex gap-4">
           <button
             onClick={() => setShowPrivacyModal(true)}
