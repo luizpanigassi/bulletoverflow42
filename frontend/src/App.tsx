@@ -47,7 +47,7 @@ export default function App() {
         <nav className="flex justify-between items-center p-4 bg-zinc-900 border-b border-zinc-800 tracking-wide select-none shrink-0">
           <div className="flex gap-6 items-center">
             <Link to="/" className="text-white hover:text-purple-400 font-black tracking-wider text-sm transition-colors uppercase">
-              🎮 Bullet Overflow
+              <img src="/favicon.png" alt="Logo Bullet Overflow" className="w-8 h-8 object-contain" />
             </Link>
             <Link to="/leaderboard" className="text-xs font-bold text-zinc-400 hover:text-white transition-colors uppercase tracking-wider">
               Ranking
