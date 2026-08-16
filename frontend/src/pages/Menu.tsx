@@ -11,152 +11,145 @@ export function Menu() {
   const [characterId, setCharacterId] = useState<CharacterId>("adventurer");
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-[calc(100vh-57px)] px-4 py-8 select-none">
-      <div className="w-full max-w-2xl flex flex-col gap-8">
-        
-        {/* Painel do Soldado Logado */}
-        <div className="flex justify-between items-center bg-zinc-900/40 border border-zinc-800/80 px-6 py-4 rounded-xl">
-          <div className="flex items-center gap-3">
-            <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-xs font-bold tracking-wider text-zinc-400 uppercase">Estação de Combate</span>
-          </div>
-          <span className="text-sm font-black tracking-wide text-purple-400 uppercase">
-            Soldado: {username}
-          </span>
-        </div>
+    // Mudança de py-6 para xl:py-16 e 2xl:py-24 expande o espaçamento vertical em telas gigantes
+    <div className="flex flex-col items-center justify-start w-full min-h-full px-4 py-6 md:py-10 xl:py-16 2xl:py-24 select-none">
+      
+      {/* Título Principal do Painel */}
+      {/* Adicionado xl:mb-14 e text-4xl/text-5xl para o título crescer em monitores grandes */}
+      <div className="text-center mb-6 md:mb-8 xl:mb-14">
+        <h1 className="text-3xl xl:text-4xl 2xl:text-5xl font-black tracking-widest text-white uppercase drop-shadow-[0_0_15px_rgba(147,51,234,0.3)]">
+          Central de Comando
+        </h1>
+        <p className="text-zinc-500 text-xs xl:text-sm font-medium uppercase tracking-wider mt-1.5">
+          Bem-vindo de volta, <span className="text-purple-400 font-bold">{username}</span>. Prepare-se para a arena.
+        </p>
+      </div>
 
-        {/* Seção Central de Modos de Jogo */}
-        <div className="flex flex-col gap-4 text-center">
-          <div>
-            <h1 className="text-3xl font-black tracking-widest text-white uppercase">
-              Selecione o Modo de Missão
-            </h1>
-            <p className="text-zinc-500 text-xs tracking-wider uppercase mt-1">
-              Prepare seus reflexos antes de entrar na arena
-            </p>
-          </div>
-        {/* Seletor de Personagem */}
-          <div className="flex flex-col gap-3 items-center">
-            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">Escolha seu Personagem</span>
-            <div className="flex gap-3">
+      {/* DISPOSIÇÃO EM GRID: Aumentado max-w-5xl para xl:max-w-6xl e 2xl:max-w-7xl para ocupar mais a tela cheia */}
+      <div className="w-full max-w-5xl xl:max-w-6xl 2xl:max-w-7xl grid grid-cols-1 md:grid-cols-5 gap-6 xl:gap-8 items-start">
+        
+        {/* COLUNA DA ESQUERDA (Ocupa 3 de 5 colunas) - Customização e Play */}
+        {/* Adicionado xl:p-8 para o card respirar melhor internamente */}
+        <div className="md:col-span-3 flex flex-col gap-6 xl:gap-8 bg-zinc-900/20 border border-zinc-800/60 p-6 xl:p-8 rounded-2xl backdrop-blur-sm shadow-xl">
+          
+                    {/* Seletor de Personagem */}
+          <div className="flex flex-col gap-3 xl:gap-4 items-center">
+            <span className="text-[10px] xl:text-xs font-black text-purple-400 uppercase tracking-widest">Escolha seu Personagem</span>
+            <div className="flex gap-3 xl:gap-4 justify-center flex-wrap">
               {CHARACTERS.map((char) => (
                 <button
                   key={char.id}
                   type="button"
-                  onClick={() => setCharacterId(char.id)}
+                  onClick={() => setCharacterId(char.id as CharacterId)}
                   title={char.name}
-                  className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all cursor-pointer ${
+                  className={`flex flex-col items-center gap-2 p-3 xl:p-4 rounded-xl border-2 transition-all cursor-pointer active:scale-95 ${
                     characterId === char.id
                       ? "border-purple-500 bg-purple-950/30 shadow-lg shadow-purple-600/20"
                       : "border-zinc-800 bg-zinc-900/50 hover:border-zinc-700"
                   }`}
                 >
-                  <div
-                      style={{ width: 64, height: 64, imageRendering: "pixelated" }}
-                  >
-                    <img src={char.image} alt={char.name} className="w-full h-full" style={{ imageRendering: "pixelated" }} />
+                  <div className="w-16 h-16 xl:w-20 xl:h-20">
+                    <img src={char.image} alt={char.name} className="w-full h-full object-contain" style={{ imageRendering: "pixelated" }} />
                   </div>
-                  <span className={`text-[9px] font-bold uppercase tracking-wider text-center leading-tight w-16 ${characterId === char.id ? "text-purple-300" : "text-zinc-500"}`}>
+                  <span className={`text-[9px] xl:text-[10px] font-bold uppercase tracking-wider text-center leading-tight w-16 xl:w-20 ${characterId === char.id ? "text-purple-300" : "text-zinc-500"}`}>
                     {char.name}
                   </span>
                 </button>
               ))}
             </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
-            
-            {/* CARD 1: MULTIPLAYER ONLINE (PVP) */}
-            <button
-              onClick={() => navigate("/jogar", { state: { characterId } })}
-              className="group flex flex-col text-left p-6 bg-zinc-900/50 hover:bg-purple-950/20 border border-zinc-800 hover:border-purple-500/50 rounded-2xl transition-all duration-300 shadow-xl cursor-pointer hover:-translate-y-0.5"
-            >
-              <div className="w-12 h-12 bg-purple-600/10 border border-purple-500/30 rounded-xl flex items-center justify-center text-xl group-hover:bg-purple-600 group-hover:text-white transition-all">
-                ⚔️
-              </div>
-              <h2 className="text-lg font-black tracking-wide text-white mt-4 group-hover:text-purple-400 transition-colors uppercase">
-                Combate Online
-              </h2>
-              <p className="text-zinc-400 text-xs mt-1 leading-relaxed">
-                Entre na fila de matchmaking FIFO para enfrentar outros jogadores da escola em tempo real.
-              </p>
-              <span className="text-[10px] font-bold text-purple-500 uppercase tracking-widest mt-4 block">
-                Fila de Espera PvP →
-              </span>
-            </button>
 
-            {/* CARD 2: TREINAMENTO CONTRA IA */}
-            <div className="group flex flex-col text-left p-6 bg-zinc-900/50 hover:bg-fuchsia-950/20 border border-zinc-800 hover:border-fuchsia-500/50 rounded-2xl transition-all duration-300 shadow-xl">
-              <div className="w-12 h-12 bg-fuchsia-600/10 border border-fuchsia-500/30 rounded-xl flex items-center justify-center text-xl group-hover:bg-fuchsia-600 group-hover:text-white transition-all">
-                🤖
-              </div>
-              <h2 className="text-lg font-black tracking-wide text-white mt-4 group-hover:text-fuchsia-400 transition-colors uppercase">
-                Simulação contra IA
-              </h2>
-              <p className="text-zinc-400 text-xs mt-1 leading-relaxed">
-                Jogue uma partida local offline contra um bot com dificuldade ajustada para testar suas mecânicas.
-              </p>
-               {/* Provisório: só funcional, sem estilo definitivo ainda */}
-                <select
-                 value={botDifficulty}
-                 onChange={(e) => setBotDifficulty(e.target.value as Difficulty)}
-                 onClick={(e) => e.stopPropagation()}
-                 className="mt-3 bg-zinc-950 border border-zinc-700 rounded-lg px-2 py-1 text-xs text-white w-fit"
-                 >
-                  <option value="easy">Fácil</option>
-                  <option value="medium">Médio</option>
-                  <option value="hard">Difícil</option>
-                 </select>
-                 <button
-                  onClick={() => navigate("/treino-ia", { state: { difficulty: botDifficulty, characterId } })}
-                  className="text-[10px] font-bold text-fuchsia-500 uppercase tracking-widest mt-4 block cursor-pointer"
-                  >
-                Iniciar Treino Local →
+          <div className="w-full h-px bg-zinc-800/60" />
+
+          {/* Seletor de Dificuldade do Bot */}
+          <div className="flex flex-col gap-2 xl:gap-3 items-center">
+            <span className="text-[10px] xl:text-xs font-black text-zinc-500 uppercase tracking-widest">Dificuldade da IA (Modo Treino)</span>
+            <div className="flex gap-2 bg-zinc-950 p-1 rounded-xl border border-zinc-800/80">
+              {(["easy", "medium", "hard"] as Difficulty[]).map((diff) => (
+                <button
+                  key={diff}
+                  type="button"
+                  onClick={() => setBotDifficulty(diff)}
+                  className={`px-4 py-1.5 xl:px-6 xl:py-2 text-[10px] xl:text-xs font-bold uppercase tracking-wider rounded-lg transition-all cursor-pointer ${
+                    botDifficulty === diff
+                      ? "bg-purple-600 text-white shadow"
+                      : "text-zinc-500 hover:text-zinc-300"
+                  }`}
+                >
+                  {diff === "easy" ? "Fácil" : diff === "medium" ? "Médio" : "Difícil"}
                 </button>
+              ))}
             </div>
           </div>
+
+          <div className="w-full h-px bg-zinc-800/60 my-1" />
+
+          {/* Botões de Ação do Jogo */}
+          {/* Aumentado o padding vertical (py-5) e o texto (xl:text-sm) para dar imponência ao play */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center px-4 w-full">
+            <button 
+              onClick={() => navigate("/jogar")}
+              className="w-full sm:w-1/2 py-4 xl:py-5 px-4 bg-gradient-to-r from-purple-600 to-indigo-600 hover:brightness-110 active:scale-[0.98] font-black rounded-xl text-xs xl:text-sm uppercase tracking-wider text-white transition-all cursor-pointer shadow-lg shadow-purple-900/20 text-center truncate"
+            >
+              ⚔️ Encontrar Partida (PvP)
+            </button>
+            <button 
+              onClick={() => navigate("/treino-ia")}
+              className="w-full sm:w-1/2 py-4 xl:py-5 px-4 bg-zinc-800 hover:bg-zinc-700 active:scale-[0.98] font-black rounded-xl text-xs xl:text-sm uppercase tracking-wider text-zinc-200 transition-all border border-zinc-700/50 cursor-pointer text-center truncate"
+            >
+              🤖 Treinar vs Bot
+            </button>
+          </div>
+
         </div>
 
-        {/* Comandos e Power-ups */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
-          {/* Comandos */}
-          <div className="bg-zinc-900/40 border border-zinc-800 p-5 rounded-2xl flex flex-col gap-3">
-            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Comandos</span>
-            <div className="flex flex-col gap-2 text-xs">
+        {/* COLUNA DA DIREITA (Ocupa 2 de 5 colunas) - Comandos e Power-ups empilhados */}
+        <div className="md:col-span-2 flex flex-col gap-4 xl:gap-6 w-full">
+          
+          {/* Painel de Comandos */}
+          <div className="bg-zinc-900/40 border border-zinc-800 p-5 xl:p-6 rounded-2xl flex flex-col gap-3 shadow-xl backdrop-blur-sm">
+            <span className="text-[10px] xl:text-xs font-black text-zinc-500 uppercase tracking-widest">Comandos de Combate</span>
+            <div className="flex flex-col gap-2.5 text-xs xl:text-sm">
               <div className="flex items-center gap-3">
-                <span className="w-16 shrink-0 text-center font-mono font-bold text-white bg-zinc-800 border border-zinc-700 rounded px-2 py-1">WASD</span>
-                <span className="text-zinc-400">Mover</span>
+                <span className="w-16 xl:w-20 shrink-0 text-center font-mono font-bold text-white bg-zinc-800 border border-zinc-700 rounded px-2 py-1">WASD</span>
+                <span className="text-zinc-400">Mover Soldado</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="w-16 shrink-0 text-center font-mono font-bold text-white bg-zinc-800 border border-zinc-700 rounded px-2 py-1">Clique</span>
-                <span className="text-zinc-400">Atirar</span>
+                <span className="w-16 xl:w-20 shrink-0 text-center font-mono font-bold text-white bg-zinc-800 border border-zinc-700 rounded px-2 py-1">Clique</span>
+                <span className="text-zinc-400">Disparar Arma</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="w-16 shrink-0 text-center font-mono font-bold text-white bg-zinc-800 border border-zinc-700 rounded px-2 py-1">Espaço</span>
+                <span className="w-16 xl:w-20 shrink-0 text-center font-mono font-bold text-white bg-zinc-800 border border-zinc-700 rounded px-2 py-1">Espaço</span>
                 <span className="text-zinc-400">Esquiva (dash)</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="w-16 shrink-0 text-center font-mono font-bold text-white bg-zinc-800 border border-zinc-700 rounded px-2 py-1">R</span>
-                <span className="text-zinc-400">Recarregar</span>
+                <span className="w-16 xl:w-20 shrink-0 text-center font-mono font-bold text-white bg-zinc-800 border border-zinc-700 rounded px-2 py-1">R</span>
+                <span className="text-zinc-400">Recarregar Cartucho</span>
               </div>
             </div>
           </div>
 
-          {/* Power-ups */}
-          <div className="bg-zinc-900/40 border border-zinc-800 p-5 rounded-2xl flex flex-col gap-3">
-            <span className="text-[10px] font-black text-zinc-500 uppercase tracking-widest">Power-ups</span>
-            <div className="flex flex-col gap-2 text-xs">
-              <div className="flex items-center gap-3">
-                <img src="/powerups/rapid_fire.png" alt="Tiro Rápido" className="w-6 h-6" style={{ imageRendering: "pixelated" }} />
-                <span className="text-zinc-400"><span className="text-white font-bold">Tiro Rápido</span> — recarga 2x mais veloz por 5s</span>
+          {/* Painel de Power-ups */}
+          <div className="bg-zinc-900/40 border border-zinc-800 p-5 xl:p-6 rounded-2xl flex flex-col gap-3 shadow-xl backdrop-blur-sm">
+            <span className="text-[10px] xl:text-xs font-black text-zinc-500 uppercase tracking-widest">Guia de Modificadores</span>
+            <div className="flex flex-col gap-3 text-xs xl:text-sm">
+              <div className="flex items-start gap-3">
+                <img src="/powerups/rapid_fire.png" alt="Tiro Rápido" className="w-5 h-5 xl:w-6 xl:h-6 object-contain mt-0.5" style={{ imageRendering: "pixelated" }} />
+                <span className="text-zinc-400 leading-tight">
+                  <span className="text-purple-300 font-bold">Tiro Rápido</span> — Cadência e recarga duas vezes mais rápidas por 5s.
+                </span>
               </div>
-              <div className="flex items-center gap-3">
-                <img src="/powerups/speed_boost.png" alt="Velocidade" className="w-6 h-6" style={{ imageRendering: "pixelated" }} />
-                <span className="text-zinc-400"><span className="text-white font-bold">Velocidade</span> — movimento 40% mais rápido por 5s</span>
+              <div className="flex items-start gap-3">
+                <img src="/powerups/speed_boost.png" alt="Velocidade" className="w-5 h-5 xl:w-6 xl:h-6 object-contain mt-0.5" style={{ imageRendering: "pixelated" }} />
+                <span className="text-zinc-400 leading-tight">
+                  <span className="text-purple-300 font-bold">Velocidade</span> — Velocidade de movimento ampliada em 40% por 5s.
+                </span>
               </div>
-              <div className="flex items-center gap-3">
-                <img src="/powerups/shield.png" alt="Escudo" className="w-6 h-6" style={{ imageRendering: "pixelated" }} />
-                <span className="text-zinc-400"><span className="text-white font-bold">Escudo</span> — bloqueia o próximo golpe recebido</span>
+              <div className="flex items-start gap-3">
+                <img src="/powerups/shield.png" alt="Escudo" className="w-5 h-5 xl:w-6 xl:h-6 object-contain mt-0.5" style={{ imageRendering: "pixelated" }} />
+                <span className="text-zinc-400 leading-tight">
+                  <span className="text-purple-300 font-bold">Campo de Força</span> — Escudo protetor que absorve o próximo projétil.
+                </span>
               </div>
             </div>
           </div>
