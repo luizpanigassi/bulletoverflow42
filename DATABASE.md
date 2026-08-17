@@ -54,12 +54,18 @@ onde `tsx watch` reinicia o processo a cada mudança de arquivo.
 
 | Model | Campos principais | Papel |
 |---|---|---|
-| `User` | `id`, `username`, `email` (únicos), `passwordHash` (nulo se só login via 42), `avatarUrl`, `fortyTwoId` (único, nulo se nunca logou via OAuth), `rankingPoints` (default 0) | Conta do jogador — cobre login local (email+senha) e OAuth 42 no mesmo model. |
+| `User` | `id`, `username`, `email` (únicos), `passwordHash` (nulo se só login via 42), `avatarUrl`, `fortyTwoId` (único, nulo se nunca logou via OAuth), `rankingPoints` (default 0), `twoFactorEnabled` (default false, liga/desliga 2FA por conta), `twoFactorCode`/`twoFactorCodeExpiresAt`, `lastSeenAt` (heartbeat de status online) | Conta do jogador — cobre login local (email+senha) e OAuth 42 no mesmo model. |
 | `Friendship` | `requesterId`, `addresseeId`, `status` (`PENDING`/`ACCEPTED`/`BLOCKED`), único por par | Relação de amizade entre dois `User`. |
 | `Match` | `arenaId` (enum `arena_01`/`arena_02`/`arena_03`), `player1Id`/`player2Id`/`winnerId`, `player1Score`/`player2Score`, `startedAt`/`endedAt` | Histórico de partida. |
 
-Migrations ficam em `server/prisma/migrations/` (uma até agora:
-`20260720121009_init`, que cria as 3 tabelas acima). Comandos relevantes
+Migrations ficam em `server/prisma/migrations/`:
+
+- `20260720121009_init` — cria as 3 tabelas acima.
+- `20260806003953_add_two_factor_auth` — adiciona `twoFactorCode`/`twoFactorCodeExpiresAt`.
+- `20260806032445_add_last_seen_at` — adiciona `lastSeenAt` (status online via heartbeat).
+- `20260814050000_add_two_factor_enabled` — adiciona `twoFactorEnabled` (2FA vira configuração por conta, não checkbox por login).
+
+Comandos relevantes
 (`server/package.json`):
 
 ```
@@ -108,6 +114,6 @@ entra em cena em três pontos:
    | `PATCH /users/:id/friends/:friendshipId` | `friendship.findUnique({ where: { id: friendshipId } })` pra validar dono, depois `friendship.update({ data: { status } })` | só o `addressee` pode aceitar/recusar (`status: ACCEPTED`/`BLOCKED`) |
    | `DELETE /users/:id/friends/:friendshipId` | `friendship.findUnique(...)` pra validar dono, depois `friendship.delete({ where: { id: friendshipId } })` | requester ou addressee podem remover |
 
-3. **Leaderboard** — `GET /leaderboard` faz
+3. **Leaderboard** — `GET /leaderboard-data` faz
    `prisma.user.findMany({ orderBy: { rankingPoints: "desc" }, take: 50, select: { id, username, avatarUrl, rankingPoints } })`,
    sem paginação além do `take: 50`.

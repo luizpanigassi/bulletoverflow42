@@ -23,7 +23,7 @@ contas que só logam via OAuth 42, quando esse fluxo existir).
 ## Sessão via JWT (`server/src/auth/jwt.ts`)
 
 - `signSession(userId)` — assina `{ sub: userId }` com `JWT_SECRET`
-  (`server/.env`), validade de 7 dias.
+  (`server/.env`), validade de 1 dia.
 - `verifySession(token)` — valida o token; retorna `{ userId }` ou `null`
   se inválido/expirado.
 
@@ -35,7 +35,10 @@ Não há refresh token nem revogação — expira e pronto, precisa logar de nov
 |---|---|
 | `GET /auth/health` | health check |
 | `POST /auth/signup` | valida `username`/`email`/`password` (mín. 8 caracteres), hasheia a senha, cria o `User`, retorna `{ token, user }` |
-| `POST /auth/login` | busca `User` por `email`, verifica hash, retorna `{ token, user }` no mesmo formato do signup |
+| `POST /auth/login` | busca `User` por `email`, verifica hash. Se a conta tem `twoFactorEnabled`, gera e envia o código por email e retorna `{ requires2fa: true, userId }` em vez do token (ver `TWO_FACTOR_AUTH.md`); senão retorna `{ token, user }` direto |
+| `POST /auth/login/verify-2fa` | confirma o código de 6 dígitos enviado por email, retorna `{ token, user }` |
+| `GET /auth/42` | redireciona pro fluxo de autorização OAuth da Intra 42 |
+| `GET /auth/42/callback` | recebe o `code`, troca por perfil, faz upsert do `User` por `fortyTwoId`, redireciona pro frontend com o token na URL |
 
 `user` no retorno nunca inclui `passwordHash` — só campos públicos (`id`,
 `username`, `email`, `avatarUrl`, `rankingPoints`, `createdAt`).
@@ -57,8 +60,10 @@ export async function requireAuth(request, reply) {
 }
 ```
 
-Hoje só está aplicado em `PATCH /users/:id`
-(`{ preHandler: requireAuth }`), com checagem de dono:
+Aplicado em `PATCH /users/:id`, `POST /users/:id/avatar`,
+`POST /users/:id/heartbeat`, `PATCH /users/:id/friends/:friendshipId` e
+`DELETE /users/:id/friends/:friendshipId` — todos com a mesma checagem de
+dono:
 
 ```ts
 if (getAuthUserId(request) !== id) {
@@ -67,8 +72,9 @@ if (getAuthUserId(request) !== id) {
 }
 ```
 
-Resto das rotas de `users.routes.ts` (`GET /users/:id`, friends) continua
-público — não exigem token ainda.
+`GET /users/:id`, `GET /users/:id/friends`, `GET /users/:id/friends/pending`
+e `POST /users/:id/friends` (enviar pedido) continuam públicos — não exigem
+token.
 
 ## Matchmaking (`server/src/matchmaking/matchmaking.routes.ts`)
 
@@ -116,13 +122,12 @@ continua funcionando do jeito que sempre funcionou.
 
 ## O que ainda falta
 
-- **OAuth 42** (`GET /auth/42` + callback) — não implementado. Requisito
-  obrigatório do subject é só email+senha, então isso é opcional.
-- **2FA por email** — implementado (checkbox no login, código numérico
-  enviado por email via nodemailer). Ver `TWO_FACTOR_AUTH.md`.
-- Rotas de amigos (`GET/POST/PATCH/DELETE /users/:id/friends`) e
-  `GET /users/:id` continuam **sem** exigir token — qualquer um pode ler
-  perfil/amigos de qualquer `id`.
-- Sem refresh token — expira em 7 dias e força novo login, sem aviso
+- **2FA por email** — implementado como configuração por conta
+  (`User.twoFactorEnabled`, ligado/desligado no perfil), não mais um
+  checkbox por tentativa de login. Ver `TWO_FACTOR_AUTH.md`.
+- `GET /users/:id`, `GET /users/:id/friends`, `GET /users/:id/friends/pending`
+  e `POST /users/:id/friends` continuam **sem** exigir token — qualquer um
+  pode ler perfil/amigos de qualquer `id` ou mandar pedido de amizade em nome
+  de outra conta.
+- Sem refresh token — expira em 1 dia e força novo login, sem aviso
   prévio no frontend.
-- Frontend não tem UI pra adicionar amigo (a rota existe, só falta a tela).

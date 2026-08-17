@@ -5,11 +5,13 @@ resto da autenticação (hash de senha, JWT, proteção de rota), ver `AUTH.md`.
 
 ## Fluxo
 
-O 2FA é **opcional por tentativa de login**, não uma configuração fixa da
-conta — o usuário decide na hora, marcando uma checkbox na tela de login.
+O 2FA é uma **configuração da conta** (`User.twoFactorEnabled`, ligada ou
+desligada no perfil), não mais uma checkbox marcada a cada tentativa de
+login — se a conta tem 2FA ativado, todo login passa pelo código por email,
+sem exceção.
 
-1. `POST /auth/login` com `{ email, password, use2fa: true }`.
-2. Servidor verifica email+senha normalmente. Se bater:
+1. `POST /auth/login` com `{ email, password }`.
+2. Servidor verifica email+senha normalmente. Se bater **e** `user.twoFactorEnabled` for `true`:
    - gera um código numérico de 6 dígitos (`generateTwoFactorCode`,
      `server/src/auth/two-factor.ts`);
    - salva em `User.twoFactorCode` + `twoFactorCodeExpiresAt` (10 minutos
@@ -25,20 +27,29 @@ conta — o usuário decide na hora, marcando uma checkbox na tela de login.
      reutilizável) e emite o JWT normal (`signSession`), retornando
      `{ token, user }` no mesmo formato do login direto.
 
-Login sem marcar a checkbox (`use2fa` ausente/`false`) continua exatamente
-como antes — token direto, sem esse passo extra.
+Contas com `twoFactorEnabled: false` (padrão) fazem login direto, sem esse
+passo extra.
+
+### Ligando/desligando o 2FA (`PATCH /users/:id`)
+
+`ProfilePage.tsx` expõe um toggle que chama
+`PATCH /users/:id` com `{ twoFactorEnabled: boolean }` (rota protegida por
+`requireAuth`, só o dono da conta pode mudar a própria configuração).
 
 ## Schema
 
 ```prisma
 model User {
   // ...
+  twoFactorEnabled       Boolean  @default(false)
   twoFactorCode          String?
   twoFactorCodeExpiresAt DateTime?
 }
 ```
 
-Migration: `server/prisma/migrations/20260806003953_add_two_factor_auth`.
+Migrations: `server/prisma/migrations/20260806003953_add_two_factor_auth`
+(código/expiração) e `20260814050000_add_two_factor_enabled` (o toggle por
+conta).
 
 ## Envio de email (SMTP)
 
@@ -88,13 +99,14 @@ pro container automaticamente, sem precisar listar em `environment:`.
 **Lembrar de rebuildar** (`--build`) depois de editar código do backend —
 só reiniciar o container reusa a imagem antiga.
 
-## Frontend (`LoginPage.tsx`)
+## Frontend
 
-- Checkbox "Pedir código por email (2FA)" — só aparece na aba **Entrar**
-  (não faz sentido no cadastro).
-- Se o login retornar `requires2fa`, a tela troca pra um campo de código
-  de 6 dígitos + botão "Confirmar código" (chama `verify-2fa`) e um
-  "Voltar" (cancela, volta pro formulário normal).
+- `ProfilePage.tsx` — toggle "Autenticação em 2 fatores (2FA)" que liga/desliga
+  a conta via `PATCH /users/:id`.
+- `LoginPage.tsx` — não decide mais nada sobre 2FA; se o login retornar
+  `requires2fa` (porque a conta tem o toggle ligado), a tela troca pra um
+  campo de código de 6 dígitos + botão "Confirmar código" (chama
+  `verify-2fa`) e um "Voltar" (cancela, volta pro formulário normal).
 
 ## O que falta / limitações
 

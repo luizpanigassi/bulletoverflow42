@@ -2,13 +2,13 @@
 
 ## 1) Fluxo Web (OAuth) -> Godot HTML
 
-Objetivo: manter o login e OAuth no site e apenas entregar a sessao para o jogo.
+Objetivo: manter o login e OAuth no site e apenas entregar a sessao para o jogo. Implementado (login local + OAuth 42, ver `AUTH.md` na raiz do repo).
 
-### Fluxo recomendado
-1. Usuario acessa a pagina web.
-2. Frontend inicia OAuth e recebe token do backend.
-3. Backend cria/retorna `match_id` e dados basicos da sessao.
-4. Frontend embute o jogo HTML e injeta parametros de sessao no Godot.
+### Fluxo real
+1. Usuario acessa a pagina web e loga (email/senha ou OAuth 42).
+2. Frontend guarda o token de sessao e entra no matchmaking (ou modo treino).
+3. Backend forma o par e retorna `match_id` e dados basicos da sessao via WebSocket (`match_found`).
+4. Frontend embute o jogo HTML (`GodotCanvas.tsx`) e injeta os parametros de sessao no Godot via `window.initGameSession(...)`.
 
 ### Como passar dados para o Godot
 Opcoes simples e estaveis:
