@@ -8,8 +8,8 @@ modelo de autoridade diferente do que foi implementado).
 - **TypeScript + Node.js + Fastify 5**, com `@fastify/websocket` (protocolo de
   jogo) e `@fastify/static` (serve o build web do client).
 - **PostgreSQL + Prisma** para usuários, amigos, histórico de partidas e
-  ranking (`server/prisma/schema.prisma`) — auth e persistência ainda são
-  stub, só a leaderboard já lê do banco de verdade.
+  ranking (`server/prisma/schema.prisma`) — auth, amigos, desafios e
+  persistência de partida já leem/escrevem no banco de verdade.
 - Tick de referência: **60Hz**, igual ao `_physics_process` do client — mas o
   servidor não roda um loop de simulação próprio, é orientado a evento (ver
   Modelo de autoridade).
@@ -17,15 +17,22 @@ modelo de autoridade diferente do que foi implementado).
 ## Estrutura (`server/src/`)
 
 ```
-main.ts                          entry point: registra rotas, sobe o Fastify
+main.ts                          entry point: registra rotas, CORS, sobe o Fastify
 env.ts                           variáveis de ambiente centralizadas
 database/prisma.ts               instância única do Prisma Client
-auth/auth.routes.ts              OAuth 42, login/senha (stub)
-users/users.routes.ts            perfil, amigos (stub)
-leaderboard/leaderboard.routes.ts  GET /leaderboard (funcional, lê do Postgres)
+auth/auth.routes.ts              signup/login, 2FA, OAuth 42
+auth/jwt.ts                      assina/valida o JWT de sessão (1 dia)
+auth/password.ts                 hash/verificação de senha (scrypt)
+auth/two-factor.ts               geração de código 2FA + envio por email (nodemailer)
+auth/oauth-fortytwo.ts           troca de code por perfil na API da 42
+auth/require-auth.ts             preHandler que valida o JWT nas rotas protegidas
+users/users.routes.ts            perfil, avatar, heartbeat, amigos
+leaderboard/leaderboard.routes.ts  GET /leaderboard-data (lê do Postgres)
 matchmaking/queue.ts             fila FIFO de matchmaking
 matchmaking/matchmaking.routes.ts  WS /matchmaking/queue — forma o par e cria a Match
+matchmaking/challenges.routes.ts  desafio direto entre amigos (pula a fila)
 matches/match-manager.ts         classe Match (estado de uma partida) + MatchManager
+matches/persist-match-result.ts  grava o resultado da partida e atualiza ranking
 game/powerup-authority.ts        timing + tipo + posição do powerup, loop de spawn
 websocket/websocket.plugin.ts    WS /matches/:matchId — conecta e roteia mensagens de gameplay
 ```
@@ -67,9 +74,9 @@ outro lugar.
 
 | Model | Campos principais | Papel |
 |---|---|---|
-| `User` | `id`, `username`, `email` (únicos), `passwordHash` (nulo se só login via 42), `avatarUrl`, `fortyTwoId` (único, nulo se nunca logou via OAuth), `rankingPoints` (default 0) | Conta do jogador — cobre tanto login local (email+senha) quanto OAuth 42, no mesmo model. |
+| `User` | `id`, `username`, `email` (únicos), `passwordHash` (nulo se só login via 42), `avatarUrl`, `fortyTwoId` (único, nulo se nunca logou via OAuth), `rankingPoints` (default 0), `twoFactorEnabled`, `lastSeenAt` | Conta do jogador — cobre tanto login local (email+senha) quanto OAuth 42, no mesmo model. |
 | `Friendship` | `requesterId`, `addresseeId`, `status` (`PENDING`/`ACCEPTED`/`BLOCKED`), único por par | Relação de amizade entre dois `User`. |
-| `Match` | `arenaId` (enum `arena_01`/`arena_02`/`arena_03`), `player1Id`/`player2Id`/`winnerId`, `player1Score`/`player2Score`, `startedAt`/`endedAt` | Histórico de partida — **schema já existe, mas nada grava aqui ainda** (ver "O que ainda é stub"). |
+| `Match` | `arenaId` (enum `arena_01`/`arena_02`/`arena_03`), `player1Id`/`player2Id`/`winnerId`, `player1Score`/`player2Score`, `startedAt`/`endedAt` | Histórico de partida — grava ao fim de cada partida real (`persist-match-result.ts`). |
 
 Comandos (`server/package.json`):
 
@@ -87,75 +94,62 @@ assumir que o client está gerado.
 
 ### O que já usa o banco de verdade hoje
 
-Só `GET /leaderboard` (`leaderboard.routes.ts`) — busca os top 50 `User` por
-`rankingPoints` via `prisma.user.findMany(...)`. Todo o resto (`auth`,
-`users`, e o fluxo de partida/matchmaking) ainda não lê nem escreve no
-Postgres — ver seção de Autenticação e "O que ainda é stub" abaixo.
+Praticamente tudo: `auth` (signup/login/2FA/OAuth), `users` (perfil, avatar,
+amigos), `leaderboard-data` (top 50) e o fim de cada partida real
+(`persist-match-result.ts`, ver acima). O único ponto que ainda aceita dado
+não autenticado é o matchmaking sem token (ver "Como isso se conecta ao
+gameplay" abaixo).
 
 ## Autenticação e Autorização
 
-Hoje **não existe autenticação real** — `auth.routes.ts` e `users.routes.ts`
-só expõem health checks (`GET /auth/health`, `GET /users/health`), e todo o
-resto do backend (matchmaking, partida) aceita qualquer `userId` que o client
-mandar, sem validar nada. Esta seção documenta o **design pretendido** e o
-que já existe em `env.ts` pra suportá-lo.
+Auth real implementada — ver `AUTH.md` pro detalhamento completo de rotas,
+hashing e proteção de rota. Resumo:
 
 ### Requisito do subject (`subject.txt`)
 
 - Baseline obrigatório: signup/login com email+senha, senha **hasheada e
-  salteada** (`subject.txt` linhas 239-242).
-- Módulo opcional que o time decidiu adotar: **OAuth 2.0 via 42** (login
-  remoto).
+  salteada** — implementado via `scrypt` + salt (`auth/password.ts`).
+- Módulo opcional adotado: **OAuth 2.0 via 42** — implementado
+  (`GET /auth/42` + `/auth/42/callback`, `auth/oauth-fortytwo.ts`).
 - Requisito técnico geral do subject: backend deve servir tudo via **HTTPS**
-  — em dev local isso não é feito (HTTP puro em `127.0.0.1`), fica a cargo do
-  reverse proxy (Nginx) em ambiente real.
+  — em dev local isso não é feito (HTTP puro em `127.0.0.1`), quem termina
+  TLS é o proxy reverso Nginx/WAF (`docker/nginx/`), tanto local
+  (certificado autoassinado) quanto na VM (Let's Encrypt).
 
-### Variáveis já reservadas em `env.ts` / `.env.example`
-
-```ts
-jwtSecret: process.env.JWT_SECRET ?? "change-me",
-fortyTwo: {
-  clientId: process.env.FORTYTWO_CLIENT_ID ?? "",
-  clientSecret: process.env.FORTYTWO_CLIENT_SECRET ?? "",
-  callbackUrl: process.env.FORTYTWO_CALLBACK_URL ?? "",
-},
-```
-
-Ou seja: a infraestrutura de configuração pra JWT e OAuth 42 já existe, só a
-lógica que consome essas variáveis ainda não foi escrita.
-
-### Fluxo de login local (email + senha) — planejado, não implementado
+### Login local (email + senha)
 
 1. `POST /auth/signup` — recebe `email`/`username`/`password`, gera o hash
-   (candidatos: `argon2` ou `bcrypt` — nenhum ainda é dependência do
-   projeto) e grava em `User.passwordHash`.
-2. `POST /auth/login` — verifica o hash, e se bater, emite um JWT assinado
-   com `JWT_SECRET`.
-3. Rotas protegidas usariam um `preHandler` do Fastify que valida esse JWT
-   (via cookie httpOnly ou header `Authorization: Bearer`) antes de deixar a
+   via `scrypt` (`auth/password.ts`) e grava em `User.passwordHash`.
+2. `POST /auth/login` — verifica o hash; se a conta tiver `twoFactorEnabled`,
+   dispara o fluxo de código por email antes de emitir o JWT (ver
+   `TWO_FACTOR_AUTH.md`); senão emite o JWT direto (`signSession`,
+   `JWT_SECRET`, validade de 1 dia).
+3. Rotas protegidas usam o preHandler `requireAuth` (`auth/require-auth.ts`),
+   que valida o JWT via header `Authorization: Bearer` antes de deixar a
    rota executar.
 
-### Fluxo OAuth 42 — planejado, não implementado
+### OAuth 42
 
 1. `GET /auth/42` — redireciona pro endpoint de autorização da API da 42,
    usando `FORTYTWO_CLIENT_ID` + `FORTYTWO_CALLBACK_URL`.
 2. `GET /auth/42/callback` — recebe o `code`, troca por um access token
    (`FORTYTWO_CLIENT_SECRET`), busca o perfil do usuário na API da 42, e faz
    um `upsert` de `User` por `fortyTwoId` (criando a conta na primeira vez,
-   sem exigir senha — por isso `passwordHash` é nulável no schema).
+   sem exigir senha — por isso `passwordHash` é nulável no schema), e
+   redireciona pro frontend com o token e os dados da sessão na URL.
 3. Emite o mesmo tipo de JWT de sessão que o login local, pra unificar o
    restante do backend (rotas protegidas não precisam saber se o login foi
    local ou via 42).
 
 ### Como isso se conecta ao gameplay (matchmaking/partida)
 
-Hoje o `userId` usado em `/matchmaking/queue?userId=...` é **só uma string
-que o client decide** (ou um `guest-<uuid>` se não mandar nada) — não passa
-por nenhuma verificação de sessão. Quando a autenticação acima existir, o
-caminho natural é: o client manda o JWT de sessão (query param ou header no
-upgrade do WebSocket), e o servidor valida esse token *antes* de enfileirar o
-jogador, usando o `id` do `User` autenticado como `userId` real (em vez de
-confiar no que o client afirma).
+`/matchmaking/queue` aceita um `token` opcional além do `userId`/`characterId`
+de antes: **com token válido**, o servidor resolve o `userId` real da sessão
+via `verifySession` e ignora qualquer `userId` que o client tenha mandado;
+**sem token**, mantém o fluxo antigo (`userId` livre ou `guest-<uuid>` — login
+não é obrigatório pra jogar). Isso é o que faz o resultado da partida gravar
+no `User` de verdade em vez de sempre criar um guest — ver
+`persist-match-result.ts` acima e `AUTH.md`.
 
 ## Modelo de autoridade
 
@@ -198,9 +192,14 @@ lógica extra pra resetar o estado a cada round.
 | Rota | Descrição |
 |---|---|
 | `GET /` | Health check simples (`{status: "ok"}`). |
-| `GET /auth/health`, `GET /users/health` | Health check dos módulos stub. |
-| `GET /leaderboard` | Top 50 por `rankingPoints`, direto do Postgres via Prisma. |
-| `GET /play/*` | Serve o build web do client (`build/web/`) — protótipo, só pra testar 2 abas em localhost sem depender de páginas reais. Aplica headers `Cross-Origin-Opener-Policy`/`Cross-Origin-Embedder-Policy` (exigidos pelo export Web do Godot 4.4). |
+| `GET /auth/health`, `GET /users/health` | Health check dos módulos. |
+| `POST /auth/signup`, `POST /auth/login`, `POST /auth/login/verify-2fa`, `GET /auth/42`, `GET /auth/42/callback` | Ver `AUTH.md`. |
+| `GET /users/:id`, `PATCH /users/:id`, `POST /users/:id/avatar`, `POST /users/:id/heartbeat` | Perfil, edição, avatar, status online. |
+| `GET /users/:id/friends`, `GET /users/:id/friends/pending`, `POST/PATCH/DELETE /users/:id/friends[/:friendshipId]` | Sistema de amigos. |
+| `GET/POST/PATCH/DELETE` em `matchmaking/challenges.routes.ts` | Desafio direto a um amigo (pula a fila). |
+| `GET /leaderboard-data` | Top 50 por `rankingPoints`, direto do Postgres via Prisma. |
+| `GET /avatars/*` | Serve os avatares enviados por upload. |
+| `GET /play/*` | Serve o build web do client (`build/web/`). Aplica headers `Cross-Origin-Opener-Policy`/`Cross-Origin-Embedder-Policy` (exigidos pelo export Web do Godot 4.4). |
 
 ## WebSocket — Matchmaking (`GET /matchmaking/queue`)
 
@@ -308,19 +307,18 @@ não bloqueia hits reais.
 8. Se placar chegou a 5: servidor também emite `match_end` com o placar final
    e o slot vencedor.
 
-## O que ainda é stub / não implementado
+## O que ainda não implementado / limitações conhecidas
 
-- **Auth real** — `POST`/`GET` de login, OAuth 42, hash de senha, sessão/JWT
-  (ver seção "Autenticação e Autorização" acima pro design pretendido). Hoje
-  `userId` do matchmaking é só o que o client mandar (ou um guest gerado),
-  sem validação nenhuma.
 - **Anti-cheat de `player_hit`** — aceito sem checar alcance/cooldown/linha de
   visão (decisão consciente do time, documentada na tabela de autoridade).
-- **Persistência de partida** — `prisma/schema.prisma` já tem o modelo
-  `Match` (arena, placar, vencedor), mas nada grava lá ainda ao terminar uma
-  partida real.
+- **Matchmaking sem token** — jogar sem estar logado ainda é permitido
+  (`userId` livre ou `guest-<uuid>`); só quem manda `token` tem o resultado
+  gravado no `User` de verdade.
 - **Fila de matchmaking sem cancelamento explícito** — só sai da fila ao
   desconectar o socket.
+- **Rotas de leitura pública** — `GET /users/:id`, `GET /users/:id/friends`,
+  `GET /users/:id/friends/pending` e `POST /users/:id/friends` (enviar
+  pedido) não exigem token (ver `AUTH.md`).
 - **Reconexão sem suporte no servidor** — o client já tem toda a lógica pra
   reconectar (tela de "oponente desconectado", contagem de 60s, botão de W.O.,
   `request_state_sync`/`state_sync` pra sincronizar placar e posição), mas o

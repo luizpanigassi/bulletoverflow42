@@ -47,7 +47,7 @@ O frontend está totalmente preparado para se integrar às rotas do módulo de a
 - **Login/Cadastro Alternável**: A tela `LoginPage.tsx` centraliza os dois fluxos através de abas interativas (*Tabs*).
 - **Conformidade Legal**: No fluxo de cadastro, torna-se obrigatório o aceite do Checkbox de Termos e Privacidade. Os textos oficiais foram isolados em subcomponentes reutilizáveis (`TermsModal` e `PrivacyModal`) e rodam sobrepostos em tela por meio de um efeito desfocado (*backdrop blur*), sem desviar o usuário da página.
 - **Formulário Seguro**: Utiliza a API moderna do React 19 (`React.SyntheticEvent`) para gerenciar o envio seguro de formulários. Ele extrai a primeira parte do e-mail antes do `@` para gerar o Nickname temporário do soldado e salvar no `localStorage`.
-- **OAuth 42**: Botão visual pré-configurado e pronto na interface para disparar o redirecionamento ao endpoint `GET /auth/42` assim que o backend implementar a integração com a API da Intra 42.
+- **OAuth 42**: Botão que dispara o redirecionamento ao endpoint `GET /auth/42`, já integrado com a API da Intra 42 no backend — o callback (`/auth/42/callback`) devolve o token direto na URL de retorno do `/login`.
 
 ### 3. Painel de Perfil (`ProfilePage`)
 - Exibe os dados do usuário autenticado coletados de forma segura do navegador.
@@ -68,7 +68,7 @@ O Menu Principal (`Menu.tsx`) atua como uma central de seleção de modos, desac
 ## 🚀 Fluxos de Integração Existentes
 
 ### 1. Comunicação HTTP (Para o Desenvolvedor Backend)
-- **Leaderboard (`GET /leaderboard`)**: Consome a rota real do Fastify. Possui tratamento nativo para estados de *Loading* (espera do banco de verdade) e *Error boundaries* visuais com cores customizadas para o pódio (1º, 2º e 3º lugares) caso a central do servidor local caia ou esteja offline.
+- **Leaderboard (`GET /leaderboard-data`)**: Consome a rota real do Fastify (nome separado da rota `/leaderboard` da própria SPA, pra não colidir no proxy do nginx). Possui tratamento nativo para estados de *Loading* (espera do banco de verdade) e *Error boundaries* visuais com cores customizadas para o pódio (1º, 2º e 3º lugares) caso a central do servidor local caia ou esteja offline.
 
 ### 2. Fluxo de Fila via WebSocket (Para o Desenvolvedor Backend)
 - A tela `MatchmakingPage` abre uma conexão estável em `ws://127.0.0.1:3000/matchmaking/queue?userId=...` injetando o apelido tratado do jogador vindo diretamente do seu perfil logado (sem espaços).
