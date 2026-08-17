@@ -18,7 +18,7 @@ export function LeaderboardPage() {
 
   useEffect(() => {
     // Faz a chamada HTTP na rota real do Fastify
-    fetch(`${API_HTTP_BASE}/leaderboard`)
+    fetch(`${API_HTTP_BASE}/leaderboard-data`)
       .then((res) => {
         if (!res.ok) throw new Error("Erro na requisição");
         return res.json();
