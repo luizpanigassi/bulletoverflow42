@@ -6,7 +6,7 @@ import { prisma } from "../database/prisma.js";
  * Vencedor: +3 pontos de ranking. Perdedor: -1 ponto (ver backend_contract.md).
  */
 export async function registerLeaderboardRoutes(app: FastifyInstance) {
-  app.get("/leaderboard", async () => {
+  app.get("/leaderboard-data", async () => {
     const topPlayers = await prisma.user.findMany({
       orderBy: { rankingPoints: "desc" },
       take: 50,
