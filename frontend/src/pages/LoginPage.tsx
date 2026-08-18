@@ -84,6 +84,36 @@ export function LoginPage() {
     }
   };
 
+  // NOVO: Função para o Login Único por e-mail sugerido pelo Thiago
+  const handleMagicLoginSubmit = async (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    if (!email) return alert("Preencha o campo de e-mail para solicitar o código!");
+
+    setSubmitting(true);
+    try {
+      // Bate na rota nova que o Thiago vai criar
+      const res = await fetch(`${API_HTTP_BASE}/auth/magic-login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        return alert(data.error || "Falha ao solicitar código único.");
+      }
+
+      // Ativa a mesma tela de 6 dígitos que já existe
+      setPending2fa({ userId: data.userId });
+
+    } catch {
+      alert("Não foi possível conectar ao servidor.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const handleVerify2fa = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     if (!pending2fa || !code) return alert("Digite o código recebido por email.");
@@ -260,6 +290,26 @@ export function LoginPage() {
             >
               <span>🌐</span> Entrar via Intra 42
             </button>
+
+            {/* Botão de Login Único sem Senha inserido respeitando as chaves */}
+            {!isRegister && (
+              <>
+                <div className="flex items-center my-1">
+                  <div className="flex-1 h-px bg-zinc-800" />
+                  {/* <span className="px-3 text-[10px] text-zinc-600 font-bold uppercase tracking-widest"></span> */}
+                  <div className="flex-1 h-px bg-zinc-800" />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleMagicLoginSubmit}
+                  disabled={submitting}
+                  className="w-full py-3 text-xs font-black tracking-widest text-purple-400 uppercase bg-purple-950/20 border border-purple-900/30 hover:bg-purple-950/40 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2 active:scale-95 shadow-lg shadow-purple-950/10"
+                >
+                  <span>🔑</span> Login Único por E-mail
+                </button>
+              </>
+            )}
+
           </>
         )}
 
