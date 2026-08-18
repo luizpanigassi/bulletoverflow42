@@ -10,6 +10,8 @@ import { ChooseUsernamePage } from "./pages/ChooseUsernamePage";
 import { Footer } from "./components/Footer";
 import { API_HTTP_BASE } from "./config/api";
 import { NotFoundPage } from "./pages/NotFoundPage";
+import { ChatPage } from "./pages/ChatPage";
+
 
 const HEARTBEAT_INTERVAL_MS = 20_000;
 
@@ -84,6 +86,10 @@ export default function App() {
             <Route path="/perfil" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
             <Route path="/treino-ia" element={<ProtectedRoute><AiTrainingPage /></ProtectedRoute>} />
             <Route path="/escolher-username" element={<ProtectedRoute><ChooseUsernamePage /></ProtectedRoute>} />
+
+             {/* NOVO: Rota do Chat com barreira de segurança JWT */}
+            <Route path="/chat" element={<ChatPage />} />
+            {/* <Route path="/chat" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} /> */}
 
             {/* CORREÇÃO GLOBAL: Captura qualquer rota inválida e joga para a 404 */}
             <Route path="*" element={<NotFoundPage />} />
