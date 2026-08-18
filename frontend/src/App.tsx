@@ -58,6 +58,9 @@ export default function App() {
             <Link to="/jogar" className="text-xs font-bold text-zinc-400 hover:text-white transition-colors uppercase tracking-wider">
               Jogar
             </Link>
+            <Link to="/chat" className="text-xs font-bold text-zinc-400 hover:text-white transition-colors uppercase tracking-wider">
+              Chat
+            </Link>
           </div>
 
           <div>

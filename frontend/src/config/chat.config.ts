@@ -6,6 +6,7 @@ export interface ChatMessage {
   timestamp: string;
   isMe: boolean;
   channel: "global" | "trade" | "dm";
+  target?: string | null;
 }
 
 export interface ActiveUser {
