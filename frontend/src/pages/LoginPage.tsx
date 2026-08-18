@@ -278,27 +278,23 @@ export function LoginPage() {
               </button>
             </form>
 
-            <div className="flex items-center my-1">
-              <div className="flex-1 h-px bg-zinc-800" />
-              <span className="px-3 text-xs text-zinc-600 font-bold uppercase tracking-widest">Ou</span>
-              <div className="flex-1 h-px bg-zinc-800" />
-            </div>
-
-            <button
-              onClick={() => { window.location.href = `${API_HTTP_BASE}/auth/42`; }}
-              className="w-full py-3 text-xs font-black tracking-widest text-zinc-300 uppercase bg-zinc-950 border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2"
-            >
-              <span>🌐</span> Entrar via Intra 42
-            </button>
 
             {/* Botão de Login Único sem Senha inserido respeitando as chaves */}
             {!isRegister && (
               <>
                 <div className="flex items-center my-1">
                   <div className="flex-1 h-px bg-zinc-800" />
-                  {/* <span className="px-3 text-[10px] text-zinc-600 font-bold uppercase tracking-widest"></span> */}
+                  <span className="px-3 text-xs text-zinc-600 font-bold uppercase tracking-widest">Ou</span>
                   <div className="flex-1 h-px bg-zinc-800" />
                 </div>
+
+                <button
+                  onClick={() => { window.location.href = `${API_HTTP_BASE}/auth/42`; }}
+                  className="w-full py-3 text-xs font-black tracking-widest text-zinc-300 uppercase bg-zinc-950 border border-zinc-800 hover:border-zinc-700 hover:bg-zinc-900 rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2"
+                >
+                  <span>🌐</span> Entrar via Intra 42
+                </button>
+
                 <button
                   type="button"
                   onClick={handleMagicLoginSubmit}
