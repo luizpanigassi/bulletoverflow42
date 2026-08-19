@@ -111,9 +111,10 @@ export function LeaderboardPage() {
                       position === 2 ? "text-zinc-300" : "text-amber-600";
 
                     return (
-                      <tr 
-                        key={player.id} 
-                        className="hover:bg-zinc-800/20 transition-colors group"
+                      <tr
+                        key={player.id}
+                        onClick={() => navigate(`/jogador/${player.username}`)}
+                        className="hover:bg-zinc-800/20 transition-colors group cursor-pointer"
                       >
                         {/* Posição */}
                         <td className={`py-4 px-4 text-center font-black ${isPodium ? podiumColors : "text-zinc-500"}`}>
