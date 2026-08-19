@@ -7,6 +7,7 @@ import { LoginPage } from "./pages/LoginPage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { AiTrainingPage } from "./pages/AiTrainingPage";
 import { ChooseUsernamePage } from "./pages/ChooseUsernamePage";
+import { PlayerProfilePage } from "./pages/PlayerProfilePage";
 import { Footer } from "./components/Footer";
 import { API_HTTP_BASE } from "./config/api";
 import { NotFoundPage } from "./pages/NotFoundPage";
@@ -77,6 +78,7 @@ export default function App() {
             {/* Rotas Públicas */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/leaderboard" element={<LeaderboardPage />} />
+            <Route path="/jogador/:username" element={<PlayerProfilePage />} />
 
             {/* Rotas Protegidas (Exigem Login prévio) */}
             <Route path="/" element={<ProtectedRoute><Menu /></ProtectedRoute>} />
